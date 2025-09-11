@@ -1,0 +1,25 @@
+#!/usr/bin/env php
+<?php
+declare(strict_types=1);
+// CLI entrypoint for AI Code Review Bot (PHP) using Symfony Console
+
+// Prefer Composer autoload
+$autoload = __DIR__ . '/../vendor/autoload.php';
+if (is_file($autoload)) {
+    require $autoload;
+} else {
+    fwrite(STDERR, "Composer autoloader not found. Please run 'composer install' at the project root.\n");
+    exit(1);
+}
+
+use AICR\Command\ReviewCommand;
+use Symfony\Component\Console\Application;
+
+$application = new Application('AI Code Review Bot', 'v0.1');
+
+// Single command mode with default command 'review'
+$command = new ReviewCommand();
+$application->add($command);
+$application->setDefaultCommand($command->getName() ?? 'review', true);
+
+exit($application->run());

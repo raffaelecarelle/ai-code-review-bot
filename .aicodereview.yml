@@ -1,0 +1,42 @@
+version: 1
+# When true and you pass --comment, the review command prints the comment instead of posting to GitHub/GitLab
+# When false or omitted, it will post via the configured adapter
+test: false
+providers:
+  # Use 'mock' by default for safe, deterministic runs (no network calls)
+  default: mock
+context:
+  diff_token_limit: 8000
+  overflow_strategy: trim
+  per_file_token_cap: 2000
+policy:
+  min_severity_to_comment: info
+  max_comments: 50
+  allow_suggested_fixes: true
+  redact_secrets: true
+rules:
+  include: []
+  inline:
+    - id: PHP.NO.ECHO
+      applies_to: ["**/*.php"]
+      severity: minor
+      rationale: Avoid direct echo in production code; use a logger with levels instead.
+      pattern: "(^|\s)echo\s"
+      suggestion: "Use a configurable logger or framework response API."
+      enabled: true
+vcs:
+  # Choose which platform to use when computing diffs via git and posting comments
+  # Allowed values: github | gitlab
+  platform: null
+  # GitHub: owner/repo (optional if GH_REPO env or remote origin is GitHub)
+  repo: null
+  # GitLab: numeric id or full path namespace/repo (optional if GL_PROJECT_ID env or remote origin is GitLab)
+  project_id: null
+  # GitLab only: override API base if you self-host (e.g., https://gitlab.example.com/api/v4)
+  api_base: null
+prompts:
+  # Optional: append additional instructions to the LLM prompts
+  # Accepts a string or a list of strings for system_append and user_append
+  system_append: null
+  user_append: []
+  extra: []

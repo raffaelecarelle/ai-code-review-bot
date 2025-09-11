@@ -1,0 +1,28 @@
+# Example config for GitHub PR reviews
+# Usage:
+#   php bin/aicr review --config examples/config.github.yml --id 123 --output summary --comment
+# When test: true below, the comment body is printed instead of posted to GitHub.
+version: 1
+test: true
+providers:
+  default: mock
+context:
+  diff_token_limit: 10000
+  per_file_token_cap: 5000
+  overflow_strategy: trim
+policy:
+  min_severity_to_comment: info
+  max_comments: 50
+  redact_secrets: true
+rules:
+  include: []
+  inline:
+    - { id: "PHP.NO.ECHO", applies_to: ["**/*.php"], severity: "minor", rationale: "Avoid echo", pattern: "(^|\\s)echo\\s", suggestion: "Use logger", enabled: true }
+vcs:
+  platform: github
+  # Set owner/repo or rely on GH_REPO env or git origin detection
+  repo: ${GH_REPO}
+prompts:
+  system_append: "Prefer concise, actionable findings."
+  user_append:
+    - "Highlight potential security issues."

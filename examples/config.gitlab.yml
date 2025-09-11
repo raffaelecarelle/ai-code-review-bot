@@ -1,0 +1,30 @@
+# Example config for GitLab MR reviews
+# Usage:
+#   php bin/aicr review --config examples/config.gitlab.yml --id 77 --output summary --comment
+# When test: true below, the comment body is printed instead of posted to GitLab.
+version: 1
+test: true
+providers:
+  default: mock
+context:
+  diff_token_limit: 10000
+  per_file_token_cap: 5000
+  overflow_strategy: trim
+policy:
+  min_severity_to_comment: info
+  max_comments: 50
+  redact_secrets: true
+rules:
+  include: []
+  inline:
+    - { id: "PHP.NO.ECHO", applies_to: ["**/*.php"], severity: "minor", rationale: "Avoid echo", pattern: "(^|\\s)echo\\s", suggestion: "Use logger", enabled: true }
+vcs:
+  platform: gitlab
+  # Set numeric id or full path (namespace/repo) or rely on GL_PROJECT_ID env or git origin detection
+  project_id: ${GL_PROJECT_ID}
+  # For self-hosted GitLab, you can override the API base:
+  api_base: ${GL_API_BASE}
+prompts:
+  system_append: "Prefer concise, actionable findings."
+  user_append:
+    - "Highlight potential performance issues."
