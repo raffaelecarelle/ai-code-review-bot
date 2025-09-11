@@ -1,6 +1,6 @@
 {
     "name": "raffaelecarelle/ai-code-review-bot",
-    "description": "Minimal, extensible AI code review tool (PHP)",
+    "description": "Minimal, extensible AI code review tool",
     "type": "project",
     "require": {
         "php": ">=8.1",
