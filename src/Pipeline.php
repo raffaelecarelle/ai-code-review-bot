@@ -19,7 +19,7 @@ final class Pipeline
     public const MSG_NO_FINDINGS = "No findings.\n";
 
     private Config $config;
-    private ?AIProvider $providerOverride = null;
+    private ?AIProvider $providerOverride;
 
     public function __construct(Config $config, ?AIProvider $providerOverride = null)
     {

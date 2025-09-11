@@ -70,7 +70,7 @@ final class Policy
     {
         $key = $f['file_path'].'|'.$f['start_line'].'|'.$f['end_line'].'|'.$f['rule_id'].'|'.$f['content'];
 
-        return sha1((string) $key);
+        return sha1($key);
     }
 
     /**
@@ -82,7 +82,7 @@ final class Policy
     {
         // Basic redaction for secrets-like substrings
         $content      = (string) $f['content'];
-        $content      = (string) preg_replace('#(?i)(password|secret|api[_-]?key)(\s*[:=]\s*)[^\'\"\s]{4,}#', '$1$2***', $content);
+        $content      = preg_replace('#(?i)(password|secret|api[_-]?key)(\s*[:=]\s*)[^\'\"\s]{4,}#', '$1$2***', $content);
         $f['content'] = $content;
 
         return $f;
