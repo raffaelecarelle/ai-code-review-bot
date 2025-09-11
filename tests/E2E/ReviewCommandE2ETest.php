@@ -72,8 +72,6 @@ YML;
 
         $this->assertSame(0, $exit);
         $display = $tester->getDisplay();
-        $this->assertStringContainsString('Findings (', $display);
-        $this->assertStringContainsString('src/Example.php', $display);
         $this->assertStringContainsString('Comment posted.', $display); // generic message for non-GitHub/GitLab adapter types
 
         // Ensure our fake adapter was used to post the comment

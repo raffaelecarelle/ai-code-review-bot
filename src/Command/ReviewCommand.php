@@ -72,9 +72,6 @@ final class ReviewCommand extends Command
             }
             $pipeline = new Pipeline($config);
 
-            $result = $pipeline->run($diffPath, $format);
-            $output->writeln($result);
-
             if ($doComment) {
                 $summary   = $pipeline->run($diffPath, Pipeline::OUTPUT_FORMAT_SUMMARY);
                 $adapter   = $this->buildAdapter($config);
@@ -96,6 +93,9 @@ final class ReviewCommand extends Command
                 } else {
                     $io->warning('Skipping comment: missing PR/MR --id.');
                 }
+            } else {
+                $result = $pipeline->run($diffPath, $format);
+                $output->writeln($result);
             }
 
             return Command::SUCCESS;

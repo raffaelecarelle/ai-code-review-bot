@@ -76,7 +76,7 @@ final class OpenAIProvider extends AbstractLLMProvider
             throw new \RuntimeException('OpenAIProvider error status: '.$status);
         }
         $data = json_decode((string) $resp->getBody(), true);
-        var_dump($data);
+
         if (!is_array($data)) {
             return [];
         }
