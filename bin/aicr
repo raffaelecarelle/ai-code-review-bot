@@ -3,7 +3,6 @@
 declare(strict_types=1);
 // CLI entrypoint for AI Code Review Bot (PHP) using Symfony Console
 
-// Prefer Composer autoload
 $autoload = __DIR__ . '/../vendor/autoload.php';
 if (is_file($autoload)) {
     require $autoload;
