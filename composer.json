@@ -1,7 +1,7 @@
 {
     "name": "raffaelecarelle/ai-code-review-bot",
     "description": "Minimal, extensible AI code review tool",
-    "type": "project",
+    "type": "library",
     "authors": [
         {
             "name": "Raffaele Carelle",
