@@ -1,3 +1,5 @@
+![logo.png](logo.png)
+
 # AI Code Review Bot
 
 Minimal, extensible AI-assisted code review tool for PHP projects.
