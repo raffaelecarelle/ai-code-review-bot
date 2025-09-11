@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace AICR;
 
+use Symfony\Component\Yaml\Yaml;
+
 final class RulesEngine
 {
     /** @var array<int, Rule> */
@@ -19,10 +21,113 @@ final class RulesEngine
 
         /** @var array<int, array{id:string, applies_to?:array<int,string>, severity:string, rationale:string, pattern:string, suggestion?:string, enabled?:bool}> $inline */
         foreach ($inline as $r) {
-            $engine->addRule(new Rule($r));
+            if (is_array($r)) {
+                $engine->addRule(new Rule($r));
+            }
         }
 
-        // Note: rules.include support could be added here (globs). Minimal version omits file IO include.
+        // Load external rule files from rules.include (supports glob patterns)
+        $includes = isset($rulesConfig['include']) ? $rulesConfig['include'] : [];
+        if (is_array($includes)) {
+            foreach ($includes as $pattern) {
+                if (!is_string($pattern) || '' === $pattern) {
+                    continue;
+                }
+                $files = glob($pattern, GLOB_BRACE) ?: [];
+                foreach ($files as $file) {
+                    if (!is_string($file) || !is_file($file) || !is_readable($file)) {
+                        continue;
+                    }
+                    $ext = strtolower((string) pathinfo($file, PATHINFO_EXTENSION));
+                    $raw = file_get_contents($file);
+                    if (false === $raw) {
+                        // Skip unreadable file
+                        continue;
+                    }
+
+                    $data      = null;
+                    $lastError = null;
+
+                    $tryParseYaml = static function (string $content) use (&$lastError) {
+                        try {
+                            $result = Yaml::parse($content);
+                            if (!is_array($result)) {
+                                throw new \RuntimeException('YAML rules file must parse to an array.');
+                            }
+
+                            return $result;
+                        } catch (\Throwable $e) {
+                            $lastError = $e;
+
+                            return null;
+                        }
+                    };
+
+                    $tryParseJson = static function (string $content) use (&$lastError) {
+                        $decoded = json_decode($content, true);
+                        if (null === $decoded && JSON_ERROR_NONE !== json_last_error()) {
+                            $lastError = new \RuntimeException('Invalid JSON rules file: '.json_last_error_msg());
+
+                            return null;
+                        }
+                        if (!is_array($decoded)) {
+                            $lastError = new \RuntimeException('JSON rules file must decode to an array.');
+
+                            return null;
+                        }
+
+                        return $decoded;
+                    };
+
+                    if (in_array($ext, ['yml', 'yaml'], true)) {
+                        $data = $tryParseYaml($raw);
+                        if (null === $data) {
+                            // Retry to tolerate single backslashes (e.g., in regex like \s inside quoted YAML)
+                            $data = $tryParseYaml(str_replace('\\', '\\\\', $raw));
+                        }
+                    } elseif ('json' === $ext) {
+                        $data = $tryParseJson($raw);
+                    } else {
+                        // Unknown extension: try YAML first, then JSON
+                        $data = $tryParseYaml($raw);
+                        if (null === $data) {
+                            $data = $tryParseYaml(str_replace('\\', '\\\\', $raw));
+                        }
+                        if (null === $data) {
+                            $data = $tryParseJson($raw);
+                        }
+                    }
+
+                    if (null === $data) {
+                        // Skip file with parsing issues
+                        continue;
+                    }
+
+                    // Normalize rules list: support either plain list, or {rules:[...]}, or {inline:[...]}
+                    $rulesList = [];
+                    if (isset($data['rules']) && is_array($data['rules'])) {
+                        $rulesList = $data['rules'];
+                    } elseif (isset($data['inline']) && is_array($data['inline'])) {
+                        $rulesList = $data['inline'];
+                    } elseif (is_array($data) && function_exists('array_is_list') && array_is_list($data)) {
+                        $rulesList = $data;
+                    }
+
+                    /** @var array<int, array{id:string, applies_to?:array<int,string>, severity:string, rationale:string, pattern:string, suggestion?:string, enabled?:bool}> $rulesList */
+                    foreach ($rulesList as $ruleDef) {
+                        if (is_array($ruleDef)) {
+                            try {
+                                $engine->addRule(new Rule($ruleDef));
+                            } catch (\Throwable $e) {
+                                // Invalid rule shape: skip
+                                continue;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
         return $engine;
     }
 

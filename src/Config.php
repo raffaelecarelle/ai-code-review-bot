@@ -141,10 +141,6 @@ class Config
     /**
      * @return array<string, mixed>
      */
-    public function rules(): array
-    {
-        return $this->config['rules'];
-    }
 
     /**
      * @return array<string, mixed>
@@ -176,20 +172,7 @@ class Config
                 'allow_suggested_fixes'   => true,
                 'redact_secrets'          => true,
             ],
-            'rules' => [
-                'include' => [],
-                'inline'  => [
-                    [
-                        'id'         => 'PHP.NO.ECHO',
-                        'applies_to' => ['**/*.php'],
-                        'severity'   => 'minor',
-                        'rationale'  => 'Avoid direct echo in production code; use a logger or response abstraction.',
-                        'pattern'    => '(^|\s)echo\s',
-                        'suggestion' => 'Use a configurable logger or framework response API.',
-                        'enabled'    => true,
-                    ],
-                ],
-            ],
+            'guidelines_file' => null,
             'vcs' => [
                 // platform: github|gitlab (required to use PR/MR auto-resolve)
                 'platform' => null,

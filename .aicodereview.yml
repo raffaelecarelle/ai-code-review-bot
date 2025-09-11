@@ -14,16 +14,7 @@ policy:
   max_comments: 50
   allow_suggested_fixes: true
   redact_secrets: true
-rules:
-  include: []
-  inline:
-    - id: PHP.NO.ECHO
-      applies_to: ["**/*.php"]
-      severity: minor
-      rationale: Avoid direct echo in production code; use a logger with levels instead.
-      pattern: "(^|\s)echo\s"
-      suggestion: "Use a configurable logger or framework response API."
-      enabled: true
+guidelines_file: null
 vcs:
   # Choose which platform to use when computing diffs via git and posting comments
   # Allowed values: github | gitlab
