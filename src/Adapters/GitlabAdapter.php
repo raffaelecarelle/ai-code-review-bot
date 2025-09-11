@@ -6,9 +6,9 @@ namespace AICR\Adapters;
 
 class GitlabAdapter implements VcsAdapter
 {
-    private string $projectId; // numeric or full path
-    private string $token;
-    private string $apiBase;
+    private string $projectId = ''; // numeric or full path
+    private string $token     = '';
+    private string $apiBase   = '';
 
     public function __construct(?string $projectId = null, ?string $token = null, ?string $apiBase = null)
     {

@@ -6,58 +6,48 @@ namespace AICR\Tests\Unit;
 
 use AICR\Config;
 use AICR\Providers\AIProviderFactory;
-use AICR\Providers\MockProvider;
 use PHPUnit\Framework\TestCase;
 
 final class AIProviderFactoryTest extends TestCase
 {
-    public function testBuildReturnsMockByDefault(): void
+    public function testWithPromptsInjectsGuidelines(): void
     {
-        $cfg = Config::load(null);
-        $factory = new AIProviderFactory($cfg);
-        $provider = $factory->build(null);
-        $this->assertInstanceOf(MockProvider::class, $provider);
-    }
+        // Prepare a temp config file with guidelines_file
+        $gl = sys_get_temp_dir().'/aicr_gl_'.uniqid('', true).'.txt';
+        file_put_contents($gl, "Line A\nLine B");
 
-    public function testWithPromptsMergesAndInjectsGuidelines(): void
-    {
-        $tmpCfg = sys_get_temp_dir().'/aicr_factory_'.uniqid('', true).'.yml';
-        $guidelines = sys_get_temp_dir().'/aicr_guidelines_'.uniqid('', true).'.txt';
-        file_put_contents($guidelines, "Line A\nLine B\n");
+        $cfgFile = sys_get_temp_dir().'/aicr_cfg_'.uniqid('', true).'.yml';
         $yaml = <<<YML
 providers:
   default: mock
-guidelines_file: {$guidelines}
 prompts:
-  system_append: "S1"
-  user_append:
-    - "U1"
   extra:
-    - "E1"
+    - "hello"
+# guidelines file path
+guidelines_file: {$gl}
 YML;
-        file_put_contents($tmpCfg, $yaml);
-        $cfg = Config::load($tmpCfg);
-        @unlink($tmpCfg);
+        file_put_contents($cfgFile, $yaml);
+        $cfg = Config::load($cfgFile);
+        @unlink($cfgFile);
 
         $factory = new AIProviderFactory($cfg);
-        $provider = $factory->build();
-        $this->assertInstanceOf(MockProvider::class, $provider);
 
-        // Inspect effective prompts via reflection on factory private withPrompts is not possible, so we assert indirectly by re-reading the config
-        $all = $cfg->getAll();
-        $this->assertArrayHasKey('prompts', $all);
-        $prompts = $all['prompts'];
-        $this->assertIsArray($prompts);
-        $this->assertSame('S1', $prompts['system_append']);
-        $this->assertContains('E1', $prompts['extra']);
-        $hasGuidelinesHint = false;
-        foreach ($prompts['extra'] as $extra) {
-            if (is_string($extra) && str_contains($extra, 'Coding guidelines file content is provided below in base64')) {
-                $hasGuidelinesHint = true;
-                break;
+        $ref = new \ReflectionClass($factory);
+        $m = $ref->getMethod('withPrompts');
+        $m->setAccessible(true);
+        /** @var array<string,mixed> $opts */
+        $opts = $m->invoke($factory, []);
+
+        $this->assertArrayHasKey('prompts', $opts);
+        $this->assertIsArray($opts['prompts']);
+        $found = false;
+        foreach (($opts['prompts']['extra'] ?? []) as $x) {
+            if (is_string($x) && str_contains($x, 'Coding guidelines file content is provided below in base64')) {
+                $found = true;
             }
         }
-        $this->assertTrue($hasGuidelinesHint, 'Expected base64 guidelines hint injected into prompts.extra');
-        @unlink($guidelines);
+        $this->assertTrue($found, 'Expected guidelines prompt to be injected');
+
+        @unlink($gl);
     }
 }

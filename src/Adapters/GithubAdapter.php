@@ -8,8 +8,8 @@ use Symfony\Component\Process\Process;
 
 class GithubAdapter implements VcsAdapter
 {
-    private string $repo; // owner/repo
-    private string $token;
+    private string $repo  = ''; // owner/repo
+    private string $token = '';
 
     public function __construct(?string $repo = null, ?string $token = null)
     {
