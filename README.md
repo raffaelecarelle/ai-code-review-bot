@@ -1,4 +1,6 @@
-![logo.png](logo.png)
+<p align="center">
+  <img src="logo.png" alt="AI Code Review Bot" width="500" />
+</p>
 
 # AI Code Review Bot
 
