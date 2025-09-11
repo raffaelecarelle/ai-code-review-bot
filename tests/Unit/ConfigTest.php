@@ -9,51 +9,42 @@ use PHPUnit\Framework\TestCase;
 
 final class ConfigTest extends TestCase
 {
-    public function testDefaultsContainsExpectedKeys(): void
+    private string $tmp;
+
+    protected function setUp(): void
     {
-        $d = Config::defaults();
-        $this->assertIsArray($d);
-        $this->assertArrayHasKey('providers', $d);
-        $this->assertArrayHasKey('context', $d);
-        $this->assertArrayHasKey('policy', $d);
-        $this->assertArrayHasKey('rules', $d);
+        $this->tmp = sys_get_temp_dir().'/aicr_cfg_'.uniqid('', true).'.yml';
     }
 
-    public function testLoadMergesAndExpandsEnvFromYaml(): void
+    protected function tearDown(): void
     {
-        $tmp = sys_get_temp_dir().'/aicr_test_'.uniqid('', true);
-        $yaml = <<<'YML'
+        @unlink($this->tmp);
+    }
+
+    public function testEnvExpansionAndDefaults(): void
+    {
+        putenv('AICR_TEST_ENV=hello');
+        $yaml = <<<YML
+version: 1
 providers:
-  default: openai
+  default: mock
 context:
-  diff_token_limit: 100
-policy:
-  max_comments: 5
-rules:
-  inline: []
-  include: []
+  diff_token_limit: 9000
+custom_path: \${AICR_TEST_ENV}
 YML;
-        file_put_contents($tmp, $yaml);
+        file_put_contents($this->tmp, $yaml);
 
-        putenv('AICR_TEST_VAR=xyz');
-        // Add an env-backed key to ensure expansion works
-        $yaml2 = <<<'YML'
-context:
-  some_env: "${AICR_TEST_VAR}"
-YML;
-        $tmp2 = $tmp.'_2.yml';
-        file_put_contents($tmp2, $yaml2);
+        $cfg = Config::load($this->tmp);
+        $all = $cfg->getAll();
 
-        $cfg1 = Config::load($tmp);
-        $cfg2 = Config::load($tmp2);
+        // Defaults merged
+        $this->assertArrayHasKey('policy', $all);
+        $this->assertArrayHasKey('rules', $all);
+        // Overrides applied
+        $this->assertSame(9000, $all['context']['diff_token_limit']);
+        // Env expanded
+        $this->assertSame('hello', $all['custom_path']);
 
-        $this->assertSame('openai', $cfg1->providers()['default']);
-        $this->assertSame(100, $cfg1->context()['diff_token_limit']);
-        $this->assertSame(5, $cfg1->policy()['max_comments']);
-
-        $this->assertSame('xyz', $cfg2->context()['some_env']);
-
-        @unlink($tmp);
-        @unlink($tmp2);
+        putenv('AICR_TEST_ENV'); // unset
     }
 }

@@ -11,6 +11,9 @@ final class MockAIProvider implements AIProvider
     /** @var array<int, array<string, mixed>> */
     private array $responses;
 
+    /** @var array<int, array<string, mixed>> */
+    public array $lastChunks = [];
+
     /**
      * @param array<int, array<string, mixed>> $responses
      */
@@ -25,6 +28,9 @@ final class MockAIProvider implements AIProvider
      */
     public function reviewChunks(array $chunks): array
     {
+        // Capture chunks for assertions in tests
+        $this->lastChunks = $chunks;
+
         if ($this->responses !== []) {
             return $this->responses;
         }

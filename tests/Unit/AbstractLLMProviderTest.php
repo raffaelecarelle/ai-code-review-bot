@@ -7,6 +7,7 @@ namespace AICR\Tests\Unit;
 use AICR\Providers\AbstractLLMProvider;
 use PHPUnit\Framework\TestCase;
 
+
 final class AbstractLLMProviderTest extends TestCase
 {
     private function getTestDouble(): object
@@ -26,8 +27,20 @@ final class AbstractLLMProviderTest extends TestCase
                 ['line' => 5, 'content' => 'echo "x";'],
             ]],
         ]);
-        $this->assertStringContainsString('FILE: app/Test.php (start 5)', $prompt);
-        $this->assertStringContainsString('5: echo "x";', $prompt);
+        $this->assertStringContainsString('FILE: app/Test.php (first +hunk starts ~5)', $prompt);
+        $this->assertStringContainsString('+ 5: echo "x";', $prompt);
+    }
+
+    public function testBuildPromptUsesUnifiedDiffWhenProvided(): void
+    {
+        $double = $this->getTestDouble();
+        $udiff = "diff --git a/app/Test.php b/app/Test.php\n@@ -1,1 +1,2 @@\n+echo 'x';\n";
+        $prompt = $double::callBuildPrompt([
+            ['file_path' => 'app/Test.php', 'start_line' => 1, 'unified_diff' => $udiff],
+        ]);
+        $this->assertStringContainsString('FILE: app/Test.php (first +hunk starts ~1)', $prompt);
+        $this->assertStringContainsString('diff --git a/app/Test.php b/app/Test.php', $prompt);
+        $this->assertStringContainsString('@@ -1,1 +1,2 @@', $prompt);
     }
 
     public function testExtractFindingsFromTextParsesJsonAndCodeFence(): void

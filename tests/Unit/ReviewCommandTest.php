@@ -17,5 +17,11 @@ final class ReviewCommandTest extends TestCase
         $this->assertTrue($def->hasOption('diff-file'));
         $this->assertTrue($def->hasOption('config'));
         $this->assertTrue($def->hasOption('output'));
+        // New unified identifier option and comment flag
+        $this->assertTrue($def->hasOption('id'));
+        $this->assertTrue($def->hasOption('comment'));
+        // Ensure legacy options are not present anymore
+        $this->assertFalse($def->hasOption('gh-pr'));
+        $this->assertFalse($def->hasOption('gl-mr'));
     }
 }
