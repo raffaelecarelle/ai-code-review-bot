@@ -2,6 +2,12 @@
     "name": "raffaelecarelle/ai-code-review-bot",
     "description": "Minimal, extensible AI code review tool",
     "type": "project",
+    "authors": [
+        {
+            "name": "Raffaele Carelle",
+            "email": "raffaele.carelle@gmail.com"
+        }
+    ],
     "require": {
         "php": ">=8.1",
         "symfony/yaml": "^7.0|^6.0|^5.0",

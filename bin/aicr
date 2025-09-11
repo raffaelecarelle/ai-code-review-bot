@@ -3,6 +3,8 @@
 declare(strict_types=1);
 // CLI entrypoint for AI Code Review Bot (PHP) using Symfony Console
 
+const AICR_VERSION = '0.1';
+
 $autoload = __DIR__ . '/../vendor/autoload.php';
 if (is_file($autoload)) {
     require $autoload;
@@ -14,9 +16,8 @@ if (is_file($autoload)) {
 use AICR\Command\ReviewCommand;
 use Symfony\Component\Console\Application;
 
-$application = new Application('AI Code Review Bot', 'v0.1');
+$application = new Application('AI Code Review Bot', AICR_VERSION);
 
-// Single command mode with default command 'review'
 $command = new ReviewCommand();
 $application->add($command);
 $application->setDefaultCommand($command->getName() ?? 'review', true);
