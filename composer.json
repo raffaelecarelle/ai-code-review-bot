@@ -30,7 +30,14 @@
         "rector:dry": "rector process --dry-run",
         "rector:apply": "rector process",
         "cs:fix": "php-cs-fixer fix --using-cache=no",
-        "cs:check": "php-cs-fixer fix --dry-run --diff --using-cache=no"
+        "cs:check": "php-cs-fixer fix --dry-run --diff --using-cache=no",
+        "tests": "phpunit",
+        "pre-commit": [
+            "@cs:fix",
+            "@rector:apply",
+            "@analyse",
+            "@tests"
+        ]
     },
     "bin": [
         "bin/aicr"

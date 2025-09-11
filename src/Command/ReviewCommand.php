@@ -63,10 +63,10 @@ final class ReviewCommand extends Command
                 if (!is_string($idOpt) || '' === $idOpt) {
                     throw new \InvalidArgumentException('Missing --id for the configured platform.');
                 }
-                $adapter                               = $this->buildAdapter($config);
-                [$platform, $resolvedId, $base, $head] = $this->resolveBranchesViaAdapter($adapter, $idOpt);
-                $tmpFile                               = $this->computeGitDiffToTempFile($io, $base, $head);
-                $diffPath                              = $tmpFile;
+                $adapter                    = $this->buildAdapter($config);
+                [$resolvedId, $base, $head] = $this->resolveBranchesViaAdapter($adapter, $idOpt);
+                $tmpFile                    = $this->computeGitDiffToTempFile($io, $base, $head);
+                $diffPath                   = $tmpFile;
             }
 
             // Load config if not already
@@ -139,7 +139,7 @@ final class ReviewCommand extends Command
     /**
      * @param mixed $id PR/MR ID provided via --id
      *
-     * @return array{0:string,1:int,2:string,3:string} [platform, id, base, head]
+     * @return array{0:int,1:string,2:string} [platform, id, base, head]
      */
     private function resolveBranchesViaAdapter(VcsAdapter $adapter, $id): array
     {
@@ -149,12 +149,12 @@ final class ReviewCommand extends Command
         if ($adapter instanceof GithubAdapter) {
             [$base, $head] = $adapter->resolveBranchesFromId((int) $id);
 
-            return ['github', (int) $id, $base, $head];
+            return [(int) $id, $base, $head];
         }
         if ($adapter instanceof GitlabAdapter) {
             [$base, $head] = $adapter->resolveBranchesFromId((int) $id);
 
-            return ['gitlab', (int) $id, $base, $head];
+            return [(int) $id, $base, $head];
         }
 
         throw new \InvalidArgumentException('Unsupported VCS adapter.');
