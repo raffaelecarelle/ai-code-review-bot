@@ -35,7 +35,7 @@ final class AnthropicProvider extends AbstractLLMProvider
         if ('' === $apiKey) {
             throw new \InvalidArgumentException('AnthropicProvider requires api_key (config providers.anthropic.api_key or env ANTHROPIC_API_KEY).');
         }
-        $this->model  = isset($options['model']) && is_string($options['model']) && '' !== $options['model']
+        $this->model = isset($options['model']) && is_string($options['model']) && '' !== $options['model']
             ? $options['model']
             : self::DEFAULT_MODEL;
 

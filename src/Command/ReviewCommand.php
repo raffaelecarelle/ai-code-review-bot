@@ -75,33 +75,26 @@ final class ReviewCommand extends Command
             $result = $pipeline->run($diffPath, $format);
             $output->writeln($result);
 
-            // Auto-comment with summary if requested
             if ($doComment) {
-                $summary = $pipeline->run($diffPath, Pipeline::OUTPUT_FORMAT_SUMMARY);
-                $isTest  = (bool) ($config->getAll()['test'] ?? false);
-                if ($isTest) {
-                    // In test mode, print the comment body instead of posting to VCS
-                    $output->writeln($summary);
-                } else {
-                    $adapter   = $this->buildAdapter($config);
-                    $commentId = null;
-                    if (isset($resolvedId)) {
-                        $commentId = (int) $resolvedId;
-                    } elseif (is_string($idOpt) && '' !== $idOpt) {
-                        $commentId = (int) $idOpt;
-                    }
-                    if (null !== $commentId) {
-                        $adapter->postComment($commentId, $summary);
-                        if ($adapter instanceof GithubAdapter) {
-                            $io->success('Comment posted to GitHub PR #'.$commentId);
-                        } elseif ($adapter instanceof GitlabAdapter) {
-                            $io->success('Comment posted to GitLab MR !'.$commentId);
-                        } else {
-                            $io->success('Comment posted.');
-                        }
+                $summary   = $pipeline->run($diffPath, Pipeline::OUTPUT_FORMAT_SUMMARY);
+                $adapter   = $this->buildAdapter($config);
+                $commentId = null;
+                if (isset($resolvedId)) {
+                    $commentId = (int) $resolvedId;
+                } elseif (is_string($idOpt) && '' !== $idOpt) {
+                    $commentId = (int) $idOpt;
+                }
+                if (null !== $commentId) {
+                    $adapter->postComment($commentId, $summary);
+                    if ($adapter instanceof GithubAdapter) {
+                        $io->success('Comment posted to GitHub PR #'.$commentId);
+                    } elseif ($adapter instanceof GitlabAdapter) {
+                        $io->success('Comment posted to GitLab MR !'.$commentId);
                     } else {
-                        $io->warning('Skipping comment: missing PR/MR --id.');
+                        $io->success('Comment posted.');
                     }
+                } else {
+                    $io->warning('Skipping comment: missing PR/MR --id.');
                 }
             }
 

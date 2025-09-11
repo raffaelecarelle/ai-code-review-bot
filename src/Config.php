@@ -157,7 +157,6 @@ class Config
     {
         return [
             'version'   => 1,
-            'test'      => false,
             'providers' => [
                 'default' => 'mock',
             ],

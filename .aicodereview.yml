@@ -1,7 +1,4 @@
 version: 1
-# When true and you pass --comment, the review command prints the comment instead of posting to GitHub/GitLab
-# When false or omitted, it will post via the configured adapter
-test: false
 providers:
   # Use 'mock' by default for safe, deterministic runs (no network calls)
   default: mock

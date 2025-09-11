@@ -18,9 +18,9 @@ abstract class AbstractLLMProvider implements AIProvider
         $lines   = [];
         $lines[] = 'You are an AI Code Review bot. Analyze the following UNIFIED DIFFS per file, considering both added/modified lines (+) and deleted lines (-).';
         $lines[] = 'Focus your reasoning primarily on the resulting code state, but consider deletions for potential regressions, removed validations, or security checks.';
-        $lines[] = 'Return a JSON object with key "findings" which is an array of objects with keys:';
-        $lines[] = 'rule_id, title, severity, file_path, start_line, end_line, rationale, suggestion, content';
-        $lines[] = 'If no issues, return {"findings":[]}. Do not include commentary.';
+        //        $lines[] = 'Return a JSON object with key "findings" which is an array of objects with keys:';
+        //        $lines[] = 'rule_id, title, severity, file_path, start_line, end_line, rationale, suggestion, content';
+        //        $lines[] = 'If no issues, return {"findings":[]}. Do not include commentary.';
         $lines[] = '';
         foreach ($chunks as $chunk) {
             $file    = (string) ($chunk['file_path'] ?? '');

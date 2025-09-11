@@ -36,7 +36,7 @@ Minimal, extensible AI-assisted code review tool for PHP projects.
 ## 2. Architecture and main modules (PHP)
 - `bin/aicr`: CLI entry point (Symfony Console) running the review command in single-command mode.
 - `src/Command/ReviewCommand.php`: Orchestrates reading config, loading diff (from file or git), running Pipeline, and optional PR/MR commenting. Uses Symfony Process for git.
-- `src/Config.php`: Loads YAML/JSON config, merges with defaults, expands `${ENV}` variables, exposes sections (providers, context, policy, vcs, prompts, test).
+- `src/Config.php`: Loads YAML/JSON config, merges with defaults, expands `${ENV}` variables, exposes sections (providers, context, policy, vcs, prompts).
 - `src/DiffParser.php`: Minimal unified diff parser returning added lines per file with accurate line numbers.
 - `src/Pipeline.php`: End-to-end pipeline: parse diff, build AI provider, chunk with token budget, apply policy, and render output.
 - `src/Adapters/`: VcsAdapter interface and GithubAdapter/GitlabAdapter implementations (resolve branches from PR/MR id and post comments).
@@ -66,7 +66,7 @@ php bin/aicr review --diff-file examples/sample.diff --output json
 php bin/aicr review --id 123 --output summary
 ```
 
-  - To also post a comment back to the PR/MR, add `--comment`. If `test: true` in config, the comment body is printed instead of posted:
+  - To also post a comment back to the PR/MR, add `--comment`:
 
 ```bash
 php bin/aicr review --id 123 --output summary --comment
@@ -81,8 +81,6 @@ Example (see `.aicodereview.yml` in this repo and `examples/config.*.yml`):
 
 ```yaml
 version: 1
-# When true and --comment is passed, print the comment instead of posting to the platform
-test: false
 providers:
   # Safe deterministic provider by default
   default: mock
@@ -126,7 +124,7 @@ Notes
   1) Resolve base/head branches from the ID via platform API.
   2) `git fetch --all`; fetch base/head; compute `git diff base...head`.
   3) Run the analysis pipeline on that diff.
-- `--comment` posts the summary back via the adapter unless `test: true`, in which case it prints the comment.
+- `--comment` posts the summary back via the adapter.
 
 Environment variables
 - GitHub: `GH_TOKEN` or `GITHUB_TOKEN`; `GH_REPO` can override repo auto-detection.
