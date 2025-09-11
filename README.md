@@ -4,6 +4,8 @@
 
 # AI Code Review Bot
 
+[![CI](https://github.com/raffaelecarelle/ai-code-review-bot/actions/workflows/ci.yml/badge.svg)](https://github.com/raffaelecarelle/ai-code-review-bot/actions/workflows/ci.yml)
+
 Minimal, extensible AI-assisted code review tool for PHP projects.
 
 - Analyzes unified diffs (from Pull/Merge Requests or files)
