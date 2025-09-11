@@ -39,7 +39,8 @@ YML;
 
         // Defaults merged
         $this->assertArrayHasKey('policy', $all);
-        $this->assertArrayHasKey('rules', $all);
+        $this->assertArrayHasKey('guidelines_file', $all);
+        $this->assertArrayHasKey('prompts', $all);
         // Overrides applied
         $this->assertSame(9000, $all['context']['diff_token_limit']);
         // Env expanded

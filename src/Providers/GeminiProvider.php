@@ -62,21 +62,23 @@ final class GeminiProvider extends AbstractLLMProvider
         $baseUser                    = self::buildPrompt($chunks);
         [$systemPrompt, $userPrompt] = self::mergeAdditionalPrompts(self::systemPrompt(), $baseUser, $this->options);
 
-        $resp = $this->client->post('', [
-            'query' => ['key' => $this->apiKey],
-            'json'  => [
-                'contents' => [
-                    [
-                        'role'  => 'user',
-                        'parts' => [
-                            ['text' => $systemPrompt."\n\n".$userPrompt],
-                        ],
-                    ],
-                ],
-                'generationConfig' => [
-                    'temperature' => 0,
+        $parts = [['text' => $systemPrompt."\n\n".$userPrompt]];
+
+        $payload = [
+            'contents' => [
+                [
+                    'role'  => 'user',
+                    'parts' => $parts,
                 ],
             ],
+            'generationConfig' => [
+                'temperature' => 0,
+            ],
+        ];
+
+        $resp = $this->client->post('', [
+            'query' => ['key' => $this->apiKey],
+            'json'  => $payload,
         ]);
 
         $status = $resp->getStatusCode();

@@ -134,8 +134,8 @@ Environment variables
 
 ## 6. Coding guidelines file
 - You can provide a project coding standard or style guide via `guidelines_file` in `.aicodereview.yml`.
-- When set, its content is appended verbatim to the LLM prompts so that reviews adhere to your guide.
-- Providers that do not support native file attachments will still receive the full text embedded in the prompt.
+- When set, its content is embedded into the LLM prompts as a base64 string. The prompt explicitly instructs the model to base64-decode the guidelines and follow them strictly during the review.
+- No provider-specific file uploads are performed: all supported providers (OpenAI, Gemini, Anthropic, Ollama) receive the same base64-embedded guidelines in the prompt.
 
 ## 7. AI providers and token budgeting
 - Supported providers in this repository: `openai`, `gemini`, `anthropic`, `ollama`, `mock`.

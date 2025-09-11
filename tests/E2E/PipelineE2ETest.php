@@ -27,10 +27,6 @@ policy:
   min_severity_to_comment: info
   max_comments: 50
   redact_secrets: true
-rules:
-  include: []
-  inline:
-    - { id: "PHP.NO.ECHO", applies_to: ["**/*.php"], severity: "minor", rationale: "Avoid echo", pattern: "(^|\s)echo\s", suggestion: "Use logger", enabled: true }
 YML;
         file_put_contents($this->tmpCfg, $yaml);
     }

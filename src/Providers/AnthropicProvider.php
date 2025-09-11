@@ -35,7 +35,7 @@ final class AnthropicProvider extends AbstractLLMProvider
         if ('' === $apiKey) {
             throw new \InvalidArgumentException('AnthropicProvider requires api_key (config providers.anthropic.api_key or env ANTHROPIC_API_KEY).');
         }
-        $this->model = isset($options['model']) && is_string($options['model']) && '' !== $options['model']
+        $this->model  = isset($options['model']) && is_string($options['model']) && '' !== $options['model']
             ? $options['model']
             : self::DEFAULT_MODEL;
 
@@ -64,15 +64,17 @@ final class AnthropicProvider extends AbstractLLMProvider
         $baseUser                    = self::buildPrompt($chunks);
         [$systemPrompt, $userPrompt] = self::mergeAdditionalPrompts(self::systemPrompt(), $baseUser, $this->options);
 
-        $resp = $this->client->post('', [
-            'json' => [
-                'model'      => $this->model,
-                'max_tokens' => self::DEFAULT_MAX_TOKENS,
-                'system'     => $systemPrompt,
-                'messages'   => [
-                    ['role' => 'user', 'content' => $userPrompt],
-                ],
+        $payload = [
+            'model'      => $this->model,
+            'max_tokens' => self::DEFAULT_MAX_TOKENS,
+            'system'     => $systemPrompt,
+            'messages'   => [
+                ['role' => 'user', 'content' => $userPrompt],
             ],
+        ];
+
+        $resp = $this->client->post('', [
+            'json' => $payload,
         ]);
         $status = $resp->getStatusCode();
         if ($status < 200 || $status >= 300) {

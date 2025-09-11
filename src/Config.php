@@ -173,7 +173,7 @@ class Config
                 'redact_secrets'          => true,
             ],
             'guidelines_file' => null,
-            'vcs' => [
+            'vcs'             => [
                 // platform: github|gitlab (required to use PR/MR auto-resolve)
                 'platform' => null,
                 // For GitHub: owner/repo (optional if GH_REPO or remote origin inferrable)

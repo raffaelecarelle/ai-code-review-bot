@@ -46,20 +46,13 @@ final class Pipeline
         }
 
         $addedByFile = DiffParser::parse($diff);
-        $rulesEngine = RulesEngine::fromConfig($this->config->rules());
         $provider    = $this->providerOverride ?? $this->buildProvider($this->config->providers());
         $chunks      = $this->buildChunks($addedByFile, $this->config->context(), $diff);
 
-        $ruleFindings = [];
-        foreach ($addedByFile as $file => $lines) {
-            foreach ($rulesEngine->evaluate($file, $lines) as $f) {
-                $ruleFindings[] = $f;
-            }
-        }
         $aiFindings = $provider->reviewChunks($chunks);
 
         $policy      = new Policy($this->config->policy());
-        $allFindings = $policy->apply(array_merge($ruleFindings, $aiFindings));
+        $allFindings = $policy->apply($aiFindings);
 
         if (self::OUTPUT_FORMAT_SUMMARY === $outputFormat) {
             return self::formatSummary($allFindings);
@@ -103,38 +96,86 @@ final class Pipeline
         switch ($default) {
             case self::PROVIDER_OPENAI:
                 $opts = isset($providers['openai']) && is_array($providers['openai']) ? $providers['openai'] : [];
-                // Inject prompts config if present
+                // Inject prompts config if present and append guidelines file content if configured (base64-encoded)
                 $prompts = $this->config->getAll()['prompts'] ?? [];
-                if (is_array($prompts)) {
-                    $opts['prompts'] = $prompts;
+                if (!is_array($prompts)) {
+                    $prompts = [];
                 }
+                $guidelinesPath = $this->config->getAll()['guidelines_file'] ?? null;
+                if (is_string($guidelinesPath) && '' !== trim($guidelinesPath) && is_file($guidelinesPath) && is_readable($guidelinesPath)) {
+                    $gl = file_get_contents($guidelinesPath);
+                    if (false !== $gl && '' !== trim($gl)) {
+                        if (!isset($prompts['extra']) || !is_array($prompts['extra'])) {
+                            $prompts['extra'] = [];
+                        }
+                        $b64                = base64_encode($gl);
+                        $prompts['extra'][] = "Coding guidelines file content is provided below in base64 (decode and follow strictly):\n".$b64;
+                    }
+                }
+                $opts['prompts'] = $prompts;
 
                 return new OpenAIProvider($opts);
 
             case self::PROVIDER_GEMINI:
                 $opts    = isset($providers['gemini']) && is_array($providers['gemini']) ? $providers['gemini'] : [];
                 $prompts = $this->config->getAll()['prompts'] ?? [];
-                if (is_array($prompts)) {
-                    $opts['prompts'] = $prompts;
+                if (!is_array($prompts)) {
+                    $prompts = [];
                 }
+                $guidelinesPath = $this->config->getAll()['guidelines_file'] ?? null;
+                if (is_string($guidelinesPath) && '' !== trim($guidelinesPath) && is_file($guidelinesPath) && is_readable($guidelinesPath)) {
+                    $gl = file_get_contents($guidelinesPath);
+                    if (false !== $gl && '' !== trim($gl)) {
+                        if (!isset($prompts['extra']) || !is_array($prompts['extra'])) {
+                            $prompts['extra'] = [];
+                        }
+                        $b64                = base64_encode($gl);
+                        $prompts['extra'][] = "Coding guidelines file content is provided below in base64 (decode and follow strictly):\n".$b64;
+                    }
+                }
+                $opts['prompts'] = $prompts;
 
                 return new GeminiProvider($opts);
 
             case self::PROVIDER_ANTHROPIC:
                 $opts    = isset($providers['anthropic']) && is_array($providers['anthropic']) ? $providers['anthropic'] : [];
                 $prompts = $this->config->getAll()['prompts'] ?? [];
-                if (is_array($prompts)) {
-                    $opts['prompts'] = $prompts;
+                if (!is_array($prompts)) {
+                    $prompts = [];
                 }
+                $guidelinesPath = $this->config->getAll()['guidelines_file'] ?? null;
+                if (is_string($guidelinesPath) && '' !== trim($guidelinesPath) && is_file($guidelinesPath) && is_readable($guidelinesPath)) {
+                    $gl = file_get_contents($guidelinesPath);
+                    if (false !== $gl && '' !== trim($gl)) {
+                        if (!isset($prompts['extra']) || !is_array($prompts['extra'])) {
+                            $prompts['extra'] = [];
+                        }
+                        $b64                = base64_encode($gl);
+                        $prompts['extra'][] = "Coding guidelines file content is provided below in base64 (decode and follow strictly):\n".$b64;
+                    }
+                }
+                $opts['prompts'] = $prompts;
 
                 return new AnthropicProvider($opts);
 
             case self::PROVIDER_OLLAMA:
                 $opts    = isset($providers['ollama']) && is_array($providers['ollama']) ? $providers['ollama'] : [];
                 $prompts = $this->config->getAll()['prompts'] ?? [];
-                if (is_array($prompts)) {
-                    $opts['prompts'] = $prompts;
+                if (!is_array($prompts)) {
+                    $prompts = [];
                 }
+                $guidelinesPath = $this->config->getAll()['guidelines_file'] ?? null;
+                if (is_string($guidelinesPath) && '' !== trim($guidelinesPath) && is_file($guidelinesPath) && is_readable($guidelinesPath)) {
+                    $gl = file_get_contents($guidelinesPath);
+                    if (false !== $gl && '' !== trim($gl)) {
+                        if (!isset($prompts['extra']) || !is_array($prompts['extra'])) {
+                            $prompts['extra'] = [];
+                        }
+                        $b64                = base64_encode($gl);
+                        $prompts['extra'][] = "Coding guidelines file content is provided below in base64 (decode and follow strictly):\n".$b64;
+                    }
+                }
+                $opts['prompts'] = $prompts;
 
                 return new OllamaProvider($opts);
 
