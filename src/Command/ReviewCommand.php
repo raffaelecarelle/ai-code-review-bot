@@ -15,7 +15,6 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
-use Symfony\Component\Process\Process;
 
 #[AsCommand(
     name: 'review',
@@ -59,7 +58,11 @@ final class ReviewCommand extends Command
                 $diffPath = $diffFileOpt;
             } else {
                 // Compute diff via git using adapter resolved from configuration
-                $config                                = Config::load(is_string($configFile) ? $configFile : null);
+                $config = Config::load(is_string($configFile) ? $configFile : null);
+                // Validate ID early to avoid running any git commands if it's missing
+                if (!is_string($idOpt) || '' === $idOpt) {
+                    throw new \InvalidArgumentException('Missing --id for the configured platform.');
+                }
                 $adapter                               = $this->buildAdapter($config);
                 [$platform, $resolvedId, $base, $head] = $this->resolveBranchesViaAdapter($adapter, $idOpt);
                 $tmpFile                               = $this->computeGitDiffToTempFile($io, $base, $head);
@@ -159,12 +162,14 @@ final class ReviewCommand extends Command
 
     private function computeGitDiffToTempFile(SymfonyStyle $io, string $base, string $head): string
     {
-        $this->runGit('fetch --all --prune');
+        $git = new \AICR\Support\GitRunner();
+        $git->run('fetch --all --prune');
         // Ensure we have the latest for both branches
-        $this->runGit('fetch origin '.$this->esc($base));
-        $this->runGit('fetch origin '.$this->esc($head));
-        $range = $this->esc($base).'...'.$this->esc($head);
-        $diff  = $this->runGit('diff --unified=3 '.$range);
+        $git->run('fetch origin '.$git->esc($base));
+        $git->run('fetch origin '.$git->esc($head));
+
+        $range = $git->esc($base).'...'.$git->esc($head);
+        $diff  = $git->run('diff --unified=3 '.$range);
         $tmp   = tempnam(sys_get_temp_dir(), 'aicr_diff_');
         if (false === $tmp) {
             throw new \RuntimeException('Failed to create temp file for diff');
@@ -172,35 +177,5 @@ final class ReviewCommand extends Command
         file_put_contents($tmp, $diff);
 
         return $tmp;
-    }
-
-    private function runGit(string $args): string
-    {
-        // Use Symfony Process instead of exec for better portability and control
-        $process = Process::fromShellCommandline('git '.$args);
-        $process->setTimeout(null);
-        $process->run();
-        if (!$process->isSuccessful()) {
-            $cmdline  = $process->getCommandLine();
-            $output   = trim($process->getOutput());
-            $error    = trim($process->getErrorOutput());
-            $combined = trim($output.('' !== $error ? "\n".$error : ''));
-
-            throw new \RuntimeException("Git command failed ({$cmdline}):\n".$combined);
-        }
-        // Ensure trailing newline to match previous behavior
-        $out = $process->getOutput();
-        // If there is no stdout but stderr had content (git sometimes writes to stderr), include it
-        if ('' === $out) {
-            $out = $process->getErrorOutput();
-        }
-
-        return rtrim($out, "\n")."\n";
-    }
-
-    private function esc(string $s): string
-    {
-        // Simple escape for refs (no spaces)
-        return escapeshellarg($s);
     }
 }

@@ -9,43 +9,69 @@ use PHPUnit\Framework\TestCase;
 
 final class ConfigTest extends TestCase
 {
-    private string $tmp;
-
-    protected function setUp(): void
+    public function testDefaultsAndAccessors(): void
     {
-        $this->tmp = sys_get_temp_dir().'/aicr_cfg_'.uniqid('', true).'.yml';
+        $cfg = Config::load(null);
+        $all = $cfg->getAll();
+        $this->assertIsArray($all);
+        $this->assertIsArray($cfg->providers());
+        $this->assertIsArray($cfg->context());
+        $this->assertIsArray($cfg->policy());
+        $this->assertIsArray($cfg->vcs());
+        $this->assertSame('mock', $cfg->providers()['default'] ?? null);
     }
 
-    protected function tearDown(): void
+    public function testYamlParsingAndEnvExpansion(): void
     {
-        @unlink($this->tmp);
-    }
-
-    public function testEnvExpansionAndDefaults(): void
-    {
-        putenv('AICR_TEST_ENV=hello');
-        $yaml = <<<YML
-version: 1
+        $tmp = sys_get_temp_dir().'/aicr_cfg_'.uniqid('', true).'.yml';
+        putenv('CFG_TEST_TOKEN=ABC123');
+        $yaml = <<<'YML'
 providers:
-  default: mock
+  default: openai
 context:
   diff_token_limit: 9000
-custom_path: \${AICR_TEST_ENV}
+  overflow_strategy: trim
+  per_file_token_cap: 1000
+policy:
+  min_severity_to_comment: info
+  max_comments: 10
+  redact_secrets: true
+vcs:
+  platform: github
+  repo: ${CFG_TEST_TOKEN}
+prompts:
+  system_append: "Be concise"
+  user_append:
+    - "Prefer security"
+  extra:
+    - "One"
+    - "Two"
 YML;
-        file_put_contents($this->tmp, $yaml);
+        file_put_contents($tmp, $yaml);
+        $cfg = Config::load($tmp);
+        @unlink($tmp);
+        $this->assertSame('openai', $cfg->providers()['default']);
+        $this->assertSame(9000, $cfg->context()['diff_token_limit']);
+        $this->assertSame('ABC123', $cfg->vcs()['repo']);
+        $this->assertSame('github', $cfg->vcs()['platform']);
+        $this->assertIsArray($cfg->getAll()['prompts']);
+    }
 
-        $cfg = Config::load($this->tmp);
-        $all = $cfg->getAll();
+    public function testJsonParsingAndInvalidFile(): void
+    {
+        $tmp = sys_get_temp_dir().'/aicr_cfg_'.uniqid('', true).'.json';
+        file_put_contents($tmp, json_encode(['providers' => ['default' => 'openai']], JSON_PRETTY_PRINT));
+        $cfg = Config::load($tmp);
+        @unlink($tmp);
+        $this->assertSame('openai', $cfg->providers()['default']);
 
-        // Defaults merged
-        $this->assertArrayHasKey('policy', $all);
-        $this->assertArrayHasKey('guidelines_file', $all);
-        $this->assertArrayHasKey('prompts', $all);
-        // Overrides applied
-        $this->assertSame(9000, $all['context']['diff_token_limit']);
-        // Env expanded
-        $this->assertSame('hello', $all['custom_path']);
-
-        putenv('AICR_TEST_ENV'); // unset
+        $invalid = sys_get_temp_dir().'/aicr_cfg_bad_'.uniqid('', true).'.zzz';
+        file_put_contents($invalid, 'not: [valid'); // broken YAML
+        $this->expectException(\InvalidArgumentException::class);
+        try {
+            Config::load($invalid);
+        } finally {
+            @unlink($invalid);
+        }
     }
 }

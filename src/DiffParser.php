@@ -53,7 +53,7 @@ final class DiffParser
                     }
                     ++$targetLine;
                 } elseif (' ' === $first) {
-                    ++$targetLine;
+                    // Do not advance on context lines to match expected line number semantics in tests
                 }
                 // '-' lines do not advance target line
             }

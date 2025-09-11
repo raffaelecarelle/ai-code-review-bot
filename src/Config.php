@@ -102,6 +102,9 @@ class Config
         }
         $merged   = self::merge($defaults, $fileConfig);
         $expanded = self::expandEnv($merged);
+        // Inject guidelines content into prompts.extra at load time so the rest of the app (and tests)
+        // can rely on config already containing the hint.
+        self::injectGuidelinesIntoPrompts($expanded);
 
         return new self($expanded);
     }
@@ -191,6 +194,41 @@ class Config
                 'extra' => [],
             ],
         ];
+    }
+
+    /**
+     * @param array<string, mixed> $config
+     */
+    private static function injectGuidelinesIntoPrompts(array &$config): void
+    {
+        $guidelinesPath = $config['guidelines_file'] ?? null;
+        $prompts        = $config['prompts'] ?? [];
+        if (!is_array($prompts)) {
+            $prompts = [];
+        }
+        if (!isset($prompts['extra']) || !is_array($prompts['extra'])) {
+            $prompts['extra'] = [];
+        }
+
+        $prefix = 'Coding guidelines file content is provided below in base64';
+        $has    = false;
+        foreach ($prompts['extra'] as $x) {
+            if (is_string($x) && str_contains($x, $prefix)) {
+                $has = true;
+
+                break;
+            }
+        }
+
+        if (!$has && is_string($guidelinesPath) && '' !== trim($guidelinesPath) && is_file($guidelinesPath) && is_readable($guidelinesPath)) {
+            $gl = file_get_contents($guidelinesPath);
+            if (false !== $gl && '' !== trim($gl)) {
+                $b64                = base64_encode($gl);
+                $prompts['extra'][] = "Coding guidelines file content is provided below in base64 (decode and follow strictly):\n".$b64;
+            }
+        }
+
+        $config['prompts'] = $prompts;
     }
 
     /**

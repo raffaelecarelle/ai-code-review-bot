@@ -1,0 +1,18 @@
+PHPUnit 10.5.54 by Sebastian Bergmann and contributors.
+
+Runtime:       PHP 8.4.10
+Configuration: /app/phpunit.xml.dist
+
+....F..............................                               35 / 35 (100%)
+
+Time: 00:00.048, Memory: 12.00 MB
+
+There was 1 failure:
+
+1) AICR\Tests\Unit\PipelineHelpersTest::testStartLineExtractionAcrossFiles
+Failed asserting that null is identical to 10.
+
+/app/tests/Unit/PipelineHelpersTest.php:63
+
+FAILURES!
+Tests: 35, Assertions: 121, Failures: 1, Warnings: 2.
