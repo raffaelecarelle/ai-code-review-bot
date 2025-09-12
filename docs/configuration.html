@@ -64,11 +64,13 @@ vcs:
   # Choose which platform to use when computing diffs via git and posting comments
   # Allowed values: github | gitlab | bitbucket
   platform: null
-  
-  # Repository identifier: "owner/repo" (GitHub), "namespace/project" (GitLab), "workspace/repo" (Bitbucket)
+
+  # Repository identifier: "owner/repository_name" (GitHub), "namespace" (GitLab), "workspace/repository_name" (Bitbucket)
   repository: null
+  # Gitlab Project ID
+  project_id: null
   # Authentication token (falls back to env vars: AICR_TOKEN, then platform-specific tokens)
-  token: null
+  access_token: null
   # API base URL (defaults to platform standard, override for self-hosted instances)
   api_base: null
   # HTTP timeout in seconds
