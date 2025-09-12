@@ -176,10 +176,10 @@ class Config
             ],
             'guidelines_file' => null,
             'vcs'             => [
-                'platform' => null,
-                'repository' => null,
-                'project_id' => null,
-                'api_base' => null,
+                'platform'     => null,
+                'repository'   => null,
+                'project_id'   => null,
+                'api_base'     => null,
                 'access_token' => null,
             ],
             'prompts' => [
