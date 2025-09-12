@@ -103,7 +103,7 @@ policy:
   redact_secrets: true
 guidelines_file: null
 vcs:
-  # Set one of: github | gitlab
+  # Set one of: github | gitlab | bitbucket
   platform: null
   # GitHub: owner/repo (optional if GH_REPO env or remote origin is GitHub)
   repo: null
@@ -111,6 +111,14 @@ vcs:
   project_id: null
   # GitLab: override API base for self-hosted instances (e.g., https://gitlab.example.com/api/v4)
   api_base: null
+  # Bitbucket: workspace name (required for Bitbucket)
+  workspace: null
+  # Bitbucket: repository name (required for Bitbucket)
+  repository: null
+  # Bitbucket: access token for authentication (required for Bitbucket)
+  accessToken: null
+  # Bitbucket: API request timeout in seconds (optional, defaults to 30)
+  timeout: 30
 prompts:
   # Optional: append additional instructions to the base prompts used by the LLM
   # You can use single strings or lists of strings
@@ -125,9 +133,9 @@ Notes
 - Env var expansion works in any string value: `${VAR_NAME}`.
 - Tokens/ids read from env if not set: `GH_TOKEN`/`GITHUB_TOKEN`, `GL_TOKEN`/`GITLAB_TOKEN`, `GH_REPO`, `GL_PROJECT_ID`.
 
-## 5. VCS adapters (GitHub/GitLab)
-- Configure `vcs.platform` and `repo`/`project_id` as needed.
-- The review command supports a single `--id` option (PR number for GitHub, MR IID for GitLab).
+## 5. VCS adapters (GitHub/GitLab/Bitbucket)
+- Configure `vcs.platform` and required parameters as needed.
+- The review command supports a single `--id` option (PR number for GitHub, MR IID for GitLab, PR ID for Bitbucket).
 - Behavior when `--diff-file` is omitted:
   1) Resolve base/head branches from the ID via platform API.
   2) `git fetch --all`; fetch base/head; compute `git diff base...head`.
@@ -137,6 +145,7 @@ Notes
 Environment variables
 - GitHub: `GH_TOKEN` or `GITHUB_TOKEN`; `GH_REPO` can override repo auto-detection.
 - GitLab: `GL_TOKEN` or `GITLAB_TOKEN`; `GL_PROJECT_ID` and optional `GL_API_BASE`.
+- Bitbucket: Configure `workspace`, `repository`, and `accessToken` in the config file.
 
 ## 6. Coding guidelines file
 - You can provide a project coding standard or style guide via `guidelines_file` in `.aicodereview.yml`.
@@ -151,6 +160,7 @@ Environment variables
 ## 8. Output formats
 - `json` (default): machine-readable findings array.
 - `summary`: human-readable bulleted list. This is also the format used for PR/MR comments.
+- `markdown`: structured markdown format with emojis, metadata, and organized findings by severity and file.
 
 ## 9. Development and QA
 - Requires PHP and Composer.

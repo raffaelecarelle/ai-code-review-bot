@@ -14,7 +14,7 @@ policy:
 guidelines_file: null
 vcs:
   # Choose which platform to use when computing diffs via git and posting comments
-  # Allowed values: github | gitlab
+  # Allowed values: github | gitlab | bitbucket
   platform: null
   # GitHub: owner/repo (optional if GH_REPO env or remote origin is GitHub)
   repo: null

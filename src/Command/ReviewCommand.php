@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace AICR\Command;
 
+use AICR\Adapters\BitbucketAdapter;
 use AICR\Adapters\GithubAdapter;
 use AICR\Adapters\GitlabAdapter;
 use AICR\Adapters\VcsAdapter;
@@ -35,7 +36,7 @@ final class ReviewCommand extends Command
         $this
             ->addOption('diff-file', null, InputOption::VALUE_REQUIRED, 'Path to the unified diff file to analyze')
             ->addOption('config', null, InputOption::VALUE_OPTIONAL, 'Path to configuration file (.aicodereview.yml or JSON)')
-            ->addOption('output', null, InputOption::VALUE_OPTIONAL, 'Output format: json|summary', 'json')
+            ->addOption('output', null, InputOption::VALUE_OPTIONAL, 'Output format: json|summary|markdown', 'json')
             // Git-based options (branches are resolved dynamically via API based on configured platform)
             ->addOption('id', null, InputOption::VALUE_OPTIONAL, 'PR/MR ID (number/IID) depending on configured platform')
             ->addOption('comment', null, InputOption::VALUE_NONE, 'If set, post the summary as a comment to the PR/MR when applicable')
@@ -73,10 +74,12 @@ final class ReviewCommand extends Command
             if (!isset($config)) {
                 $config = Config::load(is_string($configFile) ? $configFile : null);
             }
+
             $pipeline = new Pipeline($config);
 
+            $comment = $pipeline->run($diffPath, $format);
+
             if ($doComment) {
-                $summary   = $pipeline->run($diffPath, Pipeline::OUTPUT_FORMAT_SUMMARY);
                 $adapter   = $this->buildAdapter($config);
                 $commentId = null;
                 if (isset($resolvedId)) {
@@ -85,20 +88,14 @@ final class ReviewCommand extends Command
                     $commentId = (int) $idOpt;
                 }
                 if (null !== $commentId) {
-                    $adapter->postComment($commentId, $summary);
-                    if ($adapter instanceof GithubAdapter) {
-                        $io->success('Comment posted to GitHub PR #'.$commentId);
-                    } elseif ($adapter instanceof GitlabAdapter) {
-                        $io->success('Comment posted to GitLab MR !'.$commentId);
-                    } else {
-                        $io->success('Comment posted.');
-                    }
+                    $adapter->postComment($commentId, $comment);
+
+                    $io->success('Comment posted.');
                 } else {
                     $io->warning('Skipping comment: missing PR/MR --id.');
                 }
             } else {
-                $result = $pipeline->run($diffPath, $format);
-                $output->writeln($result);
+                $output->writeln($comment);
             }
 
             return Command::SUCCESS;
@@ -131,6 +128,9 @@ final class ReviewCommand extends Command
             $apiBase   = isset($vcs['api_base']) && is_string($vcs['api_base']) && '' !== $vcs['api_base'] ? $vcs['api_base'] : null;
 
             return new GitlabAdapter($projectId, null, $apiBase);
+        }
+        if ('bitbucket' === $platform) {
+            return new BitbucketAdapter($vcs['workspace'], $vcs['repository'], $vcs['accessToken'], $vcs['timeout'] ?? null);
         }
 
         throw new \InvalidArgumentException('Configure vcs.platform as "github" or "gitlab" to enable API-based diff.');

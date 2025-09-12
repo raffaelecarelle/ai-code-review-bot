@@ -75,7 +75,7 @@ YML;
 
         $this->assertSame(0, $exit);
         $display = $tester->getDisplay();
-        $this->assertStringContainsString('Comment posted to GitHub PR #7', $display);
+        $this->assertStringContainsString('Comment posted.', $display);
         $this->assertSame(7, $gh->postedId);
         $this->assertIsString($gh->postedBody);
         $this->assertStringContainsString('Findings (', $gh->postedBody ?? '');
