@@ -95,4 +95,18 @@ class GitlabAdapter extends BaseAdapter
 
         return $data;
     }
+
+    /**
+     * Resolve project ID.
+     *
+     * @param array<string,mixed> $config
+     */
+    private function resolveProjectId(array $config): string
+    {
+        if (isset($config['project_id'])) {
+            return (string) $config['project_id'];
+        }
+
+        return '';
+    }
 }

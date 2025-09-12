@@ -23,7 +23,7 @@ vcs:
   project_id: null
   # Authentication token (falls back to env vars: AICR_TOKEN, then platform-specific tokens)
   access_token: null
-  # API base URL (defaults to platform standard, override for self-hosted instances)
+  # API base URL (defaults to platform standard, ove\rride for self-hosted instances)
   api_base: null
   # HTTP timeout in seconds
   timeout: 30

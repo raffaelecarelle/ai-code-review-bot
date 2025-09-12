@@ -84,20 +84,6 @@ abstract class BaseAdapter implements VcsAdapter
     }
 
     /**
-     * Resolve project ID.
-     *
-     * @param array<string,mixed> $config
-     */
-    protected function resolveProjectId(array $config): string
-    {
-        if (isset($config['project_id'])) {
-            return $config['project_id'];
-        }
-
-        return '';
-    }
-
-    /**
      * Run git command with error handling.
      */
     protected function runGit(string $args): string
