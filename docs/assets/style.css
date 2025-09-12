@@ -36,7 +36,7 @@ html, body { margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFo
 .article pre { background: var(--code-bg); color: var(--code-fg); padding: 14px; border-radius: 8px; overflow: auto; border: 1px solid #eaeef2; -webkit-font-smoothing: antialiased; }
 .article pre code { background: transparent; color: inherit; display: block; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; font-size: 0.95em; }
 /* Inline code */
-.article code { background: #f3f4f6; color: #111827; padding: 2px 4px; border-radius: 4px; border: 1px solid #e5e7eb; }
+.article code { background: #f3f4f6; color: #111827; }
 .footer { border-top: 1px solid var(--border); color: var(--muted); }
 .footer-inner { padding: 18px 0; display: flex; flex-wrap: wrap; gap: 10px; justify-content: space-between; }
 .kbd { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; font-size: 12px; background: #f3f4f6; border: 1px solid #e5e7eb; border-bottom-width: 2px; padding: 2px 6px; border-radius: 6px; }
