@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>VCS Adapters • AI Code Review Bot</title>
+  <link rel="stylesheet" href="assets/style.css" />
+</head>
+<body>
+<header class="header">
+  <div class="container header-inner">
+    <a class="brand" href="./"><img src="assets/logo.png" alt="" /><span>AI Code Review Bot</span></a>
+    <nav class="nav">
+      <a href="getting-started.html">Quick Start</a>
+      <a href="configuration.html">Configuration</a>
+      <a href="vcs-adapters.html">VCS Adapters</a>
+      <a href="providers.html">AI Providers</a>
+      <a href="cli.html">CLI</a>
+      <a href="development.html">Development</a>
+      <a href="faq.html">FAQ</a>
+    </nav>
+  </div>
+</header>
+<main class="main container content">
+  <aside class="sidebar">
+    <h3>On this page</h3>
+    <a href="#overview">Overview</a>
+    <a href="#github">GitHub setup</a>
+    <a href="#gitlab">GitLab setup</a>
+    <a href="#flow">How it works without --diff-file</a>
+    <a href="#comments">Posting comments</a>
+    <a href="#troubleshooting">Troubleshooting</a>
+  </aside>
+  <article class="article">
+    <h1>VCS Adapters</h1>
+    <p>Use the VCS adapters to resolve a PR/MR by its ID and compute the diff automatically. Supported platforms: GitHub and GitLab.</p>
+
+    <h2 id="overview">Overview</h2>
+    <ul>
+      <li>Set <code>vcs.platform</code> to <code>github</code> or <code>gitlab</code> in your config.</li>
+      <li>Provide the necessary identifiers and tokens either via config or environment variables.</li>
+      <li>Run <code>php bin/aicr review --id &lt;number&gt; --output summary</code>.</li>
+    </ul>
+
+    <h2 id="github">GitHub setup</h2>
+    <ul>
+      <li>Token: <code>GH_TOKEN</code> or <code>GITHUB_TOKEN</code></li>
+      <li>Repository: <code>owner/repo</code> via config or <code>GH_REPO</code> env (optional if remote origin is GitHub)</li>
+      <li>Permissions: read PRs; write if you plan to post comments.</li>
+    </ul>
+
+    <h2 id="gitlab">GitLab setup</h2>
+    <ul>
+      <li>Token: <code>GL_TOKEN</code> or <code>GITLAB_TOKEN</code></li>
+      <li>Project id: numeric id or full path <code>namespace/repo</code> via config or <code>GL_PROJECT_ID</code></li>
+      <li>Self-hosted: customize API base via <code>vcs.api_base</code> (e.g., <code>https://gitlab.example.com/api/v4</code>)</li>
+    </ul>
+
+    <h2 id="flow">How it works without <code>--diff-file</code></h2>
+    <ol>
+      <li>Resolve base/head branches from the PR number (GitHub) or MR IID (GitLab) via the platform API.</li>
+      <li>Run <code>git fetch --all</code>, fetch both branches and compute <code>git diff base...head</code>.</li>
+      <li>Analyze the resulting unified diff with the pipeline.</li>
+    </ol>
+
+    <h2 id="comments">Posting comments</h2>
+    <p>Pass <code>--comment</code> to post the human summary back to the PR/MR via the adapter.</p>
+
+    <h2 id="troubleshooting">Troubleshooting</h2>
+    <ul>
+      <li><strong>401/403:</strong> check token presence and scopes/permissions.</li>
+      <li><strong>Not found:</strong> verify <code>repo</code>/<code>project_id</code> and ID (<code>--id</code>) correctness.</li>
+      <li><strong>Self-hosted GitLab:</strong> ensure <code>api_base</code> ends with <code>/api/v4</code>.</li>
+    </ul>
+  </article>
+</main>
+<footer class="footer"><div class="container footer-inner"><div>© 2025 AI Code Review Bot</div><div><a href="./">Home</a></div></div></footer>
+</body>
+</html>

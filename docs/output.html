@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Output formats • AI Code Review Bot</title>
+  <link rel="stylesheet" href="assets/style.css" />
+</head>
+<body>
+<header class="header">
+  <div class="container header-inner">
+    <a class="brand" href="./"><img src="assets/logo.png" alt="" /><span>AI Code Review Bot</span></a>
+    <nav class="nav">
+      <a href="getting-started.html">Quick Start</a>
+      <a href="configuration.html">Configuration</a>
+      <a href="vcs-adapters.html">VCS Adapters</a>
+      <a href="providers.html">AI Providers</a>
+      <a href="cli.html">CLI</a>
+      <a href="development.html">Development</a>
+      <a href="faq.html">FAQ</a>
+    </nav>
+  </div>
+</header>
+<main class="main container content">
+  <aside class="sidebar">
+    <h3>On this page</h3>
+    <a href="#json">JSON</a>
+    <a href="#summary">Summary</a>
+  </aside>
+  <article class="article">
+    <h1>Output formats</h1>
+    <p>The review command supports two output formats: machine-readable <code>json</code> and human-friendly <code>summary</code>.</p>
+
+    <h2 id="json">JSON</h2>
+    <p>Default output. A simplified example structure:</p>
+    <pre><code>[
+  {
+    "file": "src/Foo.php",
+    "line": 42,
+    "severity": "warning",
+    "title": "Possible null dereference",
+    "message": "Check variable $bar for null before use.",
+    "suggested_fix": "Add guard clause or null-check."
+  }
+]
+</code></pre>
+
+    <h2 id="summary">Summary</h2>
+    <p>Concise human-readable summary designed for PR/MR comments. Example:</p>
+    <pre><code>- src/Foo.php:42 (warning) Possible null dereference. Check $bar before use.
+- src/Bar.php:10 (info) Consider extracting method to reduce complexity.
+</code></pre>
+  </article>
+</main>
+<footer class="footer"><div class="container footer-inner"><div>© 2025 AI Code Review Bot</div><div><a href="./">Home</a></div></div></footer>
+</body>
+</html>

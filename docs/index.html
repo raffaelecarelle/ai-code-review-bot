@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>AI Code Review Bot • Documentation</title>
+  <meta name="description" content="Official documentation for AI Code Review Bot: a minimal, extensible AI-assisted code review tool for PHP projects." />
+  <link rel="stylesheet" href="assets/style.css" />
+</head>
+<body>
+  <header class="header">
+    <div class="container header-inner">
+      <a class="brand" href="./">
+        <img src="assets/logo.png" alt="AI Code Review Bot" />
+        <span>AI Code Review Bot</span>
+      </a>
+      <nav class="nav">
+        <a href="getting-started.html">Quick Start</a>
+        <a href="configuration.html">Configuration</a>
+        <a href="vcs-adapters.html">VCS Adapters</a>
+        <a href="providers.html">AI Providers</a>
+        <a href="cli.html">CLI</a>
+        <a href="development.html">Development</a>
+        <a href="faq.html">FAQ</a>
+      </nav>
+    </div>
+  </header>
+
+  <section class="hero">
+    <div class="container hero-inner">
+      <div>
+        <h1>Official Documentation</h1>
+        <p>
+          A minimal, extensible tool to run AI-assisted code reviews on unified diffs
+          (files, Pull Requests, or Merge Requests) in PHP projects. Safe by default, modular, and easy to integrate.
+        </p>
+        <a class="cta" href="getting-started.html">Get started</a>
+      </div>
+      <div class="note">
+        <strong>Hosting on GitHub Pages</strong>
+        <p style="margin: 8px 0 0 0;">
+          To publish this documentation on GitHub Pages, go to Settings → Pages → Build and deployment,
+          select "Deploy from branch" and choose the <code>/docs</code> folder from your chosen branch.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <main class="main container content">
+    <aside class="sidebar">
+      <h3>Sections</h3>
+      <a href="getting-started.html">Quick Start</a>
+      <a href="configuration.html">Configuration</a>
+      <a href="vcs-adapters.html">VCS Adapters</a>
+      <a href="providers.html">AI Providers</a>
+      <a href="output.html">Output formats</a>
+      <a href="cli.html">CLI</a>
+      <a href="development.html">Development & QA</a>
+      <a href="faq.html">FAQ</a>
+      <a href="credits-license.html">Credits & License</a>
+      <hr />
+      <a href="https://github.com/raffaelecarelle/ai-code-review-bot">Open on GitHub ↗</a>
+    </aside>
+
+    <article class="article">
+      <h1>Overview</h1>
+      <p>
+        AI Code Review Bot analyzes <em>unified diffs</em> and produces normalized findings (JSON or human-readable summary),
+        with simple configuration for providers, policy, token budget, and VCS adapters (GitHub/GitLab). By default it is
+        safe: it uses a mock AI provider for deterministic runs and will not post PR/MR comments unless explicitly requested.
+      </p>
+
+      <div class="grid-2">
+        <div>
+          <h3>Key features</h3>
+          <ul>
+            <li>Analyze unified diffs (files or PR/MR)</li>
+            <li>JSON and human summary outputs</li>
+            <li>YAML/JSON configuration with environment variable expansion</li>
+            <li>Adapters for GitHub and GitLab</li>
+            <li>Pluggable AI Providers: OpenAI, Gemini, Anthropic, Ollama, Mock</li>
+            <li>Comment policies and secret redaction</li>
+          </ul>
+        </div>
+        <div>
+          <h3>Architecture (PHP)</h3>
+          <ul>
+            <li><code>bin/aicr</code>: CLI entrypoint (Symfony Console)</li>
+            <li><code>src/Command/ReviewCommand.php</code>: pipeline orchestration</li>
+            <li><code>src/Config.php</code>: config loading/merge</li>
+            <li><code>src/DiffParser.php</code>: unified diff parser</li>
+            <li><code>src/Pipeline.php</code>: E2E pipeline</li>
+            <li><code>src/Adapters/*</code>: VCS adapters (GitHub/GitLab)</li>
+            <li><code>src/Providers/*</code>: AI providers</li>
+          </ul>
+        </div>
+      </div>
+
+      <h2>Suggested index</h2>
+      <ul>
+        <li><a href="getting-started.html">Quick Start</a></li>
+        <li><a href="configuration.html">Configuration (.aicodereview.yml)</a></li>
+        <li><a href="vcs-adapters.html">VCS Adapters (GitHub/GitLab)</a></li>
+        <li><a href="providers.html">AI Providers and token budgeting</a></li>
+        <li><a href="output.html">Output formats</a></li>
+        <li><a href="cli.html">CLI commands</a></li>
+        <li><a href="development.html">Development & QA</a></li>
+        <li><a href="faq.html">FAQ</a></li>
+        <li><a href="credits-license.html">Credits & License</a></li>
+      </ul>
+
+      <div class="warning">
+        <strong>Privacy note:</strong> the default provider is <em>mock</em> to avoid external calls.
+        Enable real providers only when needed and configure tokens via environment variables.
+      </div>
+    </article>
+  </main>
+
+  <footer class="footer">
+    <div class="container footer-inner">
+      <div>© 2025 AI Code Review Bot</div>
+      <div>
+        <a href="https://github.com/raffaelecarelle/ai-code-review-bot">GitHub</a>
+      </div>
+    </div>
+  </footer>
+</body>
+</html>

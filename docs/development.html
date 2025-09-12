@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Development & QA • AI Code Review Bot</title>
+  <link rel="stylesheet" href="assets/style.css" />
+</head>
+<body>
+<header class="header">
+  <div class="container header-inner">
+    <a class="brand" href="./"><img src="assets/logo.png" alt="" /><span>AI Code Review Bot</span></a>
+    <nav class="nav">
+      <a href="getting-started.html">Quick Start</a>
+      <a href="configuration.html">Configuration</a>
+      <a href="vcs-adapters.html">VCS Adapters</a>
+      <a href="providers.html">AI Providers</a>
+      <a href="cli.html">CLI</a>
+      <a href="development.html">Development</a>
+      <a href="faq.html">FAQ</a>
+    </nav>
+  </div>
+</header>
+<main class="main container content">
+  <aside class="sidebar">
+    <h3>On this page</h3>
+    <a href="#reqs">Requirements</a>
+    <a href="#tests">Run tests</a>
+    <a href="#qa">Static analysis</a>
+    <a href="#coding">Coding guidelines file</a>
+    <a href="#contrib">Contributing</a>
+  </aside>
+  <article class="article">
+    <h1>Development & QA</h1>
+
+    <h2 id="reqs">Requirements</h2>
+    <ul>
+      <li>PHP (version per composer.json)</li>
+      <li>Composer</li>
+    </ul>
+
+    <h2 id="tests">Run tests</h2>
+    <pre><code>./vendor/bin/phpunit
+</code></pre>
+
+    <h2 id="qa">Static analysis</h2>
+    <pre><code>composer analyse
+</code></pre>
+    <p>The codebase uses Symfony components (Console, YAML, Filesystem, Process) and <code>declare(strict_types=1)</code>.</p>
+
+    <h2 id="coding">Coding guidelines file</h2>
+    <p>If your project has a coding standard or style guide, set <code>guidelines_file</code> in <code>.aicodereview.yml</code>. The file content will be base64-embedded into prompts so every provider follows it consistently.</p>
+
+    <h2 id="contrib">Contributing</h2>
+    <p>Issues and pull requests are welcome. Please ensure tests pass and include coverage for new behavior where reasonable.</p>
+  </article>
+</main>
+<footer class="footer"><div class="container footer-inner"><div>© 2025 AI Code Review Bot</div><div><a href="./">Home</a></div></div></footer>
+</body>
+</html>

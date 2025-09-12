@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Configuration • AI Code Review Bot</title>
+  <link rel="stylesheet" href="assets/style.css" />
+</head>
+<body>
+<header class="header">
+  <div class="container header-inner">
+    <a class="brand" href="./"><img src="assets/logo.png" alt="" /><span>AI Code Review Bot</span></a>
+    <nav class="nav">
+      <a href="getting-started.html">Quick Start</a>
+      <a href="configuration.html">Configuration</a>
+      <a href="vcs-adapters.html">VCS Adapters</a>
+      <a href="providers.html">AI Providers</a>
+      <a href="cli.html">CLI</a>
+      <a href="development.html">Development</a>
+      <a href="faq.html">FAQ</a>
+    </nav>
+  </div>
+</header>
+<main class="main container content">
+  <aside class="sidebar">
+    <h3>On this page</h3>
+    <a href="#file">Config file format</a>
+    <a href="#example">Full example</a>
+    <a href="#env">Environment variables</a>
+    <a href="#notes">Notes</a>
+  </aside>
+  <article class="article">
+    <h1>Configuration (.aicodereview.yml)</h1>
+    <p>The tool loads configuration from <code>.aicodereview.yml</code> (YAML) or JSON. You can also provide a custom path with <code>--config</code>.</p>
+
+    <h2 id="file">Config file format</h2>
+    <p>Top-level sections:</p>
+    <ul>
+      <li><code>version</code> – config schema version</li>
+      <li><code>providers</code> – default provider and provider-specific settings</li>
+      <li><code>context</code> – token budget and overflow handling</li>
+      <li><code>policy</code> – commenting thresholds and redaction</li>
+      <li><code>guidelines_file</code> – optional path to coding guidelines file</li>
+      <li><code>vcs</code> – platform and identifiers to resolve diffs by <code>--id</code></li>
+      <li><code>prompts</code> – optional extra instructions appended to base prompts</li>
+    </ul>
+
+    <h2 id="example">Full example</h2>
+    <pre><code>version: 1
+providers:
+  # Safe deterministic provider by default
+  default: mock
+context:
+  diff_token_limit: 8000
+  overflow_strategy: trim
+  per_file_token_cap: 2000
+policy:
+  min_severity_to_comment: info
+  max_comments: 50
+  allow_suggested_fixes: true
+  redact_secrets: true
+guidelines_file: null
+vcs:
+  # Set one of: github | gitlab
+  platform: null
+  # GitHub: owner/repo (optional if GH_REPO env or remote origin is GitHub)
+  repo: null
+  # GitLab: numeric id or full path namespace/repo (optional if GL_PROJECT_ID or remote origin is GitLab)
+  project_id: null
+  # GitLab: override API base for self-hosted instances (e.g., https://gitlab.example.com/api/v4)
+  api_base: null
+prompts:
+  system_append: "Prefer concise findings and avoid duplicates."
+  user_append:
+    - "Prioritize security and performance related issues."
+  extra:
+    - "If a secret or key is detected, suggest redaction."
+</code></pre>
+
+    <h2 id="env">Environment variables</h2>
+    <ul>
+      <li>Values like <code>"${VAR_NAME}"</code> expand from the current environment.</li>
+      <li>Tokens/ids auto-read if not set in config:
+        <ul>
+          <li>GitHub: <code>GH_TOKEN</code> or <code>GITHUB_TOKEN</code>; optional <code>GH_REPO</code></li>
+          <li>GitLab: <code>GL_TOKEN</code> or <code>GITLAB_TOKEN</code>; <code>GL_PROJECT_ID</code>; optional <code>GL_API_BASE</code></li>
+        </ul>
+      </li>
+    </ul>
+
+    <h2 id="notes">Notes</h2>
+    <ul>
+      <li>The default AI provider is <code>mock</code>; no network calls occur until you configure a real provider.</li>
+      <li>When <code>guidelines_file</code> is set, its contents are base64-embedded in the prompt for all providers.</li>
+      <li>Commenting back to PR/MR happens only when you pass <code>--comment</code> to the CLI.</li>
+    </ul>
+  </article>
+</main>
+<footer class="footer"><div class="container footer-inner"><div>© 2025 AI Code Review Bot</div><div><a href="./">Home</a></div></div></footer>
+</body>
+</html>

@@ -13,6 +13,8 @@ Minimal, extensible AI-assisted code review tool for PHP projects.
 - Loads a simple YAML/JSON config with provider/policy settings and an optional coding guidelines file
 - Safe defaults: deterministic Mock AI provider; no network calls unless configured
 
+Official documentation: http://raffaelecarelle.github.io/ai-code-review-bot/docs
+
 ---
 
 ## Table of Contents

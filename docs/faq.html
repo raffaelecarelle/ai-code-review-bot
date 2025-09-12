@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>FAQ • AI Code Review Bot</title>
+  <link rel="stylesheet" href="assets/style.css" />
+</head>
+<body>
+<header class="header">
+  <div class="container header-inner">
+    <a class="brand" href="./"><img src="assets/logo.png" alt="" /><span>AI Code Review Bot</span></a>
+    <nav class="nav">
+      <a href="getting-started.html">Quick Start</a>
+      <a href="configuration.html">Configuration</a>
+      <a href="vcs-adapters.html">VCS Adapters</a>
+      <a href="providers.html">AI Providers</a>
+      <a href="cli.html">CLI</a>
+      <a href="development.html">Development</a>
+      <a href="faq.html">FAQ</a>
+    </nav>
+  </div>
+</header>
+<main class="main container content">
+  <aside class="sidebar">
+    <h3>On this page</h3>
+    <a href="#privacy">Is it safe by default?</a>
+    <a href="#tokens">Where do tokens come from?</a>
+    <a href="#guidelines">How do coding guidelines work?</a>
+    <a href="#diffs">What diffs are supported?</a>
+    <a href="#comments">Will it post comments automatically?</a>
+    <a href="#errors">Common errors</a>
+  </aside>
+  <article class="article">
+    <h1>Frequently asked questions</h1>
+
+    <h2 id="privacy">Is it safe by default?</h2>
+    <p>Yes. The default provider is <code>mock</code>, which performs deterministic local responses and triggers no network calls.</p>
+
+    <h2 id="tokens">Where do tokens come from?</h2>
+    <p>Provider credentials are read from environment variables (e.g., <code>OPENAI_API_KEY</code>, <code>GEMINI_API_KEY</code>, <code>ANTHROPIC_API_KEY</code>, <code>GH_TOKEN</code>, <code>GL_TOKEN</code>). You can also set them in your shell or CI secrets.</p>
+
+    <h2 id="guidelines">How do coding guidelines work?</h2>
+    <p>Set <code>guidelines_file</code> in <code>.aicodereview.yml</code>. The file is read, base64-embedded in prompts, and the model is instructed to decode and follow it. This works consistently across all providers without separate uploads.</p>
+
+    <h2 id="diffs">What diffs are supported?</h2>
+    <p>Unified diffs (the standard output of <code>git diff</code>) either from a file (<code>--diff-file</code>) or computed from a PR/MR ID when using the VCS adapters.</p>
+
+    <h2 id="comments">Will it post comments automatically?</h2>
+    <p>No. It prints to stdout by default. It will only post a summary back to PR/MR when you pass <code>--comment</code>.</p>
+
+    <h2 id="errors">Common errors</h2>
+    <ul>
+      <li><strong>401/403:</strong> missing token or wrong scopes. Check your environment variables.</li>
+      <li><strong>Project/repo not found:</strong> ensure <code>vcs.repo</code>/<code>vcs.project_id</code> match your target and the ID is correct.</li>
+      <li><strong>Self-hosted GitLab:</strong> set <code>vcs.api_base</code> to the full API base URL (e.g., ending with <code>/api/v4</code>).</li>
+    </ul>
+  </article>
+</main>
+<footer class="footer"><div class="container footer-inner"><div>© 2025 AI Code Review Bot</div><div><a href="./">Home</a></div></div></footer>
+</body>
+</html>

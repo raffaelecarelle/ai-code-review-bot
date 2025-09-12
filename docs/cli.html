@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>CLI • AI Code Review Bot</title>
+  <link rel="stylesheet" href="assets/style.css" />
+</head>
+<body>
+<header class="header">
+  <div class="container header-inner">
+    <a class="brand" href="./"><img src="assets/logo.png" alt="" /><span>AI Code Review Bot</span></a>
+    <nav class="nav">
+      <a href="getting-started.html">Quick Start</a>
+      <a href="configuration.html">Configuration</a>
+      <a href="vcs-adapters.html">VCS Adapters</a>
+      <a href="providers.html">AI Providers</a>
+      <a href="cli.html">CLI</a>
+      <a href="development.html">Development</a>
+      <a href="faq.html">FAQ</a>
+    </nav>
+  </div>
+</header>
+<main class="main container content">
+  <aside class="sidebar">
+    <h3>On this page</h3>
+    <a href="#review">review</a>
+    <a href="#options">Options</a>
+    <a href="#examples">Examples</a>
+  </aside>
+  <article class="article">
+    <h1>CLI</h1>
+    <p>The CLI entry point is <code>bin/aicr</code> and exposes a single command: <code>review</code>.</p>
+
+    <h2 id="review">review</h2>
+    <pre><code>php bin/aicr review [--diff-file FILE | --id ID] [--output json|summary] [--comment] [--config FILE]
+</code></pre>
+
+    <h2 id="options">Options</h2>
+    <ul>
+      <li><code>--diff-file FILE</code> – analyze a unified diff from file</li>
+      <li><code>--id ID</code> – analyze a PR/MR by ID using the configured VCS adapter</li>
+      <li><code>--output</code> – <code>json</code> (default) or <code>summary</code></li>
+      <li><code>--comment</code> – post the summary to the PR/MR using the adapter</li>
+      <li><code>--config FILE</code> – use a specific config file instead of <code>.aicodereview.yml</code></li>
+    </ul>
+
+    <h2 id="examples">Examples</h2>
+    <pre><code># Analyze an existing diff and print a human summary
+php bin/aicr review --diff-file examples/sample.diff --output summary
+
+# Analyze a PR by number (GitHub) or MR IID (GitLab) and print JSON
+php bin/aicr review --id 123 --output json
+
+# Analyze an MR and post a comment
+php bin/aicr review --id 456 --output summary --comment
+
+# Use a custom config file
+php bin/aicr review --id 123 --config examples/config.github.yml --output summary
+</code></pre>
+  </article>
+</main>
+<footer class="footer"><div class="container footer-inner"><div>© 2025 AI Code Review Bot</div><div><a href="./">Home</a></div></div></footer>
+</body>
+</html>

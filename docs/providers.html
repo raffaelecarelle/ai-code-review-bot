@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>AI Providers • AI Code Review Bot</title>
+  <link rel="stylesheet" href="assets/style.css" />
+</head>
+<body>
+<header class="header">
+  <div class="container header-inner">
+    <a class="brand" href="./"><img src="assets/logo.png" alt="" /><span>AI Code Review Bot</span></a>
+    <nav class="nav">
+      <a href="getting-started.html">Quick Start</a>
+      <a href="configuration.html">Configuration</a>
+      <a href="vcs-adapters.html">VCS Adapters</a>
+      <a href="providers.html">AI Providers</a>
+      <a href="cli.html">CLI</a>
+      <a href="development.html">Development</a>
+      <a href="faq.html">FAQ</a>
+    </nav>
+  </div>
+</header>
+<main class="main container content">
+  <aside class="sidebar">
+    <h3>On this page</h3>
+    <a href="#supported">Supported providers</a>
+    <a href="#select">Selecting a provider</a>
+    <a href="#budget">Token budgeting</a>
+    <a href="#guidelines">Coding guidelines embedding</a>
+  </aside>
+  <article class="article">
+    <h1>AI Providers</h1>
+    <p>The tool supports multiple AI providers behind a unified interface. You can switch providers via configuration without changing your workflow.</p>
+
+    <h2 id="supported">Supported providers</h2>
+    <ul>
+      <li><code>openai</code> – OpenAI Chat Completions-compatible models</li>
+      <li><code>gemini</code> – Google Gemini</li>
+      <li><code>anthropic</code> – Anthropic Claude</li>
+      <li><code>ollama</code> – Local models via Ollama</li>
+      <li><code>mock</code> – Deterministic, no-network mock used by default</li>
+    </ul>
+    <p>See <code>src/Providers/*</code> for exact options exposed by each provider implementation.</p>
+
+    <h2 id="select">Selecting a provider</h2>
+    <pre><code>providers:
+  default: openai   # or gemini | anthropic | ollama | mock
+  # Additional provider-specific keys may be needed (see source code)
+</code></pre>
+    <p>Provider credentials should be supplied via environment variables whenever possible. For example: <code>OPENAI_API_KEY</code>, <code>GEMINI_API_KEY</code>, <code>ANTHROPIC_API_KEY</code>, or ollama endpoint if not default.</p>
+
+    <h2 id="budget">Token budgeting</h2>
+    <ul>
+      <li>Approximate token accounting: characters/4.</li>
+      <li>Global cap via <code>context.diff_token_limit</code> and per-file cap via <code>context.per_file_token_cap</code>.</li>
+      <li>Overflow strategy defaults to <code>trim</code>; other strategies may be added over time.</li>
+    </ul>
+
+    <h2 id="guidelines">Coding guidelines embedding</h2>
+    <p>If <code>guidelines_file</code> is set in config, its contents are base64-embedded into the prompts for all providers. The system instructions direct the model to decode and apply them strictly during review.</p>
+  </article>
+</main>
+<footer class="footer"><div class="container footer-inner"><div>© 2025 AI Code Review Bot</div><div><a href="./">Home</a></div></div></footer>
+</body>
+</html>
