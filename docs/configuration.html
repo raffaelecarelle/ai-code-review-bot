@@ -61,21 +61,17 @@ policy:
   redact_secrets: true
 guidelines_file: null
 vcs:
-  # Set one of: github | gitlab | bitbucket
+  # Choose which platform to use when computing diffs via git and posting comments
+  # Allowed values: github | gitlab | bitbucket
   platform: null
-  # GitHub: owner/repo (optional if GH_REPO env or remote origin is GitHub)
-  repo: null
-  # GitLab: numeric id or full path namespace/repo (optional if GL_PROJECT_ID or remote origin is GitLab)
-  project_id: null
-  # GitLab: override API base for self-hosted instances (e.g., https://gitlab.example.com/api/v4)
-  api_base: null
-  # Bitbucket: workspace name (required for Bitbucket)
-  workspace: null
-  # Bitbucket: repository name (required for Bitbucket)
+  
+  # Repository identifier: "owner/repo" (GitHub), "namespace/project" (GitLab), "workspace/repo" (Bitbucket)
   repository: null
-  # Bitbucket: access token for authentication (required for Bitbucket)
-  accessToken: null
-  # Bitbucket: API request timeout in seconds (optional, defaults to 30)
+  # Authentication token (falls back to env vars: AICR_TOKEN, then platform-specific tokens)
+  token: null
+  # API base URL (defaults to platform standard, override for self-hosted instances)
+  api_base: null
+  # HTTP timeout in seconds
   timeout: 30
 prompts:
   system_append: "Prefer concise findings and avoid duplicates."

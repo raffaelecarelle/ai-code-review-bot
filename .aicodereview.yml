@@ -17,7 +17,6 @@ vcs:
   # Allowed values: github | gitlab | bitbucket
   platform: null
   
-  # === UNIFIED CONFIGURATION (recommended) ===
   # Repository identifier: "owner/repo" (GitHub), "namespace/project" (GitLab), "workspace/repo" (Bitbucket)
   repository: null
   # Authentication token (falls back to env vars: AICR_TOKEN, then platform-specific tokens)
@@ -26,18 +25,6 @@ vcs:
   api_base: null
   # HTTP timeout in seconds
   timeout: 30
-  
-  # === LEGACY CONFIGURATION (deprecated but supported) ===
-  # GitHub: owner/repo (optional if GH_REPO env or remote origin is GitHub)
-  repo: null
-  # GitLab: numeric id or full path namespace/repo (optional if GL_PROJECT_ID env or remote origin is GitLab)
-  project_id: null
-  # Bitbucket: workspace identifier
-  workspace: null
-  # Bitbucket: repository name
-  repository_name: null
-  # Bitbucket: access token
-  access_token: null
 prompts:
   # Optional: append additional instructions to the LLM prompts
   # Accepts a string or a list of strings for system_append and user_append
