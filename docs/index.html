@@ -75,32 +75,7 @@
             <li>Comment policies and secret redaction</li>
           </ul>
         </div>
-        <div>
-          <h3>Architecture (PHP)</h3>
-          <ul>
-            <li><code>bin/aicr</code>: CLI entrypoint (Symfony Console)</li>
-            <li><code>src/Command/ReviewCommand.php</code>: pipeline orchestration</li>
-            <li><code>src/Config.php</code>: config loading/merge</li>
-            <li><code>src/DiffParser.php</code>: unified diff parser</li>
-            <li><code>src/Pipeline.php</code>: E2E pipeline</li>
-            <li><code>src/Adapters/*</code>: VCS adapters (GitHub/GitLab)</li>
-            <li><code>src/Providers/*</code>: AI providers</li>
-          </ul>
-        </div>
       </div>
-
-      <h2>Suggested index</h2>
-      <ul>
-        <li><a href="getting-started.html">Quick Start</a></li>
-        <li><a href="configuration.html">Configuration (.aicodereview.yml)</a></li>
-        <li><a href="vcs-adapters.html">VCS Adapters (GitHub/GitLab)</a></li>
-        <li><a href="providers.html">AI Providers and token budgeting</a></li>
-        <li><a href="output.html">Output formats</a></li>
-        <li><a href="cli.html">CLI commands</a></li>
-        <li><a href="development.html">Development & QA</a></li>
-        <li><a href="faq.html">FAQ</a></li>
-        <li><a href="credits-license.html">Credits & License</a></li>
-      </ul>
 
       <div class="warning">
         <strong>Privacy note:</strong> the default provider is <em>mock</em> to avoid external calls.
