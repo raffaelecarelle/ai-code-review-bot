@@ -26,10 +26,11 @@
     <h3>On this page</h3>
     <a href="#json">JSON</a>
     <a href="#summary">Summary</a>
+    <a href="#markdown">Markdown</a>
   </aside>
   <article class="article">
     <h1>Output formats</h1>
-    <p>The review command supports two output formats: machine-readable <code>json</code> and human-friendly <code>summary</code>.</p>
+    <p>The review command supports three output formats: machine-readable <code>json</code>, human-friendly <code>summary</code>, and structured <code>markdown</code>.</p>
 
     <h2 id="json">JSON</h2>
     <p>Default output. A simplified example structure:</p>
@@ -49,6 +50,32 @@
     <p>Concise human-readable summary designed for PR/MR comments. Example:</p>
     <pre><code>- src/Foo.php:42 (warning) Possible null dereference. Check $bar before use.
 - src/Bar.php:10 (info) Consider extracting method to reduce complexity.
+</code></pre>
+
+    <h2 id="markdown">Markdown</h2>
+    <p>Structured markdown format with emojis, metadata, and organized findings by severity and file. Perfect for detailed reports and documentation. Example:</p>
+    <pre><code># 🔍 Code Review Results
+
+## 📊 Summary
+- **Total Issues:** 2
+- **Critical:** 0 | **High:** 0 | **Medium:** 1 | **Low:** 1
+
+## 🔧 Findings
+
+### src/Foo.php
+#### ⚠️ Possible null dereference
+- **Line:** 42
+- **Severity:** warning
+- **Rule:** `null-check`
+
+**Rationale:** Variable $bar may be null at this point.
+**Suggestion:** Add guard clause or null-check.
+
+---
+
+## 📋 Metadata
+- **Generated:** 2025-01-15 12:30:00 UTC
+- **Formatter:** Markdown (Custom Plugin)
 </code></pre>
   </article>
 </main>

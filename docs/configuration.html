@@ -61,7 +61,7 @@ policy:
   redact_secrets: true
 guidelines_file: null
 vcs:
-  # Set one of: github | gitlab
+  # Set one of: github | gitlab | bitbucket
   platform: null
   # GitHub: owner/repo (optional if GH_REPO env or remote origin is GitHub)
   repo: null
@@ -69,6 +69,14 @@ vcs:
   project_id: null
   # GitLab: override API base for self-hosted instances (e.g., https://gitlab.example.com/api/v4)
   api_base: null
+  # Bitbucket: workspace name (required for Bitbucket)
+  workspace: null
+  # Bitbucket: repository name (required for Bitbucket)
+  repository: null
+  # Bitbucket: access token for authentication (required for Bitbucket)
+  accessToken: null
+  # Bitbucket: API request timeout in seconds (optional, defaults to 30)
+  timeout: 30
 prompts:
   system_append: "Prefer concise findings and avoid duplicates."
   user_append:
@@ -84,6 +92,7 @@ prompts:
         <ul>
           <li>GitHub: <code>GH_TOKEN</code> or <code>GITHUB_TOKEN</code>; optional <code>GH_REPO</code></li>
           <li>GitLab: <code>GL_TOKEN</code> or <code>GITLAB_TOKEN</code>; <code>GL_PROJECT_ID</code>; optional <code>GL_API_BASE</code></li>
+          <li>Bitbucket: Configure <code>workspace</code>, <code>repository</code>, and <code>accessToken</code> in the config file</li>
         </ul>
       </li>
     </ul>

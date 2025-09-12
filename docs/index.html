@@ -59,7 +59,7 @@
       <h1>Overview</h1>
       <p>
         AI Code Review Bot analyzes <em>unified diffs</em> and produces normalized findings (JSON or human-readable summary),
-        with simple configuration for providers, policy, token budget, and VCS adapters (GitHub/GitLab). By default it is
+        with simple configuration for providers, policy, token budget, and VCS adapters (GitHub/GitLab/Bitbucket). By default it is
         safe: it uses a mock AI provider for deterministic runs and will not post PR/MR comments unless explicitly requested.
       </p>
 
@@ -68,9 +68,9 @@
           <h3>Key features</h3>
           <ul>
             <li>Analyze unified diffs (files or PR/MR)</li>
-            <li>JSON and human summary outputs</li>
+            <li>Multiple output formats: JSON, human summary, and structured markdown</li>
             <li>YAML/JSON configuration with environment variable expansion</li>
-            <li>Adapters for GitHub and GitLab</li>
+            <li>Adapters for GitHub, GitLab, and Bitbucket</li>
             <li>Pluggable AI Providers: OpenAI, Gemini, Anthropic, Ollama, Mock</li>
             <li>Comment policies and secret redaction</li>
           </ul>

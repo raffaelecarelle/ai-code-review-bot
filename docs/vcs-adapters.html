@@ -27,17 +27,18 @@
     <a href="#overview">Overview</a>
     <a href="#github">GitHub setup</a>
     <a href="#gitlab">GitLab setup</a>
+    <a href="#bitbucket">Bitbucket setup</a>
     <a href="#flow">How it works without --diff-file</a>
     <a href="#comments">Posting comments</a>
     <a href="#troubleshooting">Troubleshooting</a>
   </aside>
   <article class="article">
     <h1>VCS Adapters</h1>
-    <p>Use the VCS adapters to resolve a PR/MR by its ID and compute the diff automatically. Supported platforms: GitHub and GitLab.</p>
+    <p>Use the VCS adapters to resolve a PR/MR by its ID and compute the diff automatically. Supported platforms: GitHub, GitLab, and Bitbucket.</p>
 
     <h2 id="overview">Overview</h2>
     <ul>
-      <li>Set <code>vcs.platform</code> to <code>github</code> or <code>gitlab</code> in your config.</li>
+      <li>Set <code>vcs.platform</code> to <code>github</code>, <code>gitlab</code>, or <code>bitbucket</code> in your config.</li>
       <li>Provide the necessary identifiers and tokens either via config or environment variables.</li>
       <li>Run <code>php bin/aicr review --id &lt;number&gt; --output summary</code>.</li>
     </ul>
@@ -56,9 +57,18 @@
       <li>Self-hosted: customize API base via <code>vcs.api_base</code> (e.g., <code>https://gitlab.example.com/api/v4</code>)</li>
     </ul>
 
+    <h2 id="bitbucket">Bitbucket setup</h2>
+    <ul>
+      <li>Workspace: workspace name (required) via <code>vcs.workspace</code></li>
+      <li>Repository: repository name (required) via <code>vcs.repository</code></li>
+      <li>Access token: Bearer token for authentication via <code>vcs.accessToken</code></li>
+      <li>Timeout: API request timeout in seconds (optional, defaults to 30) via <code>vcs.timeout</code></li>
+      <li>Permissions: read Pull Requests; write if you plan to post comments</li>
+    </ul>
+
     <h2 id="flow">How it works without <code>--diff-file</code></h2>
     <ol>
-      <li>Resolve base/head branches from the PR number (GitHub) or MR IID (GitLab) via the platform API.</li>
+      <li>Resolve base/head branches from the PR number (GitHub), MR IID (GitLab), or PR ID (Bitbucket) via the platform API.</li>
       <li>Run <code>git fetch --all</code>, fetch both branches and compute <code>git diff base...head</code>.</li>
       <li>Analyze the resulting unified diff with the pipeline.</li>
     </ol>
