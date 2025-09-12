@@ -18,8 +18,11 @@ final class BitbucketAdapterTest extends TestCase
 {
     public function testConstructorWithValidOptions(): void
     {
-        $adapter = new BitbucketAdapter('my-workspace', 'my-repo', 'test-token');
-        
+        $adapter = new BitbucketAdapter([
+            'repository' => 'my-workspace/my-repo',
+            'token' => 'test-token'
+        ]);
+
         $this->assertInstanceOf(BitbucketAdapter::class, $adapter);
         $this->assertInstanceOf(VcsAdapter::class, $adapter);
         $this->assertEquals('my-workspace/my-repo', $adapter->getRepositoryIdentifier());
@@ -27,15 +30,22 @@ final class BitbucketAdapterTest extends TestCase
 
     public function testConstructorWithBearerAuth(): void
     {
-        $adapter = new BitbucketAdapter('my-workspace', 'my-repo', 'test-token');
-        
+        $adapter = new BitbucketAdapter([
+            'repository' => 'my-workspace/my-repo',
+            'token' => 'test-token'
+        ]);
+
         $this->assertInstanceOf(BitbucketAdapter::class, $adapter);
     }
 
     public function testConstructorWithCustomTimeout(): void
     {
-        $adapter = new BitbucketAdapter('my-workspace', 'my-repo', 'test-token', 60);
-        
+        $adapter = new BitbucketAdapter([
+            'repository' => 'my-workspace/my-repo',
+            'token' => 'test-token',
+            'timeout' => 60
+        ]);
+
         $this->assertInstanceOf(BitbucketAdapter::class, $adapter);
     }
 
@@ -52,11 +62,11 @@ final class BitbucketAdapterTest extends TestCase
 
         $mock = new MockHandler([$mockResponse]);
         $handlerStack = HandlerStack::create($mock);
-        
+
         $adapter = $this->createAdapterWithMockClient($handlerStack);
-        
+
         $result = $adapter->resolveBranchesFromId(123);
-        
+
         $this->assertEquals(['main', 'feature-branch'], $result);
     }
 
@@ -66,12 +76,12 @@ final class BitbucketAdapterTest extends TestCase
 
         $mock = new MockHandler([$mockResponse]);
         $handlerStack = HandlerStack::create($mock);
-        
+
         $adapter = $this->createAdapterWithMockClient($handlerStack);
-        
+
         $this->expectException(\RuntimeException::class);
         $this->expectExceptionMessage('Invalid response from Bitbucket API');
-        
+
         $adapter->resolveBranchesFromId(123);
     }
 
@@ -84,12 +94,12 @@ final class BitbucketAdapterTest extends TestCase
 
         $mock = new MockHandler([$mockResponse]);
         $handlerStack = HandlerStack::create($mock);
-        
+
         $adapter = $this->createAdapterWithMockClient($handlerStack);
-        
+
         $this->expectException(\RuntimeException::class);
         $this->expectExceptionMessage('Could not resolve branch names from PR data');
-        
+
         $adapter->resolveBranchesFromId(123);
     }
 
@@ -100,12 +110,12 @@ final class BitbucketAdapterTest extends TestCase
 
         $mock = new MockHandler([$exception]);
         $handlerStack = HandlerStack::create($mock);
-        
+
         $adapter = $this->createAdapterWithMockClient($handlerStack);
-        
+
         $this->expectException(\RuntimeException::class);
         $this->expectExceptionMessage('Failed to resolve branches for PR #123: Network error');
-        
+
         $adapter->resolveBranchesFromId(123);
     }
 
@@ -115,12 +125,12 @@ final class BitbucketAdapterTest extends TestCase
 
         $mock = new MockHandler([$mockResponse]);
         $handlerStack = HandlerStack::create($mock);
-        
+
         $adapter = $this->createAdapterWithMockClient($handlerStack);
-        
+
         // Should not throw exception
         $adapter->postComment(123, 'Test comment');
-        
+
         $this->assertTrue(true); // If we reach here, the test passed
     }
 
@@ -131,12 +141,12 @@ final class BitbucketAdapterTest extends TestCase
 
         $mock = new MockHandler([$exception]);
         $handlerStack = HandlerStack::create($mock);
-        
+
         $adapter = $this->createAdapterWithMockClient($handlerStack);
-        
+
         $this->expectException(\RuntimeException::class);
         $this->expectExceptionMessage('Failed to post comment to PR #123: API error');
-        
+
         $adapter->postComment(123, 'Test comment');
     }
 
@@ -153,11 +163,11 @@ final class BitbucketAdapterTest extends TestCase
 
         $mock = new MockHandler([$mockResponse]);
         $handlerStack = HandlerStack::create($mock);
-        
+
         $adapter = $this->createAdapterWithMockClient($handlerStack);
-        
+
         $result = $adapter->getPullRequestDetails(123);
-        
+
         $this->assertEquals($prData, $result);
     }
 
@@ -167,11 +177,11 @@ final class BitbucketAdapterTest extends TestCase
 
         $mock = new MockHandler([$mockResponse]);
         $handlerStack = HandlerStack::create($mock);
-        
+
         $adapter = $this->createAdapterWithMockClient($handlerStack);
-        
+
         $result = $adapter->getPullRequestDetails(123);
-        
+
         $this->assertEquals([], $result);
     }
 
@@ -182,19 +192,22 @@ final class BitbucketAdapterTest extends TestCase
 
         $mock = new MockHandler([$exception]);
         $handlerStack = HandlerStack::create($mock);
-        
+
         $adapter = $this->createAdapterWithMockClient($handlerStack);
-        
+
         $this->expectException(\RuntimeException::class);
         $this->expectExceptionMessage('Failed to get PR details for #123: Not found');
-        
+
         $adapter->getPullRequestDetails(123);
     }
 
     public function testGetRepositoryIdentifier(): void
     {
-        $adapter = new BitbucketAdapter('test-workspace', 'test-repo', 'test-token');
-        
+        $adapter = new BitbucketAdapter([
+            'repository' => 'test-workspace/test-repo',
+            'token' => 'test-token'
+        ]);
+
         $this->assertEquals('test-workspace/test-repo', $adapter->getRepositoryIdentifier());
     }
 
@@ -226,20 +239,23 @@ final class BitbucketAdapterTest extends TestCase
 
         $mock = new MockHandler([$mockResponse]);
         $handlerStack = HandlerStack::create($mock);
-        
+
         $adapter = $this->createAdapterWithMockClient($handlerStack);
-        
+
         $result = $adapter->resolveBranchesFromId(123);
-        
+
         $this->assertEquals(['develop', 'feature/new-feature'], $result);
     }
 
     public function testInterfaceImplementation(): void
     {
-        $adapter = new BitbucketAdapter('test-workspace', 'test-repo', 'test-token');
-        
+        $adapter = new BitbucketAdapter([
+            'repository' => 'test-workspace/test-repo',
+            'token' => 'test-token'
+        ]);
+
         $this->assertInstanceOf(VcsAdapter::class, $adapter);
-        
+
         // Verify required methods are implemented
         $this->assertTrue(method_exists($adapter, 'resolveBranchesFromId'));
         $this->assertTrue(method_exists($adapter, 'postComment'));
@@ -247,16 +263,19 @@ final class BitbucketAdapterTest extends TestCase
 
     private function createAdapterWithMockClient(HandlerStack $handlerStack): BitbucketAdapter
     {
-        $adapter = new BitbucketAdapter('test-workspace', 'test-repo', 'test-token');
-        
+        $adapter = new BitbucketAdapter([
+            'repository' => 'test-workspace/test-repo',
+            'token' => 'test-token'
+        ]);
+
         // Use reflection to inject mock client
         $reflection = new \ReflectionClass($adapter);
         $clientProperty = $reflection->getProperty('client');
         $clientProperty->setAccessible(true);
-        
+
         $mockClient = new Client(['handler' => $handlerStack]);
         $clientProperty->setValue($adapter, $mockClient);
-        
+
         return $adapter;
     }
 }

@@ -79,6 +79,6 @@ final class ReviewCommandTest extends TestCase
         @unlink($tmpCfg);
 
         $this->assertSame(1, $exit);
-        $this->assertStringContainsString('Configure vcs.platform as "github" or "gitlab"', $tester->getDisplay());
+        $this->assertStringContainsString('Configure vcs.platform as "github", "gitlab", or "bitbucket"', $tester->getDisplay());
     }
 }

@@ -16,12 +16,28 @@ vcs:
   # Choose which platform to use when computing diffs via git and posting comments
   # Allowed values: github | gitlab | bitbucket
   platform: null
+  
+  # === UNIFIED CONFIGURATION (recommended) ===
+  # Repository identifier: "owner/repo" (GitHub), "namespace/project" (GitLab), "workspace/repo" (Bitbucket)
+  repository: null
+  # Authentication token (falls back to env vars: AICR_TOKEN, then platform-specific tokens)
+  token: null
+  # API base URL (defaults to platform standard, override for self-hosted instances)
+  api_base: null
+  # HTTP timeout in seconds
+  timeout: 30
+  
+  # === LEGACY CONFIGURATION (deprecated but supported) ===
   # GitHub: owner/repo (optional if GH_REPO env or remote origin is GitHub)
   repo: null
   # GitLab: numeric id or full path namespace/repo (optional if GL_PROJECT_ID env or remote origin is GitLab)
   project_id: null
-  # GitLab only: override API base if you self-host (e.g., https://gitlab.example.com/api/v4)
-  api_base: null
+  # Bitbucket: workspace identifier
+  workspace: null
+  # Bitbucket: repository name
+  repository_name: null
+  # Bitbucket: access token
+  access_token: null
 prompts:
   # Optional: append additional instructions to the LLM prompts
   # Accepts a string or a list of strings for system_append and user_append

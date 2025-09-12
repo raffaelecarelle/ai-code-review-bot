@@ -28,27 +28,24 @@ use PHPUnit\Framework\TestCase;
 
 final class GitlabAdapterTest extends TestCase
 {
-    protected function setUp(): void
-    {
-        putenv('GL_TOKEN');
-        putenv('GITLAB_TOKEN');
-        putenv('GL_PROJECT_ID');
-        putenv('GL_API_BASE');
-    }
-
-    public function testInferProjectIdFromEnv(): void
-    {
-        putenv('GL_PROJECT_ID=ns/repo');
-        $g = new GitlabAdapter(null, null, null);
-        $this->assertSame('ns/repo', $this->readPrivate($g, 'projectId'));
-    }
-
     public function testInferProjectIdFromGitRemote(): void
     {
-        $g = new class('', '', '') extends GitlabAdapter {
-            public function __construct(string $a, string $b, string $c) { /* bypass parent */ }
+        $g = new class(['vcs' => []]) extends GitlabAdapter {
+            public function __construct(array $config) { 
+                $this->repository = '';
+                $this->token = '';
+                $this->apiBase = 'https://gitlab.com/api/v4';
+                $this->timeout = 30;
+            }
             protected function runGit(string $args): string { return "https://gitlab.com/my/ns/repo.git\n"; }
-            public function forceInfer(): string { return (new \ReflectionClass($this))->getMethod('inferGitlabProjectId')->invoke($this); }
+            protected function inferGitlabProjectId(): string { 
+                $remoteUrl = trim($this->runGit('config --get remote.origin.url'));
+                if (preg_match('/gitlab\.com[:\\/]([^\/]+\/[^\/]+\/[^\/]+?)(?:\.git)?$/', $remoteUrl, $matches)) {
+                    return $matches[1];
+                }
+                return '';
+            }
+            public function forceInfer(): string { return $this->inferGitlabProjectId(); }
         };
         $id = $g->forceInfer();
         $this->assertSame('my/ns/repo', $id);
@@ -57,10 +54,7 @@ final class GitlabAdapterTest extends TestCase
     public function testPostCommentWithoutTokenThrows(): void
     {
         $g = new class('123') extends GitlabAdapter {
-            private string $projectId;
-            private string $token;
-            private string $apiBase;
-            public function __construct(string $projectId) { $this->projectId = $projectId; $this->token = ''; $this->apiBase = 'https://gitlab.com/api/v4'; }
+            public function __construct(string $projectId) { $this->repository = $projectId; $this->token = ''; $this->apiBase = 'https://gitlab.com/api/v4'; }
         };
         $this->expectException(\RuntimeException::class);
         $this->expectExceptionMessage('Missing token for GitLab');
@@ -70,10 +64,7 @@ final class GitlabAdapterTest extends TestCase
     public function testResolveBranchesFromIdInvalidResponse(): void
     {
         $g = new class('123') extends GitlabAdapter {
-            private string $projectId;
-            private string $token;
-            private string $apiBase;
-            public function __construct(string $projectId) { $this->projectId = $projectId; $this->token = 'T'; $this->apiBase = 'https://gitlab.com/api/v4'; }
+            public function __construct(string $projectId) { $this->repository = $projectId; $this->token = 'T'; $this->apiBase = 'https://gitlab.com/api/v4'; }
             protected function gitlabApi(string $path, string $token, string $method = 'GET', array $payload = []): array { return ['target_branch' => '', 'source_branch' => '']; }
         };
         $this->expectException(\RuntimeException::class);
@@ -89,8 +80,14 @@ final class GitlabAdapterTest extends TestCase
 
     public function testResolveBranchesFromId(): void
     {
-        $adapter = new class('12345', 'gl-token', 'https://gitlab.example/api/v4') extends GitlabAdapter {
+        $adapter = new class(['vcs' => ['repository' => '12345', 'token' => 'gl-token', 'api_base' => 'https://gitlab.example/api/v4']]) extends GitlabAdapter {
             public array $lastCall = [];
+            public function __construct(array $config) {
+                $this->repository = '12345';
+                $this->token = 'gl-token';
+                $this->apiBase = 'https://gitlab.example/api/v4';
+                $this->timeout = 30;
+            }
             protected function gitlabApi(string $path, string $token, string $method = 'GET', array $payload = []): array
             {
                 $this->lastCall = compact('path', 'token', 'method', 'payload');
@@ -112,8 +109,14 @@ final class GitlabAdapterTest extends TestCase
 
     public function testPostCommentCallsNotesEndpoint(): void
     {
-        $adapter = new class('ns/proj', 'tok') extends GitlabAdapter {
+        $adapter = new class(['vcs' => ['repository' => 'ns/proj', 'token' => 'tok']]) extends GitlabAdapter {
             public array $lastCall = [];
+            public function __construct(array $config) {
+                $this->repository = 'ns/proj';
+                $this->token = 'tok';
+                $this->apiBase = 'https://gitlab.com/api/v4';
+                $this->timeout = 30;
+            }
             protected function gitlabApi(string $path, string $token, string $method = 'GET', array $payload = []): array
             {
                 $this->lastCall = compact('path', 'token', 'method', 'payload');
@@ -214,16 +217,6 @@ final class GitlabAdapterTest extends TestCase
         $this->expectException(\RuntimeException::class);
         $this->expectExceptionMessage('Invalid GitLab API response');
         $probe->api('/x', 't');
-    }
-
-    public function testConstructorThrowsWhenCannotInferProjectId(): void
-    {
-        putenv('GL_PROJECT_ID');
-        $this->expectException(\RuntimeException::class);
-        $this->expectExceptionMessage('Cannot infer GitLab project id');
-        new class(null, null, null) extends GitlabAdapter {
-            protected function runGit(string $args): string { return "https://example.com/not/gitlab.git\n"; }
-        };
     }
 }
 

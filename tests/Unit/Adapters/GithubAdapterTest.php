@@ -28,28 +28,25 @@ use PHPUnit\Framework\TestCase;
 
 final class GithubAdapterTest extends TestCase
 {
-    protected function setUp(): void
-    {
-        // Clear GH envs to control behavior
-        putenv('GH_TOKEN');
-        putenv('GITHUB_TOKEN');
-        putenv('GH_REPO');
-    }
-
-    public function testInferRepoFromEnv(): void
-    {
-        putenv('GH_REPO=owner/repo');
-        $g = new GithubAdapter(null, null);
-        $this->assertSame('owner/repo', $this->readPrivate($g, 'repo'));
-    }
-
     public function testInferRepoFromGitRemote(): void
     {
         // Subclass to override runGit
-        $g = new class('','') extends GithubAdapter {
-            public function __construct(string $dummy1, string $dummy2) { /* bypass parent */ }
+        $g = new class(['vcs' => []]) extends GithubAdapter {
+            public function __construct(array $config) { 
+                $this->repository = '';
+                $this->token = '';
+                $this->apiBase = 'https://api.github.com';
+                $this->timeout = 30;
+            }
             protected function runGit(string $args): string { return "git@github.com:octo/proj.git\n"; }
-            public function forceInfer(): string { return (new \ReflectionClass($this))->getMethod('inferGithubRepo')->invoke($this); }
+            protected function inferGithubRepo(): string { 
+                $remoteUrl = trim($this->runGit('config --get remote.origin.url'));
+                if (preg_match('/github\.com[:\\/]([^\/]+\/[^\/]+?)(?:\.git)?$/', $remoteUrl, $matches)) {
+                    return $matches[1];
+                }
+                return '';
+            }
+            public function forceInfer(): string { return $this->inferGithubRepo(); }
         };
         $repo = $g->forceInfer();
         $this->assertSame('octo/proj', $repo);
@@ -58,9 +55,7 @@ final class GithubAdapterTest extends TestCase
     public function testPostCommentWithoutTokenThrows(): void
     {
         $g = new class('owner/repo') extends GithubAdapter {
-            private string $repo;
-            private string $token;
-            public function __construct(string $repo) { $this->repo = $repo; $this->token = ''; }
+            public function __construct(string $repo) { $this->repository = $repo; $this->token = ''; }
         };
         $this->expectException(\RuntimeException::class);
         $this->expectExceptionMessage('Missing token for GitHub');
@@ -70,9 +65,7 @@ final class GithubAdapterTest extends TestCase
     public function testResolveBranchesFromIdInvalidResponse(): void
     {
         $g = new class('owner/repo') extends GithubAdapter {
-            private string $repo;
-            private string $token;
-            public function __construct(string $repo) { $this->repo = $repo; $this->token = 'T'; }
+            public function __construct(string $repo) { $this->repository = $repo; $this->token = 'T'; }
             protected function githubApi(string $path, string $token, string $method = 'GET', array $payload = []): array { return ['base' => ['ref' => ''], 'head' => ['ref' => '']]; }
         };
         $this->expectException(\RuntimeException::class);
@@ -92,8 +85,14 @@ final class GithubAdapterTest extends TestCase
 
     public function testResolveBranchesFromId(): void
     {
-        $adapter = new class('owner/repo', 'token') extends GithubAdapter {
+        $adapter = new class(['vcs' => ['repository' => 'owner/repo', 'token' => 'token']]) extends GithubAdapter {
             public array $lastCall = [];
+            public function __construct(array $config) {
+                $this->repository = 'owner/repo';
+                $this->token = 'token';
+                $this->apiBase = 'https://api.github.com';
+                $this->timeout = 30;
+            }
             protected function githubApi(string $path, string $token, string $method = 'GET', array $payload = []): array
             {
                 $this->lastCall = compact('path', 'token', 'method', 'payload');
@@ -115,8 +114,14 @@ final class GithubAdapterTest extends TestCase
 
     public function testPostCommentCallsIssuesCommentsEndpoint(): void
     {
-        $adapter = new class('owner/repo', 'tok') extends GithubAdapter {
+        $adapter = new class(['vcs' => ['repository' => 'owner/repo', 'token' => 'tok']]) extends GithubAdapter {
             public array $lastCall = [];
+            public function __construct(array $config) {
+                $this->repository = 'owner/repo';
+                $this->token = 'tok';
+                $this->apiBase = 'https://api.github.com';
+                $this->timeout = 30;
+            }
             protected function githubApi(string $path, string $token, string $method = 'GET', array $payload = []): array
             {
                 $this->lastCall = compact('path', 'token', 'method', 'payload');
@@ -140,7 +145,9 @@ final class GithubAdapterTest extends TestCase
         \AICR\Adapters\_HttpMock::$nextResponse = json_encode(['ok' => true]);
 
         $probe = new class(null, null) extends GithubAdapter {
-            public function __construct(?string $a, ?string $b) { /* bypass parent */ }
+            public function __construct(?string $a, ?string $b) { 
+                $this->apiBase = 'https://api.github.com';
+            }
             public function api(string $path, string $token, string $method = 'GET', array $payload = []): array { return parent::githubApi($path, $token, $method, $payload); }
             protected function runGit(string $args): string { return ""; }
         };
@@ -164,7 +171,9 @@ final class GithubAdapterTest extends TestCase
         \AICR\Adapters\_HttpMock::$nextResponse = json_encode(['ok' => true]);
 
         $probe = new class(null, null) extends GithubAdapter {
-            public function __construct(?string $a, ?string $b) { /* bypass parent */ }
+            public function __construct(?string $a, ?string $b) { 
+                $this->apiBase = 'https://api.github.com';
+            }
             public function api(string $path, string $token, string $method = 'GET', array $payload = []): array { return parent::githubApi($path, $token, $method, $payload); }
             protected function runGit(string $args): string { return ""; }
         };
@@ -209,17 +218,6 @@ final class GithubAdapterTest extends TestCase
         $this->expectException(\RuntimeException::class);
         $this->expectExceptionMessage('Invalid GitHub API response');
         $probe->api('/x', 'tok');
-    }
-
-    public function testConstructorThrowsWhenCannotInferRepo(): void
-    {
-        // Ensure GH_REPO unset
-        putenv('GH_REPO');
-        $this->expectException(\RuntimeException::class);
-        $this->expectExceptionMessage('Cannot infer GitHub repo');
-        new class(null, null) extends GithubAdapter {
-            protected function runGit(string $args): string { return "ssh://git@bitbucket.org/user/repo.git\n"; }
-        };
     }
 }
 

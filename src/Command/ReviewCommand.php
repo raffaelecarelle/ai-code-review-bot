@@ -10,6 +10,7 @@ use AICR\Adapters\GitlabAdapter;
 use AICR\Adapters\VcsAdapter;
 use AICR\Config;
 use AICR\Pipeline;
+use AICR\Support\GitRunner;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -23,7 +24,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 )]
 final class ReviewCommand extends Command
 {
-    private ?VcsAdapter $adapterOverride = null;
+    private ?VcsAdapter $adapterOverride;
 
     public function __construct(?VcsAdapter $adapterOverride = null)
     {
@@ -119,21 +120,16 @@ final class ReviewCommand extends Command
         $platform = strtolower((string) ($vcs['platform'] ?? ''));
 
         if ('github' === $platform) {
-            $repo = isset($vcs['repo']) && is_string($vcs['repo']) && '' !== $vcs['repo'] ? $vcs['repo'] : null;
-
-            return new GithubAdapter($repo, null);
+            return new GithubAdapter($vcs);
         }
         if ('gitlab' === $platform) {
-            $projectId = isset($vcs['project_id']) && is_string($vcs['project_id']) && '' !== $vcs['project_id'] ? $vcs['project_id'] : null;
-            $apiBase   = isset($vcs['api_base']) && is_string($vcs['api_base']) && '' !== $vcs['api_base'] ? $vcs['api_base'] : null;
-
-            return new GitlabAdapter($projectId, null, $apiBase);
+            return new GitlabAdapter($vcs);
         }
         if ('bitbucket' === $platform) {
-            return new BitbucketAdapter($vcs['workspace'], $vcs['repository'], $vcs['accessToken'], $vcs['timeout'] ?? null);
+            return new BitbucketAdapter($vcs);
         }
 
-        throw new \InvalidArgumentException('Configure vcs.platform as "github" or "gitlab" to enable API-based diff.');
+        throw new \InvalidArgumentException('Configure vcs.platform as "github", "gitlab", or "bitbucket" to enable API-based diff.');
     }
 
     /**
@@ -162,7 +158,7 @@ final class ReviewCommand extends Command
 
     private function computeGitDiffToTempFile(SymfonyStyle $io, string $base, string $head): string
     {
-        $git = new \AICR\Support\GitRunner();
+        $git = new GitRunner();
         $git->run('fetch --all --prune');
         // Ensure we have the latest for both branches
         $git->run('fetch origin '.$git->esc($base));

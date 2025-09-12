@@ -4,25 +4,26 @@ declare(strict_types=1);
 
 namespace AICR\Adapters;
 
-use Symfony\Component\Process\Process;
-
-class GithubAdapter implements VcsAdapter
+class GithubAdapter extends BaseAdapter
 {
-    private string $repo  = ''; // owner/repo
-    private string $token = '';
-
-    public function __construct(?string $repo = null, ?string $token = null)
+    /**
+     * @param array<string,mixed> $config
+     */
+    public function __construct(array $config)
     {
-        $this->repo  = $repo ?? $this->inferGithubRepo();
-        $this->token = $token ?? (getenv('GH_TOKEN') ?: getenv('GITHUB_TOKEN') ?: '');
-        if ('' === $this->repo) {
-            throw new \RuntimeException('Cannot infer GitHub repo. Set vcs.repo in config, GH_REPO env, or ensure origin remote URL is a GitHub repo.');
+        $this->initializeFromConfig($config);
+
+        if ('' === $this->repository) {
+            throw new \RuntimeException('Cannot infer GitHub repo. Set vcs.repository in config, GH_REPO env, or ensure origin remote URL is a GitHub repo.');
         }
     }
 
+    /**
+     * @return array<int,string>
+     */
     public function resolveBranchesFromId(int $id): array
     {
-        $data = $this->githubApi('/repos/'.$this->repo.'/pulls/'.$id, $this->token, 'GET');
+        $data = $this->githubApi('/repos/'.$this->repository.'/pulls/'.$id, $this->token, 'GET');
         $base = (string) ($data['base']['ref'] ?? '');
         $head = (string) ($data['head']['ref'] ?? '');
         if ('' === $base || '' === $head) {
@@ -37,30 +38,14 @@ class GithubAdapter implements VcsAdapter
         if ('' === $this->token) {
             throw new \RuntimeException('Missing token for GitHub. Set GH_TOKEN or GITHUB_TOKEN.');
         }
-        $this->githubApi('/repos/'.$this->repo.'/issues/'.$id.'/comments', $this->token, 'POST', [
+        $this->githubApi('/repos/'.$this->repository.'/issues/'.$id.'/comments', $this->token, 'POST', [
             'body' => $body,
         ]);
     }
 
-    protected function runGit(string $args): string
+    protected function getDefaultApiBase(): string
     {
-        $process = Process::fromShellCommandline('git '.$args);
-        $process->setTimeout(null);
-        $process->run();
-        if (!$process->isSuccessful()) {
-            $cmdline  = $process->getCommandLine();
-            $output   = trim($process->getOutput());
-            $error    = trim($process->getErrorOutput());
-            $combined = trim($output.('' !== $error ? "\n".$error : ''));
-
-            throw new \RuntimeException("Git command failed ({$cmdline}):\n".$combined);
-        }
-        $out = $process->getOutput();
-        if ('' === $out) {
-            $out = $process->getErrorOutput();
-        }
-
-        return rtrim($out, "\n")."\n";
+        return 'https://api.github.com';
     }
 
     /**
@@ -68,9 +53,14 @@ class GithubAdapter implements VcsAdapter
      *
      * @return array<string,mixed>
      */
+    /**
+     * @param array<string,mixed> $payload
+     *
+     * @return array<string,mixed>
+     */
     protected function githubApi(string $path, string $token, string $method = 'GET', array $payload = []): array
     {
-        $url     = 'https://api.github.com'.rtrim($path, '/');
+        $url     = $this->apiBase.rtrim($path, '/');
         $headers = [
             'User-Agent: aicr-bot',
             'Accept: application/vnd.github+json',
@@ -83,6 +73,7 @@ class GithubAdapter implements VcsAdapter
                 'method'        => $method,
                 'header'        => implode("\r\n", $headers)."\r\n",
                 'ignore_errors' => true,
+                'timeout'       => $this->timeout,
             ],
         ];
         if (!empty($payload)) {
@@ -100,19 +91,5 @@ class GithubAdapter implements VcsAdapter
         }
 
         return $data;
-    }
-
-    private function inferGithubRepo(): string
-    {
-        $env = getenv('GH_REPO');
-        if ($env && '' !== $env) {
-            return (string) $env;
-        }
-        $url = trim($this->runGit('remote get-url origin'));
-        if (preg_match('#github.com[:/](?P<owner>[^/]+)/(?P<repo>[^\.]+)(?:\.git)?#', $url, $m)) {
-            return $m['owner'].'/'.$m['repo'];
-        }
-
-        return '';
     }
 }
