@@ -53,11 +53,6 @@ class GithubAdapter extends BaseAdapter
      *
      * @return array<string,mixed>
      */
-    /**
-     * @param array<string,mixed> $payload
-     *
-     * @return array<string,mixed>
-     */
     protected function githubApi(string $path, string $token, string $method = 'GET', array $payload = []): array
     {
         $url     = $this->apiBase.rtrim($path, '/');
