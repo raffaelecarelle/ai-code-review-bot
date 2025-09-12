@@ -36,7 +36,7 @@ class GitlabAdapter extends BaseAdapter
     public function postComment(int $id, string $body): void
     {
         if ('' === $this->accessToken) {
-            throw new \RuntimeException('Missing token for GitLab. Set GL_TOKEN or GITLAB_TOKEN.');
+            throw new \RuntimeException('Missing token for GitLab.');
         }
         $this->gitlabApi('/projects/'.rawurlencode($this->projectId).'/merge_requests/'.$id.'/notes', $this->accessToken, 'POST', [
             'body' => $body,

@@ -36,7 +36,7 @@ class GithubAdapter extends BaseAdapter
     public function postComment(int $id, string $body): void
     {
         if ('' === $this->accessToken) {
-            throw new \RuntimeException('Missing token for GitHub. Set GH_TOKEN or GITHUB_TOKEN.');
+            throw new \RuntimeException('Missing token for GitHub.');
         }
         $this->githubApi('/repos/'.$this->repository.'/issues/'.$id.'/comments', $this->accessToken, 'POST', [
             'body' => $body,

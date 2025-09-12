@@ -176,14 +176,11 @@ class Config
             ],
             'guidelines_file' => null,
             'vcs'             => [
-                // platform: github|gitlab (required to use PR/MR auto-resolve)
                 'platform' => null,
-                // For GitHub: owner/repo (optional if GH_REPO or remote origin inferrable)
-                'repo' => null,
-                // For GitLab: numeric id or full path namespace/repo (optional if GL_PROJECT_ID or remote origin inferrable)
+                'repository' => null,
                 'project_id' => null,
-                // Optional GitLab API base override
                 'api_base' => null,
+                'access_token' => null,
             ],
             'prompts' => [
                 // Optional strings to append to the base prompts used by the LLM providers

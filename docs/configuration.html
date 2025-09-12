@@ -83,18 +83,6 @@ prompts:
     - "If a secret or key is detected, suggest redaction."
 </code></pre>
 
-    <h2 id="env">Environment variables</h2>
-    <ul>
-      <li>Values like <code>"${VAR_NAME}"</code> expand from the current environment.</li>
-      <li>Tokens/ids auto-read if not set in config:
-        <ul>
-          <li>GitHub: <code>GH_TOKEN</code> or <code>GITHUB_TOKEN</code>; optional <code>GH_REPO</code></li>
-          <li>GitLab: <code>GL_TOKEN</code> or <code>GITLAB_TOKEN</code>; <code>GL_PROJECT_ID</code>; optional <code>GL_API_BASE</code></li>
-          <li>Bitbucket: Configure <code>workspace</code>, <code>repository</code>, and <code>accessToken</code> in the config file</li>
-        </ul>
-      </li>
-    </ul>
-
     <h2 id="notes">Notes</h2>
     <ul>
       <li>The default AI provider is <code>mock</code>; no network calls occur until you configure a real provider.</li>

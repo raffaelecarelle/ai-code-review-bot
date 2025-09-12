@@ -142,11 +142,6 @@ Notes
   3) Run the analysis pipeline on that diff.
 - `--comment` posts the summary back via the adapter.
 
-Environment variables
-- GitHub: `GH_TOKEN` or `GITHUB_TOKEN`; `GH_REPO` can override repo auto-detection.
-- GitLab: `GL_TOKEN` or `GITLAB_TOKEN`; `GL_PROJECT_ID` and optional `GL_API_BASE`.
-- Bitbucket: Configure `workspace`, `repository`, and `accessToken` in the config file.
-
 ## 6. Coding guidelines file
 - You can provide a project coding standard or style guide via `guidelines_file` in `.aicodereview.yml`.
 - When set, its content is embedded into the LLM prompts as a base64 string. The prompt explicitly instructs the model to base64-decode the guidelines and follow them strictly during the review.
