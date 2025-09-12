@@ -33,7 +33,7 @@ final class GitlabAdapterTest extends TestCase
         $g = new class(['vcs' => []]) extends GitlabAdapter {
             public function __construct(array $config) { 
                 $this->repository = '';
-                $this->token = '';
+                $this->accessToken = '';
                 $this->apiBase = 'https://gitlab.com/api/v4';
                 $this->timeout = 30;
             }
@@ -54,7 +54,7 @@ final class GitlabAdapterTest extends TestCase
     public function testPostCommentWithoutTokenThrows(): void
     {
         $g = new class('123') extends GitlabAdapter {
-            public function __construct(string $projectId) { $this->repository = $projectId; $this->token = ''; $this->apiBase = 'https://gitlab.com/api/v4'; }
+            public function __construct(string $projectId) { $this->repository = $projectId; $this->accessToken = ''; $this->apiBase = 'https://gitlab.com/api/v4'; }
         };
         $this->expectException(\RuntimeException::class);
         $this->expectExceptionMessage('Missing token for GitLab');
@@ -64,7 +64,7 @@ final class GitlabAdapterTest extends TestCase
     public function testResolveBranchesFromIdInvalidResponse(): void
     {
         $g = new class('123') extends GitlabAdapter {
-            public function __construct(string $projectId) { $this->repository = $projectId; $this->token = 'T'; $this->apiBase = 'https://gitlab.com/api/v4'; }
+            public function __construct(string $projectId) { $this->repository = $projectId; $this->accessToken = 'T'; $this->apiBase = 'https://gitlab.com/api/v4'; }
             protected function gitlabApi(string $path, string $token, string $method = 'GET', array $payload = []): array { return ['target_branch' => '', 'source_branch' => '']; }
         };
         $this->expectException(\RuntimeException::class);
@@ -80,11 +80,11 @@ final class GitlabAdapterTest extends TestCase
 
     public function testResolveBranchesFromId(): void
     {
-        $adapter = new class(['vcs' => ['repository' => '12345', 'token' => 'gl-token', 'api_base' => 'https://gitlab.example/api/v4']]) extends GitlabAdapter {
+        $adapter = new class(['vcs' => ['repository' => '12345', 'access_token' => 'gl-token', 'api_base' => 'https://gitlab.example/api/v4']]) extends GitlabAdapter {
             public array $lastCall = [];
             public function __construct(array $config) {
-                $this->repository = '12345';
-                $this->token = 'gl-token';
+                $this->projectId = '12345';
+                $this->accessToken = 'gl-token';
                 $this->apiBase = 'https://gitlab.example/api/v4';
                 $this->timeout = 30;
             }
@@ -109,11 +109,11 @@ final class GitlabAdapterTest extends TestCase
 
     public function testPostCommentCallsNotesEndpoint(): void
     {
-        $adapter = new class(['vcs' => ['repository' => 'ns/proj', 'token' => 'tok']]) extends GitlabAdapter {
+        $adapter = new class(['vcs' => ['repository' => 'ns/proj', 'access_token' => 'tok']]) extends GitlabAdapter {
             public array $lastCall = [];
             public function __construct(array $config) {
-                $this->repository = 'ns/proj';
-                $this->token = 'tok';
+                $this->projectId = 'ns/proj';
+                $this->accessToken = 'tok';
                 $this->apiBase = 'https://gitlab.com/api/v4';
                 $this->timeout = 30;
             }

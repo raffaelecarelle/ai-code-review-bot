@@ -139,8 +139,8 @@ final class BitbucketAdapter extends BaseAdapter
     private function initializeClient(): void
     {
         $headers = ['Content-Type' => 'application/json'];
-        if ('' !== $this->token) {
-            $headers['Authorization'] = 'Bearer '.$this->token;
+        if ('' !== $this->accessToken) {
+            $headers['Authorization'] = 'Bearer '.$this->accessToken;
         }
 
         $this->client = new Client([

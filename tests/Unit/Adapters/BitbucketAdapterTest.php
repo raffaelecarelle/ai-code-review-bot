@@ -20,7 +20,7 @@ final class BitbucketAdapterTest extends TestCase
     {
         $adapter = new BitbucketAdapter([
             'repository' => 'my-workspace/my-repo',
-            'token' => 'test-token'
+            'access_token' => 'test-token'
         ]);
 
         $this->assertInstanceOf(BitbucketAdapter::class, $adapter);
@@ -32,7 +32,7 @@ final class BitbucketAdapterTest extends TestCase
     {
         $adapter = new BitbucketAdapter([
             'repository' => 'my-workspace/my-repo',
-            'token' => 'test-token'
+            'access_token' => 'test-token'
         ]);
 
         $this->assertInstanceOf(BitbucketAdapter::class, $adapter);
@@ -42,7 +42,7 @@ final class BitbucketAdapterTest extends TestCase
     {
         $adapter = new BitbucketAdapter([
             'repository' => 'my-workspace/my-repo',
-            'token' => 'test-token',
+            'access_token' => 'test-token',
             'timeout' => 60
         ]);
 
@@ -205,7 +205,7 @@ final class BitbucketAdapterTest extends TestCase
     {
         $adapter = new BitbucketAdapter([
             'repository' => 'test-workspace/test-repo',
-            'token' => 'test-token'
+            'access_token' => 'test-token'
         ]);
 
         $this->assertEquals('test-workspace/test-repo', $adapter->getRepositoryIdentifier());
@@ -251,7 +251,7 @@ final class BitbucketAdapterTest extends TestCase
     {
         $adapter = new BitbucketAdapter([
             'repository' => 'test-workspace/test-repo',
-            'token' => 'test-token'
+            'access_token' => 'test-token'
         ]);
 
         $this->assertInstanceOf(VcsAdapter::class, $adapter);
@@ -265,7 +265,7 @@ final class BitbucketAdapterTest extends TestCase
     {
         $adapter = new BitbucketAdapter([
             'repository' => 'test-workspace/test-repo',
-            'token' => 'test-token'
+            'access_token' => 'test-token'
         ]);
 
         // Use reflection to inject mock client

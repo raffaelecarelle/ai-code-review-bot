@@ -23,7 +23,7 @@ class GithubAdapter extends BaseAdapter
      */
     public function resolveBranchesFromId(int $id): array
     {
-        $data = $this->githubApi('/repos/'.$this->repository.'/pulls/'.$id, $this->token, 'GET');
+        $data = $this->githubApi('/repos/'.$this->repository.'/pulls/'.$id, $this->accessToken, 'GET');
         $base = (string) ($data['base']['ref'] ?? '');
         $head = (string) ($data['head']['ref'] ?? '');
         if ('' === $base || '' === $head) {
@@ -35,10 +35,10 @@ class GithubAdapter extends BaseAdapter
 
     public function postComment(int $id, string $body): void
     {
-        if ('' === $this->token) {
+        if ('' === $this->accessToken) {
             throw new \RuntimeException('Missing token for GitHub. Set GH_TOKEN or GITHUB_TOKEN.');
         }
-        $this->githubApi('/repos/'.$this->repository.'/issues/'.$id.'/comments', $this->token, 'POST', [
+        $this->githubApi('/repos/'.$this->repository.'/issues/'.$id.'/comments', $this->accessToken, 'POST', [
             'body' => $body,
         ]);
     }

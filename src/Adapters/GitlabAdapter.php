@@ -6,21 +6,24 @@ namespace AICR\Adapters;
 
 class GitlabAdapter extends BaseAdapter
 {
+    protected string $projectId = '';
+
     /**
      * @param array<string,mixed> $config
      */
     public function __construct(array $config)
     {
         $this->initializeFromConfig($config);
+        $this->projectId = $this->resolveProjectId($config);
 
-        if ('' === $this->repository) {
-            throw new \RuntimeException('Cannot infer GitLab project id. Set vcs.repository in config, GL_PROJECT_ID env, or ensure origin remote URL is a GitLab repo.');
+        if ('' === $this->projectId) {
+            throw new \RuntimeException('Cannot infer GitLab project id. Set vcs.repository in config.');
         }
     }
 
     public function resolveBranchesFromId(int $id): array
     {
-        $data = $this->gitlabApi('/projects/'.rawurlencode($this->repository).'/merge_requests/'.$id, $this->token, 'GET');
+        $data = $this->gitlabApi('/projects/'.rawurlencode($this->projectId).'/merge_requests/'.$id, $this->accessToken, 'GET');
         $base = (string) ($data['target_branch'] ?? '');
         $head = (string) ($data['source_branch'] ?? '');
         if ('' === $base || '' === $head) {
@@ -32,10 +35,10 @@ class GitlabAdapter extends BaseAdapter
 
     public function postComment(int $id, string $body): void
     {
-        if ('' === $this->token) {
+        if ('' === $this->accessToken) {
             throw new \RuntimeException('Missing token for GitLab. Set GL_TOKEN or GITLAB_TOKEN.');
         }
-        $this->gitlabApi('/projects/'.rawurlencode($this->repository).'/merge_requests/'.$id.'/notes', $this->token, 'POST', [
+        $this->gitlabApi('/projects/'.rawurlencode($this->projectId).'/merge_requests/'.$id.'/notes', $this->accessToken, 'POST', [
             'body' => $body,
         ]);
     }

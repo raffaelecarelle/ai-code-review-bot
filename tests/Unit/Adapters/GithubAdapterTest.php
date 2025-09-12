@@ -34,7 +34,7 @@ final class GithubAdapterTest extends TestCase
         $g = new class(['vcs' => []]) extends GithubAdapter {
             public function __construct(array $config) { 
                 $this->repository = '';
-                $this->token = '';
+                $this->accessToken = '';
                 $this->apiBase = 'https://api.github.com';
                 $this->timeout = 30;
             }
@@ -55,7 +55,7 @@ final class GithubAdapterTest extends TestCase
     public function testPostCommentWithoutTokenThrows(): void
     {
         $g = new class('owner/repo') extends GithubAdapter {
-            public function __construct(string $repo) { $this->repository = $repo; $this->token = ''; }
+            public function __construct(string $repo) { $this->repository = $repo; $this->accessToken = ''; }
         };
         $this->expectException(\RuntimeException::class);
         $this->expectExceptionMessage('Missing token for GitHub');
@@ -65,7 +65,7 @@ final class GithubAdapterTest extends TestCase
     public function testResolveBranchesFromIdInvalidResponse(): void
     {
         $g = new class('owner/repo') extends GithubAdapter {
-            public function __construct(string $repo) { $this->repository = $repo; $this->token = 'T'; }
+            public function __construct(string $repo) { $this->repository = $repo; $this->accessToken = 'T'; }
             protected function githubApi(string $path, string $token, string $method = 'GET', array $payload = []): array { return ['base' => ['ref' => ''], 'head' => ['ref' => '']]; }
         };
         $this->expectException(\RuntimeException::class);
@@ -85,11 +85,11 @@ final class GithubAdapterTest extends TestCase
 
     public function testResolveBranchesFromId(): void
     {
-        $adapter = new class(['vcs' => ['repository' => 'owner/repo', 'token' => 'token']]) extends GithubAdapter {
+        $adapter = new class(['vcs' => ['repository' => 'owner/repo', 'access_token' => 'token']]) extends GithubAdapter {
             public array $lastCall = [];
             public function __construct(array $config) {
                 $this->repository = 'owner/repo';
-                $this->token = 'token';
+                $this->accessToken = 'token';
                 $this->apiBase = 'https://api.github.com';
                 $this->timeout = 30;
             }
@@ -114,11 +114,11 @@ final class GithubAdapterTest extends TestCase
 
     public function testPostCommentCallsIssuesCommentsEndpoint(): void
     {
-        $adapter = new class(['vcs' => ['repository' => 'owner/repo', 'token' => 'tok']]) extends GithubAdapter {
+        $adapter = new class(['vcs' => ['repository' => 'owner/repo', 'access_token' => 'tok']]) extends GithubAdapter {
             public array $lastCall = [];
             public function __construct(array $config) {
                 $this->repository = 'owner/repo';
-                $this->token = 'tok';
+                $this->accessToken = 'tok';
                 $this->apiBase = 'https://api.github.com';
                 $this->timeout = 30;
             }

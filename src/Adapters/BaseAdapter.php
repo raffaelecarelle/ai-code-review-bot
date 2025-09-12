@@ -11,20 +11,20 @@ use Symfony\Component\Process\Process;
  */
 abstract class BaseAdapter implements VcsAdapter
 {
-    protected string $repository = '';
-    protected string $token      = '';
-    protected string $apiBase    = '';
-    protected int $timeout       = 30;
+    protected string $repository  = '';
+    protected string $accessToken = '';
+    protected string $apiBase     = '';
+    protected int $timeout        = 30;
 
     /**
      * @param array<string,mixed> $config VCS configuration array
      */
     protected function initializeFromConfig(array $config): void
     {
-        $this->repository = $this->resolveRepository($config);
-        $this->token      = $this->resolveToken($config);
-        $this->apiBase    = $this->resolveApiBase($config);
-        $this->timeout    = $this->resolveTimeout($config);
+        $this->repository  = $this->resolveRepository($config);
+        $this->accessToken = $this->resolveToken($config);
+        $this->apiBase     = $this->resolveApiBase($config);
+        $this->timeout     = $this->resolveTimeout($config);
     }
 
     /**
@@ -48,11 +48,11 @@ abstract class BaseAdapter implements VcsAdapter
      */
     protected function resolveToken(array $config): string
     {
-        if (isset($config['token']) && is_string($config['token']) && '' !== $config['token']) {
-            return $config['token'];
+        if (isset($config['access_token']) && is_string($config['access_token']) && '' !== $config['access_token']) {
+            return $config['access_token'];
         }
 
-        throw new \RuntimeException('Token not specified');
+        throw new \RuntimeException('Access Token not specified');
     }
 
     /**
@@ -81,6 +81,20 @@ abstract class BaseAdapter implements VcsAdapter
         }
 
         return 30; // Default timeout
+    }
+
+    /**
+     * Resolve project ID.
+     *
+     * @param array<string,mixed> $config
+     */
+    protected function resolveProjectId(array $config): string
+    {
+        if (isset($config['project_id'])) {
+            return $config['project_id'];
+        }
+
+        return '';
     }
 
     /**
