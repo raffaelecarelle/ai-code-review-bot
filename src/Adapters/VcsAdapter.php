@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace AICR\Adapters;
 
 /**
- * VCS Adapter interface for GitHub/GitLab operations used by ReviewCommand.
+ * VCS Adapter interface for GitHub/GitLab/Bitbucket operations used by ReviewCommand.
  */
 interface VcsAdapter
 {
