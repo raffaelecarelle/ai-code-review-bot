@@ -26,6 +26,7 @@
     <h3>On this page</h3>
     <a href="#file">Config file format</a>
     <a href="#example">Full example</a>
+    <a href="#excludes">Excludes</a>
     <a href="#env">Environment variables</a>
     <a href="#notes">Notes</a>
   </aside>
@@ -43,6 +44,7 @@
       <li><code>guidelines_file</code> – optional path to coding guidelines file</li>
       <li><code>vcs</code> – platform and identifiers to resolve diffs by <code>--id</code></li>
       <li><code>prompts</code> – optional extra instructions appended to base prompts</li>
+      <li><code>excludes</code> – array of paths to exclude from code review</li>
     </ul>
 
     <h2 id="example">Full example</h2>
@@ -81,7 +83,36 @@ prompts:
     - "Prioritize security and performance related issues."
   extra:
     - "If a secret or key is detected, suggest redaction."
+excludes:
+  # Array of paths to exclude from code review
+  # Each element is treated as glob, regex, or relative path from project root
+  - "*.md"           # Exclude all markdown files (glob)
+  - "composer.lock"  # Exclude specific files (exact match)
+  - "tests/*.php"    # Exclude files in specific directories with patterns (glob)
+  - "vendor"         # Exclude entire vendor directory (directory)
+  - "node_modules"   # Exclude node_modules directory (directory)
+  - "build"          # Exclude build artifacts (directory)
+  - "dist"           # Exclude distribution files (directory)
 </code></pre>
+
+    <h2 id="excludes">Excludes</h2>
+    <p>The <code>excludes</code> configuration allows you to specify files and directories to exclude from code review. Each element in the array is treated as a glob pattern, regex, or relative path from the project root.</p>
+    
+    <h3>Pattern Types</h3>
+    <ul>
+      <li><strong>Glob patterns</strong> – Use wildcards like <code>*.md</code>, <code>tests/*.php</code>, or <code>**/*.json</code></li>
+      <li><strong>Exact matches</strong> – Specify exact file names like <code>composer.lock</code> or <code>package.json</code></li>
+      <li><strong>Directory patterns</strong> – Exclude entire directories like <code>vendor</code>, <code>node_modules</code>, or <code>build</code></li>
+    </ul>
+
+    <h3>Common Examples</h3>
+    <ul>
+      <li><code>"*.md"</code> – Excludes all markdown files</li>
+      <li><code>"vendor"</code> – Excludes the entire vendor directory and all its contents</li>
+      <li><code>"tests/*.php"</code> – Excludes all PHP files in the tests directory</li>
+      <li><code>"composer.lock"</code> – Excludes the specific composer.lock file</li>
+      <li><code>"build"</code>, <code>"dist"</code>, <code>"node_modules"</code> – Excludes common build/dependency directories</li>
+    </ul>
 
     <h2 id="notes">Notes</h2>
     <ul>

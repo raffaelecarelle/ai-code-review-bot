@@ -127,6 +127,17 @@ prompts:
     - "Prioritize security and performance related issues."
   extra:
     - "If a secret or key is detected, suggest redaction."
+excludes:
+  # Array of paths to exclude from code review
+  # Each element is treated as glob, regex, or relative path from project root
+  # Examples:
+  - "*.md"           # Exclude all markdown files (glob)
+  - "composer.lock"  # Exclude specific files (exact match)
+  - "tests/*.php"    # Exclude files in specific directories with patterns (glob)
+  - "vendor"         # Exclude entire vendor directory (directory)
+  - "node_modules"   # Exclude node_modules directory (directory)
+  - "build"          # Exclude build artifacts (directory)
+  - "dist"           # Exclude distribution files (directory)
 ```
 
 Notes
