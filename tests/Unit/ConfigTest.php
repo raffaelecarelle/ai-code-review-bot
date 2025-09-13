@@ -18,6 +18,7 @@ final class ConfigTest extends TestCase
         $this->assertIsArray($cfg->context());
         $this->assertIsArray($cfg->policy());
         $this->assertIsArray($cfg->vcs());
+        $this->assertIsArray($cfg->excludes());
         $this->assertSame('mock', $cfg->providers()['default'] ?? null);
     }
 
@@ -73,5 +74,36 @@ YML;
         } finally {
             @unlink($invalid);
         }
+    }
+
+    public function testExcludesConfiguration(): void
+    {
+        // Test default excludes (empty array)
+        $cfg = Config::load(null);
+        $this->assertSame([], $cfg->excludes());
+
+        // Test excludes with various patterns
+        $tmp = sys_get_temp_dir().'/aicr_cfg_excludes_'.uniqid('', true).'.yml';
+        $yaml = <<<'YML'
+excludes:
+  - "*.md"
+  - "composer.lock"
+  - "tests/*.php"
+  - "vendor"
+  - "node_modules"
+  - "build"
+YML;
+        file_put_contents($tmp, $yaml);
+        $cfg = Config::load($tmp);
+        @unlink($tmp);
+        
+        $excludes = $cfg->excludes();
+        $this->assertCount(6, $excludes);
+        $this->assertContains('*.md', $excludes);
+        $this->assertContains('composer.lock', $excludes);
+        $this->assertContains('tests/*.php', $excludes);
+        $this->assertContains('vendor', $excludes);
+        $this->assertContains('node_modules', $excludes);
+        $this->assertContains('build', $excludes);
     }
 }

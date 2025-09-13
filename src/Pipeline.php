@@ -138,7 +138,83 @@ final class Pipeline
             $map[$cur] = rtrim(implode("\n", $buf))."\n";
         }
 
-        return $map;
+        // Filter out excluded files and directories
+        return $this->filterExcludedFiles($map);
+    }
+
+    /**
+     * Filter out files and directories that match exclude patterns.
+     *
+     * @param array<string, string> $fileDiffs
+     *
+     * @return array<string, string>
+     */
+    private function filterExcludedFiles(array $fileDiffs): array
+    {
+        $excludePaths = $this->config->excludes();
+
+        if (empty($excludePaths)) {
+            return $fileDiffs;
+        }
+
+        $filtered = [];
+        foreach ($fileDiffs as $filePath => $diff) {
+            // Remove 'b/' prefix for pattern matching
+            $cleanPath = preg_replace('#^b/#', '', $filePath);
+
+            $shouldExclude = false;
+
+            // Check against excluded paths
+            foreach ($excludePaths as $pattern) {
+                if ($this->matchesExcludePattern($cleanPath, $pattern)) {
+                    $shouldExclude = true;
+
+                    break;
+                }
+            }
+
+            if (!$shouldExclude) {
+                $filtered[$filePath] = $diff;
+            }
+        }
+
+        return $filtered;
+    }
+
+    /**
+     * Check if a file path matches an exclude pattern.
+     * Automatically determines if the pattern is for a file or directory.
+     */
+    private function matchesExcludePattern(string $filePath, string $pattern): bool
+    {
+        // If pattern contains wildcards or file extensions, treat as file pattern
+        if (str_contains($pattern, '*') || str_contains($pattern, '?') || str_contains($pattern, '.')) {
+            return $this->matchesFilePattern($filePath, $pattern);
+        }
+
+        // Otherwise, treat as directory pattern
+        return $this->matchesDirectoryPattern($filePath, $pattern);
+    }
+
+    /**
+     * Check if a file path matches a file pattern (supports glob-style wildcards).
+     */
+    private function matchesFilePattern(string $filePath, string $pattern): bool
+    {
+        // Use fnmatch for proper glob pattern matching
+        return fnmatch($pattern, $filePath);
+    }
+
+    /**
+     * Check if a file path is within an excluded directory pattern.
+     */
+    private function matchesDirectoryPattern(string $filePath, string $dirPattern): bool
+    {
+        // Remove trailing slash if present
+        $dirPattern = rtrim($dirPattern, '/');
+
+        // Check if file is directly in the directory or in a subdirectory
+        return str_starts_with($filePath, $dirPattern.'/') || $filePath === $dirPattern;
     }
 
     private function getStartLineFromUnifiedDiff(string $fileDiff): int

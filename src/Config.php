@@ -154,6 +154,14 @@ class Config
     }
 
     /**
+     * @return array<string>
+     */
+    public function excludes(): array
+    {
+        return $this->config['excludes'] ?? [];
+    }
+
+    /**
      * @return array<string, mixed>
      */
     public static function defaults(): array
@@ -189,6 +197,10 @@ class Config
                 'user_append'   => null,
                 // Additional free-form instructions appended to the user prompt, in order
                 'extra' => [],
+            ],
+            'excludes' => [
+                // Array of paths to exclude from code review
+                // Each element is treated as glob, regex, or relative path from project root
             ],
         ];
     }
