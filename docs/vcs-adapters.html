@@ -39,30 +39,34 @@
     <h2 id="overview">Overview</h2>
     <ul>
       <li>Set <code>vcs.platform</code> to <code>github</code>, <code>gitlab</code>, or <code>bitbucket</code> in your config.</li>
-      <li>Provide the necessary identifiers and tokens either via config or environment variables.</li>
+      <li>Configure <code>vcs.repository</code>, <code>vcs.access_token</code>, and optionally <code>vcs.api_base</code> and <code>vcs.timeout</code>.</li>
+      <li>For GitLab, also set <code>vcs.project_id</code> for project identification.</li>
+      <li>Use <code>${ENV_VAR}</code> syntax in config to reference environment variables.</li>
       <li>Run <code>php bin/aicr review --id &lt;number&gt; --output summary</code>.</li>
     </ul>
 
     <h2 id="github">GitHub setup</h2>
     <ul>
-      <li>Token: <code>GH_TOKEN</code> or <code>GITHUB_TOKEN</code></li>
-      <li>Repository: <code>owner/repo</code> via config or <code>GH_REPO</code> env (optional if remote origin is GitHub)</li>
+      <li>Token: <code>vcs.access_token</code> in config or <code>${GITHUB_TOKEN}</code> env variable</li>
+      <li>Repository: <code>vcs.repository</code> as <code>owner/repo</code> format</li>
+      <li>API Base: <code>vcs.api_base</code> (defaults to <code>https://api.github.com</code>)</li>
       <li>Permissions: read PRs; write if you plan to post comments.</li>
     </ul>
 
     <h2 id="gitlab">GitLab setup</h2>
     <ul>
-      <li>Token: <code>GL_TOKEN</code> or <code>GITLAB_TOKEN</code></li>
-      <li>Project id: numeric id or full path <code>namespace/repo</code> via config or <code>GL_PROJECT_ID</code></li>
-      <li>Self-hosted: customize API base via <code>vcs.api_base</code> (e.g., <code>https://gitlab.example.com/api/v4</code>)</li>
+      <li>Token: <code>vcs.access_token</code> in config or <code>${GITLAB_TOKEN}</code> env variable (uses PRIVATE-TOKEN authentication)</li>
+      <li>Project ID: <code>vcs.project_id</code> as numeric ID or full path <code>namespace/repo</code></li>
+      <li>Repository: <code>vcs.repository</code> (used as fallback for project identification)</li>
+      <li>API Base: <code>vcs.api_base</code> (defaults to <code>https://gitlab.com/api/v4</code>, customize for self-hosted)</li>
     </ul>
 
     <h2 id="bitbucket">Bitbucket setup</h2>
     <ul>
-      <li>Workspace: workspace name (required) via <code>vcs.workspace</code></li>
-      <li>Repository: repository name (required) via <code>vcs.repository</code></li>
-      <li>Access token: Bearer token for authentication via <code>vcs.accessToken</code></li>
-      <li>Timeout: API request timeout in seconds (optional, defaults to 30) via <code>vcs.timeout</code></li>
+      <li>Repository: <code>vcs.repository</code> as <code>workspace/repository</code> format</li>
+      <li>Token: <code>vcs.access_token</code> in config or <code>${BITBUCKET_TOKEN}</code> env variable (uses Bearer authentication)</li>
+      <li>API Base: <code>vcs.api_base</code> (defaults to <code>https://api.bitbucket.org/2.0</code>)</li>
+      <li>Timeout: <code>vcs.timeout</code> in seconds (optional, defaults to 30)</li>
       <li>Permissions: read Pull Requests; write if you plan to post comments</li>
     </ul>
 
@@ -78,9 +82,10 @@
 
     <h2 id="troubleshooting">Troubleshooting</h2>
     <ul>
-      <li><strong>401/403:</strong> check token presence and scopes/permissions.</li>
-      <li><strong>Not found:</strong> verify <code>repo</code>/<code>project_id</code> and ID (<code>--id</code>) correctness.</li>
-      <li><strong>Self-hosted GitLab:</strong> ensure <code>api_base</code> ends with <code>/api/v4</code>.</li>
+      <li><strong>401/403:</strong> check <code>vcs.access_token</code> presence and scopes/permissions.</li>
+      <li><strong>Not found:</strong> verify <code>vcs.repository</code>/<code>vcs.project_id</code> and PR/MR ID (<code>--id</code>) correctness.</li>
+      <li><strong>Self-hosted GitLab:</strong> ensure <code>vcs.api_base</code> ends with <code>/api/v4</code>.</li>
+      <li><strong>Environment variables:</strong> use <code>${VAR_NAME}</code> syntax in config file to reference environment variables.</li>
     </ul>
   </article>
 </main>
