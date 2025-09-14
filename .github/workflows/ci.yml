@@ -58,3 +58,12 @@ jobs:
         with:
           name: coverage-php${{ matrix.php }}
           path: build/coverage
+
+      - name: AI Code Review
+        if: github.event_name == 'pull_request' && matrix.php == '8.3'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          OPENAI_TOKEN: ${{ secrets.OPENAI_TOKEN }}
+        run: |
+          # Only run AI review on one PHP version to avoid duplicate comments
+          php bin/aicr --id=${{ github.event.pull_request.number }} --comment --output=markdown

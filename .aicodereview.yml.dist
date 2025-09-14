@@ -1,0 +1,46 @@
+version: 1
+providers:
+  # Use 'mock' by default for safe, deterministic runs (no network calls)
+  default: mock
+context:
+  diff_token_limit: 8000
+  overflow_strategy: trim
+  per_file_token_cap: 2000
+policy:
+  min_severity_to_comment: info
+  max_comments: 50
+  allow_suggested_fixes: true
+  redact_secrets: true
+guidelines_file: null
+vcs:
+  # Choose which platform to use when computing diffs via git and posting comments
+  # Allowed values: github | gitlab | bitbucket
+  platform: null
+  
+  # Repository identifier: "owner/repository_name" (GitHub), "namespace" (GitLab), "workspace/repository_name" (Bitbucket)
+  repository: null
+  # Gitlab Project ID
+  project_id: null
+  # Authentication token (falls back to env vars: AICR_TOKEN, then platform-specific tokens)
+  access_token: null
+  # API base URL (defaults to platform standard, ove\rride for self-hosted instances)
+  api_base: null
+  # HTTP timeout in seconds
+  timeout: 30
+prompts:
+  # Optional: append additional instructions to the LLM prompts
+  # Accepts a string or a list of strings for system_append and user_append
+  system_append: null
+  user_append: []
+  extra: []
+excludes:
+  # Array of paths to exclude from code review
+  # Each element is treated as glob, regex, or relative path from project root
+  # Examples:
+  # - "*.md"           # Exclude all markdown files (glob)
+  # - "composer.lock"  # Exclude specific files (exact match)
+  # - "tests/*.php"    # Exclude files in specific directories with patterns (glob)
+  # - "vendor"         # Exclude entire vendor directory (directory)
+  # - "node_modules"   # Exclude node_modules directory (directory)
+  # - "build"          # Exclude build artifacts (directory)
+  # - "dist"           # Exclude distribution files (directory)
