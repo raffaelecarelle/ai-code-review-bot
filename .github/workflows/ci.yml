@@ -62,7 +62,7 @@ jobs:
             -   name: AI Code Review
                 if: github.event_name == 'pull_request' && matrix.php == '8.3'
                 env:
-                    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                    CI_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
                     OPENAI_TOKEN: ${{ secrets.OPENAI_TOKEN }}
                 run: |
                     git fetch --all --prune
