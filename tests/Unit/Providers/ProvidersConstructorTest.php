@@ -12,14 +12,6 @@ use PHPUnit\Framework\TestCase;
 
 final class ProvidersConstructorTest extends TestCase
 {
-    protected function setUp(): void
-    {
-        // Ensure envs that might satisfy constructors are cleared
-        putenv('OPENAI_API_KEY');
-        putenv('GEMINI_API_KEY');
-        putenv('ANTHROPIC_API_KEY');
-    }
-
     public function testOpenAIRequiresApiKey(): void
     {
         $this->expectException(\InvalidArgumentException::class);

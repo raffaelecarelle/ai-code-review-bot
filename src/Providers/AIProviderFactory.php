@@ -27,27 +27,27 @@ final class AIProviderFactory
             return $override;
         }
 
-        $providers = $this->config->providers();
-        $default   = (string) ($providers['default'] ?? null);
+        $provider = $this->config->provider();
+        $default  = (string) ($provider['type'] ?? null);
 
         switch ($default) {
             case Pipeline::PROVIDER_OPENAI:
-                $opts = $this->withPrompts($providers['openai'] ?? []);
+                $opts = $this->withPrompts($provider['openai'] ?? []);
 
                 return new OpenAIProvider($opts);
 
             case Pipeline::PROVIDER_GEMINI:
-                $opts = $this->withPrompts($providers['gemini'] ?? []);
+                $opts = $this->withPrompts($provider['gemini'] ?? []);
 
                 return new GeminiProvider($opts);
 
             case Pipeline::PROVIDER_ANTHROPIC:
-                $opts = $this->withPrompts($providers['anthropic'] ?? []);
+                $opts = $this->withPrompts($provider['anthropic'] ?? []);
 
                 return new AnthropicProvider($opts);
 
             case Pipeline::PROVIDER_OLLAMA:
-                $opts = $this->withPrompts($providers['ollama'] ?? []);
+                $opts = $this->withPrompts($provider['ollama'] ?? []);
 
                 return new OllamaProvider($opts);
 

@@ -29,8 +29,8 @@ final class AIProviderFactoryTest extends TestCase
     public function testBuildOpenAIProviderAndPromptsPassThrough(): void
     {
         $cfgArr = [
-            'providers' => [
-                'default' => 'openai',
+            'provider' => [
+                'type' => 'openai',
                 'openai' => [
                     'api_key' => 'k',
                     'model'   => 'm',
@@ -60,8 +60,8 @@ final class AIProviderFactoryTest extends TestCase
         file_put_contents($tmp, "abc-guidelines");
 
         $cfgArr = [
-            'providers' => [
-                'default' => 'openai',
+            'provider' => [
+                'type' => 'openai',
                 'openai'  => ['api_key' => 'k'],
             ],
             'prompts' => [
@@ -94,16 +94,16 @@ final class AIProviderFactoryTest extends TestCase
 
         $configs = [
             [
-                'providers' => [ 'default' => 'gemini', 'gemini' => ['api_key' => 'g'] ],
+                'provider' => [ 'type' => 'gemini', 'gemini' => ['api_key' => 'g'] ],
             ],
             [
-                'providers' => [ 'default' => 'anthropic', 'anthropic' => ['api_key' => 'a'] ],
+                'provider' => [ 'type' => 'anthropic', 'anthropic' => ['api_key' => 'a'] ],
             ],
             [
-                'providers' => [ 'default' => 'ollama', 'ollama' => [] ],
+                'provider' => [ 'type' => 'ollama', 'ollama' => [] ],
             ],
             [
-                'providers' => [ 'default' => 'mock' ],
+                'provider' => [ 'type' => 'mock' ],
             ],
         ];
 
@@ -120,7 +120,7 @@ final class AIProviderFactoryTest extends TestCase
     public function testUnknownProviderThrows(): void
     {
         $cfgArr = [
-            'providers' => [ 'default' => 'nope' ],
+            'provider' => [ 'type' => 'nope' ],
             'prompts'   => [],
         ];
         $factory = new AIProviderFactory($this->makeConfig($cfgArr));

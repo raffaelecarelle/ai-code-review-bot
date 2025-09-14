@@ -120,9 +120,9 @@ class Config
     /**
      * @return array<string, mixed>
      */
-    public function providers(): array
+    public function provider(): array
     {
-        return $this->config['providers'];
+        return $this->config['provider'];
     }
 
     /**
@@ -130,7 +130,7 @@ class Config
      */
     public function context(): array
     {
-        return $this->config['context'];
+        return array_merge($this->config['context'], ['provider' => $this->config['provider']['type']]);
     }
 
     /**
@@ -167,9 +167,9 @@ class Config
     public static function defaults(): array
     {
         return [
-            'version'   => 1,
-            'providers' => [
-                'default' => 'mock',
+            'version'  => 1,
+            'provider' => [
+                'type' => 'mock',
             ],
             'context' => [
                 'diff_token_limit'   => 8000,

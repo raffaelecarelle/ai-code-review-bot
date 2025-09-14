@@ -30,7 +30,7 @@ final class AnthropicProvider extends AbstractLLMProvider
     public function __construct(array $options = [])
     {
         $this->options = $options;
-        $apiKey        = $options['api_key'] ?? getenv('ANTHROPIC_API_KEY');
+        $apiKey        = $options['api_key'] ?? '';
         $apiKey        = false !== $apiKey ? (string) $apiKey : '';
         if ('' === $apiKey) {
             throw new \InvalidArgumentException('AnthropicProvider requires api_key (config providers.anthropic.api_key or env ANTHROPIC_API_KEY).');
