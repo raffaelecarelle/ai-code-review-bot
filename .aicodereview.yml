@@ -2,11 +2,11 @@ version: 1
 provider:
     type: openai
     openai:
-        api_key: $OPENAI_TOKEN
+        api_key: ${OPENAI_TOKEN}
 context:
-    diff_token_limit: 2000
+    diff_token_limit: 8000
     overflow_strategy: trim
-    per_file_token_cap: 200
+    per_file_token_cap: 2000
 policy:
     min_severity_to_comment: info
     max_comments: 10
@@ -15,4 +15,8 @@ policy:
 vcs:
     platform: github
     repository: raffaelecarelle/ai-code-review-bot
-    access_token: $CI_GITHUB_TOKEN
+    access_token: ${CI_GITHUB_TOKEN}
+excludes:
+    - .github/**/*
+    - .aicodereview.*
+    - docs/**/*

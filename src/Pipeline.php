@@ -8,8 +8,9 @@ use AICR\Providers\AIProvider;
 
 final class Pipeline
 {
-    public const OUTPUT_FORMAT_JSON    = 'json';
-    public const OUTPUT_FORMAT_SUMMARY = 'summary';
+    public const OUTPUT_FORMAT_JSON     = 'json';
+    public const OUTPUT_FORMAT_SUMMARY  = 'summary';
+    public const OUTPUT_FORMAT_MARKDOWN = 'markdown';
 
     public const PROVIDER_OPENAI    = 'openai';
     public const PROVIDER_GEMINI    = 'gemini';
@@ -49,6 +50,10 @@ final class Pipeline
             return self::formatSummary($allFindings);
         }
 
+        if (self::OUTPUT_FORMAT_MARKDOWN === $outputFormat) {
+            return self::formatMarkdown($allFindings);
+        }
+
         return (string) json_encode($allFindings, JSON_PRETTY_PRINT);
     }
 
@@ -58,6 +63,14 @@ final class Pipeline
     public static function formatSummary(array $findings): string
     {
         return (new Output\SummaryFormatter())->format($findings);
+    }
+
+    /**
+     * @param array<int, array<string, mixed>> $findings
+     */
+    public static function formatMarkdown(array $findings): string
+    {
+        return (new Output\MarkdownFormatter())->format($findings);
     }
 
     private function buildProvider(): AIProvider

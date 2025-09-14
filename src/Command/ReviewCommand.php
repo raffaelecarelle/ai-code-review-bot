@@ -142,18 +142,10 @@ final class ReviewCommand extends Command
         if (!is_string($id) || '' === $id) {
             throw new \InvalidArgumentException('Missing --id for the configured platform.');
         }
-        if ($adapter instanceof GithubAdapter) {
-            [$base, $head] = $adapter->resolveBranchesFromId((int) $id);
 
-            return [(int) $id, $base, $head];
-        }
-        if ($adapter instanceof GitlabAdapter) {
-            [$base, $head] = $adapter->resolveBranchesFromId((int) $id);
+        [$base, $head] = $adapter->resolveBranchesFromId((int) $id);
 
-            return [(int) $id, $base, $head];
-        }
-
-        throw new \InvalidArgumentException('Unsupported VCS adapter.');
+        return [(int) $id, $base, $head];
     }
 
     private function computeGitDiffToTempFile(SymfonyStyle $io, string $base, string $head): string
