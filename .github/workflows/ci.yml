@@ -66,4 +66,4 @@ jobs:
           OPENAI_TOKEN: ${{ secrets.OPENAI_TOKEN }}
         run: |
           # Only run AI review on one PHP version to avoid duplicate comments
-          php bin/aicr --id=${{ github.event.pull_request.number }} --comment --output=markdown
+          php bin/aicr --id=${{ github.event.pull_request.number }} --config=.aicodereview.yml --comment --output=markdown
