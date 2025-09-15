@@ -29,8 +29,7 @@ final class AIProviderFactoryTest extends TestCase
     public function testBuildOpenAIProviderAndPromptsPassThrough(): void
     {
         $cfgArr = [
-            'provider' => [
-                'type' => 'openai',
+            'providers' => [
                 'openai' => [
                     'api_key' => 'k',
                     'model'   => 'm',
@@ -43,7 +42,7 @@ final class AIProviderFactoryTest extends TestCase
             ],
         ];
         $factory = new AIProviderFactory($this->makeConfig($cfgArr));
-        $prov    = $factory->build();
+        $prov    = $factory->build('openai');
         $this->assertInstanceOf(OpenAIProvider::class, $prov);
 
         // Reflect provider options to assert prompts preserved
@@ -60,9 +59,8 @@ final class AIProviderFactoryTest extends TestCase
         file_put_contents($tmp, "abc-guidelines");
 
         $cfgArr = [
-            'provider' => [
-                'type' => 'openai',
-                'openai'  => ['api_key' => 'k'],
+            'providers' => [
+                'openai' => ['api_key' => 'k'],
             ],
             'prompts' => [
                 'extra' => [],
@@ -70,7 +68,7 @@ final class AIProviderFactoryTest extends TestCase
             'guidelines_file' => $tmp,
         ];
         $factory = new AIProviderFactory($this->makeConfig($cfgArr));
-        $prov    = $factory->build();
+        $prov    = $factory->build('openai');
 
         $rp = new \ReflectionProperty(OpenAIProvider::class, 'options');
         $rp->setAccessible(true);
@@ -94,16 +92,16 @@ final class AIProviderFactoryTest extends TestCase
 
         $configs = [
             [
-                'provider' => [ 'type' => 'gemini', 'gemini' => ['api_key' => 'g'] ],
+                'providers' => [ 'gemini' => ['api_key' => 'g'] ],
             ],
             [
-                'provider' => [ 'type' => 'anthropic', 'anthropic' => ['api_key' => 'a'] ],
+                'providers' => [ 'anthropic' => ['api_key' => 'a'] ],
             ],
             [
-                'provider' => [ 'type' => 'ollama', 'ollama' => [] ],
+                'providers' => [ 'ollama' => [] ],
             ],
             [
-                'provider' => [ 'type' => 'mock' ],
+                'providers' => [ 'mock' => [] ],
             ],
         ];
 
@@ -112,7 +110,8 @@ final class AIProviderFactoryTest extends TestCase
         foreach ($configs as $i => $cfg) {
             $cfgArr  = array_merge($cfgBase, $cfg);
             $factory = new AIProviderFactory($this->makeConfig($cfgArr));
-            $prov    = $factory->build();
+            $provider = array_key_first($cfg['providers']);
+            $prov    = $factory->build($provider);
             $this->assertInstanceOf($classes[$i], $prov);
         }
     }
@@ -120,11 +119,11 @@ final class AIProviderFactoryTest extends TestCase
     public function testUnknownProviderThrows(): void
     {
         $cfgArr = [
-            'provider' => [ 'type' => 'nope' ],
+            'providers' => [ 'nope' => [] ],
             'prompts'   => [],
         ];
         $factory = new AIProviderFactory($this->makeConfig($cfgArr));
         $this->expectException(\InvalidArgumentException::class);
-        $factory->build();
+        $factory->build('gemini');
     }
 }

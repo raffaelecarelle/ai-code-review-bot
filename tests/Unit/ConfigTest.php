@@ -14,12 +14,12 @@ final class ConfigTest extends TestCase
         $cfg = Config::load(null);
         $all = $cfg->getAll();
         $this->assertIsArray($all);
-        $this->assertIsArray($cfg->provider());
+        $this->assertIsArray($cfg->providers());
         $this->assertIsArray($cfg->context());
         $this->assertIsArray($cfg->policy());
         $this->assertIsArray($cfg->vcs());
         $this->assertIsArray($cfg->excludes());
-        $this->assertSame('mock', $cfg->provider()['type'] ?? null);
+        $this->assertArrayHasKey('mock', $cfg->providers());
     }
 
     public function testYamlParsingAndEnvExpansion(): void
@@ -27,8 +27,9 @@ final class ConfigTest extends TestCase
         $tmp = sys_get_temp_dir().'/aicr_cfg_'.uniqid('', true).'.yml';
         putenv('CFG_TEST_TOKEN=ABC123');
         $yaml = <<<'YML'
-provider:
-  type: openai
+providers:
+  openai:
+    api_key: test_key
 context:
   diff_token_limit: 9000
   overflow_strategy: trim
@@ -51,7 +52,7 @@ YML;
         file_put_contents($tmp, $yaml);
         $cfg = Config::load($tmp);
         @unlink($tmp);
-        $this->assertSame('openai', $cfg->provider()['type']);
+        $this->assertArrayHasKey('openai', $cfg->providers());
         $this->assertSame(9000, $cfg->context()['diff_token_limit']);
         $this->assertSame('ABC123', $cfg->vcs()['repo']);
         $this->assertSame('github', $cfg->vcs()['platform']);
@@ -61,10 +62,10 @@ YML;
     public function testJsonParsingAndInvalidFile(): void
     {
         $tmp = sys_get_temp_dir().'/aicr_cfg_'.uniqid('', true).'.json';
-        file_put_contents($tmp, json_encode(['provider' => ['type' => 'openai']], JSON_PRETTY_PRINT));
+        file_put_contents($tmp, json_encode(['providers' => ['openai' => ['api_key' => 'test_key']]], JSON_PRETTY_PRINT));
         $cfg = Config::load($tmp);
         @unlink($tmp);
-        $this->assertSame('openai', $cfg->provider()['type']);
+        $this->assertArrayHasKey('openai', $cfg->providers());
 
         $invalid = sys_get_temp_dir().'/aicr_cfg_bad_'.uniqid('', true).'.zzz';
         file_put_contents($invalid, 'not: [valid'); // broken YAML

@@ -120,9 +120,9 @@ class Config
     /**
      * @return array<string, mixed>
      */
-    public function provider(): array
+    public function providers(): array
     {
-        return $this->config['provider'];
+        return $this->config['providers'] ?? [];
     }
 
     /**
@@ -130,7 +130,12 @@ class Config
      */
     public function context(): array
     {
-        return array_merge($this->config['context'], ['provider' => $this->config['provider']['type']]);
+        $providerName = 'mock'; // default
+        if (isset($this->config['providers']) && is_array($this->config['providers'])) {
+            $providerName = array_key_first($this->config['providers']) ?: 'mock';
+        }
+
+        return array_merge($this->config['context'], ['provider' => $providerName]);
     }
 
     /**
@@ -167,9 +172,9 @@ class Config
     public static function defaults(): array
     {
         return [
-            'version'  => 1,
-            'provider' => [
-                'type' => 'mock',
+            'version'   => 1,
+            'providers' => [
+                'mock' => [],
             ],
             'context' => [
                 'diff_token_limit'   => 8000,

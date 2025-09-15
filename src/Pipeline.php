@@ -20,12 +20,12 @@ final class Pipeline
     public const MSG_NO_FINDINGS = "No findings.\n";
 
     private Config $config;
-    private ?AIProvider $providerOverride;
+    private AIProvider $provider;
 
-    public function __construct(Config $config, ?AIProvider $providerOverride = null)
+    public function __construct(Config $config, AIProvider $provider)
     {
-        $this->config           = $config;
-        $this->providerOverride = $providerOverride;
+        $this->config   = $config;
+        $this->provider = $provider;
     }
 
     public function run(string $diffPath, string $outputFormat = self::OUTPUT_FORMAT_JSON): string
@@ -38,10 +38,9 @@ final class Pipeline
             throw new \RuntimeException("Failed to read diff file: {$diffPath}");
         }
 
-        $provider = $this->providerOverride ?? $this->buildProvider();
-        $chunks   = $this->buildChunks($this->config->context(), $diff);
+        $chunks = $this->buildChunks($this->config->context(), $diff);
 
-        $aiFindings = $provider->reviewChunks($chunks);
+        $aiFindings = $this->provider->reviewChunks($chunks);
 
         $policy      = new Policy($this->config->policy());
         $allFindings = $policy->apply($aiFindings);
@@ -71,11 +70,6 @@ final class Pipeline
     public static function formatMarkdown(array $findings): string
     {
         return (new Output\MarkdownFormatter())->format($findings);
-    }
-
-    private function buildProvider(): AIProvider
-    {
-        return (new Providers\AIProviderFactory($this->config))->build($this->providerOverride);
     }
 
     /**
