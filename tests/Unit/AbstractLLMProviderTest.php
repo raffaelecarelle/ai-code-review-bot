@@ -21,6 +21,11 @@ final class AbstractLLMProviderTest extends TestCase
             public function callMergePrompts(string $sys, string $user, array $options): array { return self::mergeAdditionalPrompts($sys, $user, $options); }
             public function callExtract(string $txt): array { return self::extractFindingsFromText($txt); }
             public function callSystem(): string { return self::systemPrompt(); }
+
+            public function getName(): string
+            {
+                return 'test';
+            }
         };
     }
 

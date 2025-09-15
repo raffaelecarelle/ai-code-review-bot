@@ -15,7 +15,7 @@ final class ConfigTest extends TestCase
         $all = $cfg->getAll();
         $this->assertIsArray($all);
         $this->assertIsArray($cfg->providers());
-        $this->assertIsArray($cfg->context());
+        $this->assertIsArray($cfg->context('test'));
         $this->assertIsArray($cfg->policy());
         $this->assertIsArray($cfg->vcs());
         $this->assertIsArray($cfg->excludes());
@@ -53,7 +53,7 @@ YML;
         $cfg = Config::load($tmp);
         @unlink($tmp);
         $this->assertArrayHasKey('openai', $cfg->providers());
-        $this->assertSame(9000, $cfg->context()['diff_token_limit']);
+        $this->assertSame(9000, $cfg->context('test')['diff_token_limit']);
         $this->assertSame('ABC123', $cfg->vcs()['repo']);
         $this->assertSame('github', $cfg->vcs()['platform']);
         $this->assertIsArray($cfg->getAll()['prompts']);

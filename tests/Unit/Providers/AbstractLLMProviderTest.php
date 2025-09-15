@@ -19,6 +19,12 @@ class _StubLLMProvider extends AbstractLLMProvider
     public static function callExtract(string $content): array { return parent::extractFindingsFromText($content); }
     /** @param array<int, array<string,mixed>> $chunks */
     public function reviewChunks(array $chunks): array { return []; }
+
+    public function getName(): string
+    {
+        return 'stub';
+    }
+
 }
 
 final class AbstractLLMProviderTest extends TestCase

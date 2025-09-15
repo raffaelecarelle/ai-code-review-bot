@@ -22,6 +22,11 @@ class TestMergeProvider extends AbstractLLMProvider
     }
 
     public function reviewChunks(array $chunks): array { return []; }
+
+    public function getName(): string
+    {
+        return 'test';
+    }
 }
 
 final class PromptMergeTest extends TestCase

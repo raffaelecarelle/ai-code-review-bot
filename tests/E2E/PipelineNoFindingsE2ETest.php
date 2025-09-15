@@ -44,6 +44,12 @@ YML;
             /** @var array<int, array<string, mixed>> */
             public array $lastChunks = [];
             public function reviewChunks(array $chunks): array { $this->lastChunks = $chunks; return []; }
+
+            public function getName(): string
+            {
+             return 'test';
+            }
+
         };
         $pipeline = new Pipeline($config, $provider);
 
