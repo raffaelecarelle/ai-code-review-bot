@@ -1,6 +1,5 @@
 version: 1
-provider:
-    type: openai
+providers:
     openai:
         api_key: ${OPENAI_TOKEN}
 context:
@@ -20,3 +19,4 @@ excludes:
     - .github/**/*
     - .aicodereview.*
     - docs/**/*
+    - .phpunit.result.cache
