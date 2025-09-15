@@ -64,6 +64,7 @@ composer install
 ```bash
 php bin/aicr review --diff-file examples/sample.diff --output summary
 php bin/aicr review --diff-file examples/sample.diff --output json
+php bin/aicr review --diff-file examples/sample.diff --output summary --provider openai
 ```
 
 - Option B: Analyze a PR/MR by ID using git
@@ -72,16 +73,19 @@ php bin/aicr review --diff-file examples/sample.diff --output json
 
 ```bash
 php bin/aicr review --id 123 --output summary
+php bin/aicr review --id 123 --output summary --provider gemini
 ```
 
   - To also post a comment back to the PR/MR, add `--comment`:
 
 ```bash
 php bin/aicr review --id 123 --output summary --comment
+php bin/aicr review --id 123 --output summary --comment --provider anthropic
 ```
 
 Notes
 - Provide `--config <path>` to use a non-default config file.
+- Use `--provider <name>` to override the default provider from config (e.g., openai, gemini, anthropic, ollama, mock).
 - Without `--diff-file`, `--id` is required and branches are resolved via the configured adapter.
 
 ## 4. Configuration (.aicodereview.yml)

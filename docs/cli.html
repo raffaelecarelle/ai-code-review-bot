@@ -33,14 +33,15 @@
     <p>The CLI entry point is <code>bin/aicr</code> and exposes a single command: <code>review</code>.</p>
 
     <h2 id="review">review</h2>
-    <pre><code>php bin/aicr review [--diff-file FILE | --id ID] [--output json|summary] [--comment] [--config FILE]
+    <pre><code>php bin/aicr review [--diff-file FILE | --id ID] [--output json|summary|markdown] [--provider PROVIDER] [--comment] [--config FILE]
 </code></pre>
 
     <h2 id="options">Options</h2>
     <ul>
       <li><code>--diff-file FILE</code> – analyze a unified diff from file</li>
       <li><code>--id ID</code> – analyze a PR/MR by ID using the configured VCS adapter</li>
-      <li><code>--output</code> – <code>json</code> (default) or <code>summary</code></li>
+      <li><code>--output</code> – <code>json</code> (default), <code>summary</code>, or <code>markdown</code></li>
+      <li><code>--provider PROVIDER</code> – override the default AI provider (e.g., openai, gemini, anthropic, ollama, mock)</li>
       <li><code>--comment</code> – post the summary to the PR/MR using the adapter</li>
       <li><code>--config FILE</code> – use a specific config file instead of <code>.aicodereview.yml</code></li>
     </ul>
@@ -52,11 +53,14 @@ php bin/aicr review --diff-file examples/sample.diff --output summary
 # Analyze a PR by number (GitHub) or MR IID (GitLab) and print JSON
 php bin/aicr review --id 123 --output json
 
-# Analyze an MR and post a comment
-php bin/aicr review --id 456 --output summary --comment
+# Analyze an MR and post a comment using OpenAI provider
+php bin/aicr review --id 456 --output summary --comment --provider openai
 
-# Use a custom config file
-php bin/aicr review --id 123 --config examples/config.github.yml --output summary
+# Use a custom config file with Gemini provider
+php bin/aicr review --id 123 --config examples/config.github.yml --output summary --provider gemini
+
+# Analyze diff with Anthropic provider and markdown output
+php bin/aicr review --diff-file examples/sample.diff --output markdown --provider anthropic
 </code></pre>
   </article>
 </main>

@@ -29,7 +29,7 @@ final class GeminiProvider extends AbstractLLMProvider
     public function __construct(array $options = [])
     {
         $this->options = $options;
-        $apiKey        = $options['api_key'] ?? getenv('GEMINI_API_KEY');
+        $apiKey        = $options['api_key'] ?? '';
         $apiKey        = false !== $apiKey ? (string) $apiKey : '';
         if ('' === $apiKey) {
             throw new \InvalidArgumentException('GeminiProvider requires api_key (config providers.gemini.api_key or env GEMINI_API_KEY).');
@@ -96,5 +96,10 @@ final class GeminiProvider extends AbstractLLMProvider
         $content = (string) $candidates[0]['content']['parts'][0]['text'];
 
         return self::extractFindingsFromText($content);
+    }
+
+    public function getName(): string
+    {
+        return 'gemini';
     }
 }

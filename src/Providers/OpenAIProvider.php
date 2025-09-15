@@ -28,10 +28,10 @@ final class OpenAIProvider extends AbstractLLMProvider
     public function __construct(array $options = [])
     {
         $this->options = $options;
-        $apiKey        = $options['api_key'];
+        $apiKey        = $options['api_key'] ?? '';
         $apiKey        = false !== $apiKey ? (string) $apiKey : '';
         if ('' === $apiKey) {
-            throw new \InvalidArgumentException('OpenAIProvider requires api_key (config providers.openai.api_key or env OPENAI_API_KEY).');
+            throw new \InvalidArgumentException('OpenAIProvider requires api_key (config providers.openai.api_key).');
         }
         $this->model = isset($options['model']) && is_string($options['model']) && '' !== $options['model']
             ? $options['model']
@@ -98,5 +98,10 @@ final class OpenAIProvider extends AbstractLLMProvider
         $findings = $parsed['findings'] ?? [];
 
         return is_array($findings) ? $findings : [];
+    }
+
+    public function getName(): string
+    {
+        return 'openai';
     }
 }

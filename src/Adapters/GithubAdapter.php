@@ -80,6 +80,7 @@ class GithubAdapter extends BaseAdapter
         if (false === $raw) {
             throw new \RuntimeException('GitHub API request failed: '.$url);
         }
+
         $data = json_decode($raw, true);
         if (!is_array($data)) {
             throw new \RuntimeException('Invalid GitHub API response');

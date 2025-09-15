@@ -16,4 +16,6 @@ interface AIProvider
      * @return array<int, array<string, mixed>>
      */
     public function reviewChunks(array $chunks): array;
+
+    public function getName(): string;
 }

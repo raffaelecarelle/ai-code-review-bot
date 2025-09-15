@@ -42,18 +42,21 @@
       <li>Run:</li>
     </ol>
     <pre><code>php bin/aicr review --diff-file examples/sample.diff --output summary
-php bin/aicr review --diff-file examples/sample.diff --output json</code></pre>
+php bin/aicr review --diff-file examples/sample.diff --output json
+php bin/aicr review --diff-file examples/sample.diff --output summary --provider openai</code></pre>
 
     <h2 id="analyze-pr-mr">Analyze a PR/MR using git</h2>
     <ol>
       <li>Set <code>vcs.platform</code> in <code>.aicodereview.yml</code> (github, gitlab, or bitbucket) and provide the required identifiers/tokens.</li>
       <li>Then run:</li>
     </ol>
-    <pre><code>php bin/aicr review --id 123 --output summary</code></pre>
+    <pre><code>php bin/aicr review --id 123 --output summary
+php bin/aicr review --id 123 --output summary --provider gemini</code></pre>
     <p class="note">Without <code>--diff-file</code>, the command resolves base/head branches from the ID, runs <code>git fetch</code>, computes <code>git diff base...head</code>, and analyzes the result.</p>
 
     <h2 id="auto-comments">Automatic comments on PR/MR</h2>
-    <pre><code>php bin/aicr review --id 123 --output summary --comment</code></pre>
+    <pre><code>php bin/aicr review --id 123 --output summary --comment
+php bin/aicr review --id 123 --output summary --comment --provider anthropic</code></pre>
     <p>This will post a summary directly to the PR/MR via the configured adapter.</p>
 
     <div class="warning"><strong>Safe default:</strong> the default AI provider is <code>mock</code>, so no network calls will be made until you configure a real provider.</div>

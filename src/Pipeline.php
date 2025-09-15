@@ -8,8 +8,9 @@ use AICR\Providers\AIProvider;
 
 final class Pipeline
 {
-    public const OUTPUT_FORMAT_JSON    = 'json';
-    public const OUTPUT_FORMAT_SUMMARY = 'summary';
+    public const OUTPUT_FORMAT_JSON     = 'json';
+    public const OUTPUT_FORMAT_SUMMARY  = 'summary';
+    public const OUTPUT_FORMAT_MARKDOWN = 'markdown';
 
     public const PROVIDER_OPENAI    = 'openai';
     public const PROVIDER_GEMINI    = 'gemini';
@@ -19,12 +20,12 @@ final class Pipeline
     public const MSG_NO_FINDINGS = "No findings.\n";
 
     private Config $config;
-    private ?AIProvider $providerOverride;
+    private AIProvider $provider;
 
-    public function __construct(Config $config, ?AIProvider $providerOverride = null)
+    public function __construct(Config $config, AIProvider $provider)
     {
-        $this->config           = $config;
-        $this->providerOverride = $providerOverride;
+        $this->config   = $config;
+        $this->provider = $provider;
     }
 
     public function run(string $diffPath, string $outputFormat = self::OUTPUT_FORMAT_JSON): string
@@ -37,16 +38,19 @@ final class Pipeline
             throw new \RuntimeException("Failed to read diff file: {$diffPath}");
         }
 
-        $provider = $this->providerOverride ?? $this->buildProvider();
-        $chunks   = $this->buildChunks($this->config->context(), $diff);
+        $chunks = $this->buildChunks($this->config->context($this->provider->getName()), $diff);
 
-        $aiFindings = $provider->reviewChunks($chunks);
+        $aiFindings = $this->provider->reviewChunks($chunks);
 
         $policy      = new Policy($this->config->policy());
         $allFindings = $policy->apply($aiFindings);
 
         if (self::OUTPUT_FORMAT_SUMMARY === $outputFormat) {
             return self::formatSummary($allFindings);
+        }
+
+        if (self::OUTPUT_FORMAT_MARKDOWN === $outputFormat) {
+            return self::formatMarkdown($allFindings);
         }
 
         return (string) json_encode($allFindings, JSON_PRETTY_PRINT);
@@ -60,9 +64,12 @@ final class Pipeline
         return (new Output\SummaryFormatter())->format($findings);
     }
 
-    private function buildProvider(): AIProvider
+    /**
+     * @param array<int, array<string, mixed>> $findings
+     */
+    public static function formatMarkdown(array $findings): string
     {
-        return (new Providers\AIProviderFactory($this->config))->build($this->providerOverride);
+        return (new Output\MarkdownFormatter())->format($findings);
     }
 
     /**

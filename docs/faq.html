@@ -37,9 +37,6 @@
     <h2 id="privacy">Is it safe by default?</h2>
     <p>Yes. The default provider is <code>mock</code>, which performs deterministic local responses and triggers no network calls.</p>
 
-    <h2 id="tokens">Where do tokens come from?</h2>
-    <p>Provider credentials are read from environment variables (e.g., <code>OPENAI_API_KEY</code>, <code>GEMINI_API_KEY</code>, <code>ANTHROPIC_API_KEY</code>, <code>GH_TOKEN</code>, <code>GL_TOKEN</code>). You can also set them in your shell or CI secrets.</p>
-
     <h2 id="guidelines">How do coding guidelines work?</h2>
     <p>Set <code>guidelines_file</code> in <code>.aicodereview.yml</code>. The file is read, base64-embedded in prompts, and the model is instructed to decode and follow it. This works consistently across all providers without separate uploads.</p>
 

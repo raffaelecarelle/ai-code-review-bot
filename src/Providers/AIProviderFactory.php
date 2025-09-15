@@ -21,41 +21,23 @@ final class AIProviderFactory
         $this->config = $config;
     }
 
-    public function build(?AIProvider $override = null): AIProvider
+    public function build(string $providerName): AIProvider
     {
-        if (null !== $override) {
-            return $override;
+        $provider = $this->config->providers();
+
+        if (!isset($provider[$providerName]) && 'mock' !== $providerName) {
+            $availableProviders = array_keys($provider);
+
+            throw new \InvalidArgumentException('Unknown provider. Available providers: '.implode(', ', $availableProviders));
         }
 
-        $providers = $this->config->providers();
-        $default   = (string) ($providers['default'] ?? null);
-
-        switch ($default) {
-            case Pipeline::PROVIDER_OPENAI:
-                $opts = $this->withPrompts($providers['openai'] ?? []);
-
-                return new OpenAIProvider($opts);
-
-            case Pipeline::PROVIDER_GEMINI:
-                $opts = $this->withPrompts($providers['gemini'] ?? []);
-
-                return new GeminiProvider($opts);
-
-            case Pipeline::PROVIDER_ANTHROPIC:
-                $opts = $this->withPrompts($providers['anthropic'] ?? []);
-
-                return new AnthropicProvider($opts);
-
-            case Pipeline::PROVIDER_OLLAMA:
-                $opts = $this->withPrompts($providers['ollama'] ?? []);
-
-                return new OllamaProvider($opts);
-
-            case 'mock':
-                return new MockProvider();
-        }
-
-        throw new \InvalidArgumentException("Unknown provider: {$default}");
+        return match ($providerName) {
+            Pipeline::PROVIDER_OPENAI    => new OpenAIProvider($this->withPrompts($provider[Pipeline::PROVIDER_OPENAI])),
+            Pipeline::PROVIDER_GEMINI    => new GeminiProvider($this->withPrompts($provider[Pipeline::PROVIDER_GEMINI])),
+            Pipeline::PROVIDER_ANTHROPIC => new AnthropicProvider($this->withPrompts($provider[Pipeline::PROVIDER_ANTHROPIC])),
+            Pipeline::PROVIDER_OLLAMA    => new OllamaProvider($this->withPrompts($provider[Pipeline::PROVIDER_OLLAMA])),
+            default                      => new MockProvider(),
+        };
     }
 
     /**
