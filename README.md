@@ -105,7 +105,6 @@ context:
 policy:
   min_severity_to_comment: info
   max_comments: 50
-  allow_suggested_fixes: true
   redact_secrets: true
   consolidate_similar_findings: true
   max_findings_per_file: 5

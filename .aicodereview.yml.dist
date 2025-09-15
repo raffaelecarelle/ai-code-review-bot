@@ -11,7 +11,6 @@ context:
 policy:
   min_severity_to_comment: info
   max_comments: 50
-  allow_suggested_fixes: true
   consolidate_similar_findings: true
   max_findings_per_file: 3
   redact_secrets: true
