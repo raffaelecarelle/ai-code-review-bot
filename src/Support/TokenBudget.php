@@ -96,6 +96,75 @@ final class TokenBudget
     }
 
     /**
+     * Get remaining budget for compression decisions.
+     */
+    public function getRemainingBudget(int $usedTokens): int
+    {
+        return max(0, $this->globalCap - $usedTokens);
+    }
+
+    /**
+     * Compress diff content intelligently while maintaining semantic context.
+     */
+    public function compressDiff(string $diff, int $maxTokens): string
+    {
+        $lines      = preg_split('/\r?\n/', $diff);
+        $compressed = [];
+        $tokenCount = 0;
+
+        if (false === $lines) {
+            return $diff;
+        }
+
+        foreach ($lines as $line) {
+            // Skip redundant empty lines
+            if (preg_match('/^\s*$/', $line)) {
+                continue;
+            }
+
+            // Compress long comments
+            if (preg_match('/^\+.*\/\*.*\*\//', $line)) {
+                $line = preg_replace('/\/\*.*?\*\//', '/* ... */', $line);
+            }
+
+            $lineTokens = $this->calculateTokensWithProviderMultiplier($line);
+            if ($tokenCount + $lineTokens > $maxTokens) {
+                $compressed[] = '... [content truncated for token budget] ...';
+
+                break;
+            }
+
+            $compressed[] = $line;
+            $tokenCount += $lineTokens;
+        }
+
+        return implode("\n", $compressed);
+    }
+
+    /**
+     * Filter out trivial changes that don't need review.
+     */
+    public function filterTrivialChanges(string $diff): string
+    {
+        $lines    = explode("\n", $diff);
+        $filtered = [];
+
+        foreach ($lines as $line) {
+            // Skip insignificant changes
+            if (preg_match('/^\+\s*$/', $line)                    // Only whitespace
+                || preg_match('/^\+\s*\/\/\s*(TODO|FIXME|XXX)/', $line) // TODO comments
+                || preg_match('/^\+\s*use\s+/', $line)               // Import statements
+                || preg_match('/^\+\s*\*\s*@/', $line)) {               // DocBlock annotations
+                continue;
+            }
+
+            $filtered[] = $line;
+        }
+
+        return implode("\n", $filtered);
+    }
+
+    /**
      * Calculate tokens using provider-specific multipliers and content analysis.
      */
     private function calculateTokensWithProviderMultiplier(string $text): int

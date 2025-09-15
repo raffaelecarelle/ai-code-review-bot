@@ -25,7 +25,7 @@ abstract class AbstractLLMProvider implements AIProvider
         foreach ($chunks as $chunk) {
             $file    = (string) ($chunk['file_path'] ?? '');
             $start   = (int) ($chunk['start_line'] ?? 1);
-            $lines[] = "FILE: {$file} (first +hunk starts ~{$start})";
+            $lines[] = "FILE: {$file} (~{$start})";
             $lines[] = '---';
             if (isset($chunk['unified_diff']) && is_string($chunk['unified_diff']) && '' !== $chunk['unified_diff']) {
                 $lines[] = $chunk['unified_diff'];

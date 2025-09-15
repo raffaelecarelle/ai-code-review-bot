@@ -215,4 +215,164 @@ index 123..456 100644
         $this->assertFalse($tb->shouldStop(15, 10)); // 25 > 20 but strategy is 'keep'
         $this->assertFalse($tb->shouldStop(100, 100)); // Way over budget but strategy is 'keep'
     }
+
+    public function testGetRemainingBudget(): void
+    {
+        $tb = new TokenBudget(1000, 500, 'trim', 'openai');
+        
+        // Test remaining budget calculation
+        $this->assertEquals(1000, $tb->getRemainingBudget(0));
+        $this->assertEquals(700, $tb->getRemainingBudget(300));
+        $this->assertEquals(0, $tb->getRemainingBudget(1000));
+        $this->assertEquals(0, $tb->getRemainingBudget(1200)); // Over budget should return 0
+    }
+
+    public function testCompressDiff(): void
+    {
+        $tb = new TokenBudget(1000, 500, 'trim', 'openai');
+        
+        $diffContent = 'diff --git a/test.php b/test.php
+index 123..456 100644
+--- a/test.php
++++ b/test.php
+@@ -1,10 +1,15 @@
+ <?php
+
++/**
++ * A very long comment that should be compressed
++ * with multiple lines of documentation
++ */
++function newFunction(): string
++{
++    return "hello world";
++}
++
+ class TestClass
+ {
+     public function method(): bool
+     {
+-        return false;
++        return true;
+     }
+ }';
+
+        $compressed = $tb->compressDiff($diffContent, 100); // Very small token limit
+        
+        // Should be shorter than original
+        $this->assertLessThan(strlen($diffContent), strlen($compressed));
+        
+        // Should preserve important structural elements
+        $this->assertStringContainsString('diff --git', $compressed);
+        $this->assertStringContainsString('@@', $compressed);
+        
+        // Should compress or truncate content when over budget
+        $compressedTokens = $tb->estimateTokens($compressed);
+        $this->assertLessThanOrEqual(100, $compressedTokens);
+    }
+
+    public function testCompressDiffHandlesComments(): void
+    {
+        $tb = new TokenBudget(1000, 500, 'trim', 'openai');
+        
+        $diffWithComments = '+/* This is a very long comment that should be compressed */
++function test() {
++    return true;
++}';
+
+        $compressed = $tb->compressDiff($diffWithComments, 50);
+        
+        // Should compress long comments
+        $this->assertStringContainsString('/* ... */', $compressed);
+        $this->assertStringContainsString('function test', $compressed);
+    }
+
+    public function testFilterTrivialChanges(): void
+    {
+        $tb = new TokenBudget(1000, 500, 'trim', 'openai');
+        
+        $diffWithTrivialChanges = 'diff --git a/test.php b/test.php
+index 123..456 100644
+--- a/test.php
++++ b/test.php
+@@ -1,10 +1,15 @@
+ <?php
++
++use App\Helper;
++use Another\Class;
++
++// TODO: Fix this later
++// FIXME: Remove this hack
+ class TestClass
+ {
++    /** @var string */
++    private $property;
++
+     public function method(): bool
+     {
+-        return false;
++        return true;
+     }
+ }';
+
+        $filtered = $tb->filterTrivialChanges($diffWithTrivialChanges);
+        
+        // Should remove trivial additions
+        $this->assertStringNotContainsString('+use App\Helper;', $filtered);
+        $this->assertStringNotContainsString('+use Another\Class;', $filtered);
+        $this->assertStringNotContainsString('// TODO:', $filtered);
+        $this->assertStringNotContainsString('// FIXME:', $filtered);
+        // Note: /** @var string */ doesn't match the filter pattern for DocBlock annotations
+        $this->assertStringContainsString('/** @var string */', $filtered);
+        
+        // Should preserve important changes
+        $this->assertStringContainsString('class TestClass', $filtered);
+        $this->assertStringContainsString('return true;', $filtered);
+    }
+
+    public function testFilterTrivialChangesPreservesImportantContent(): void
+    {
+        $tb = new TokenBudget(1000, 500, 'trim', 'openai');
+        
+        $diffWithMixedContent = '+function importantFunction() {
++    return "important";
++}
++
++use SomePackage\Class;
++// TODO: implement later
++
++class RealClass {
++    public function realMethod() {
++        // This is important logic
++        return $this->process();
++    }
++}';
+
+        $filtered = $tb->filterTrivialChanges($diffWithMixedContent);
+        
+        // Should preserve important code
+        $this->assertStringContainsString('importantFunction', $filtered);
+        $this->assertStringContainsString('RealClass', $filtered);
+        $this->assertStringContainsString('realMethod', $filtered);
+        $this->assertStringContainsString('// This is important logic', $filtered);
+        
+        // Should filter out trivial content
+        $this->assertStringNotContainsString('use SomePackage\Class;', $filtered);
+        $this->assertStringNotContainsString('// TODO:', $filtered);
+    }
+
+    public function testCompressDiffWithEmptyInput(): void
+    {
+        $tb = new TokenBudget(1000, 500, 'trim', 'openai');
+        
+        $compressed = $tb->compressDiff('', 100);
+        $this->assertEquals('', $compressed);
+    }
+
+    public function testFilterTrivialChangesWithEmptyInput(): void
+    {
+        $tb = new TokenBudget(1000, 500, 'trim', 'openai');
+        
+        $filtered = $tb->filterTrivialChanges('');
+        $this->assertEquals('', $filtered);
+    }
 }

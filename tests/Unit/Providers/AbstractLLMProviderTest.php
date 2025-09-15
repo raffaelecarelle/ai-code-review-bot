@@ -50,9 +50,9 @@ final class AbstractLLMProviderTest extends TestCase
 
         $prompt = _StubLLMProvider::callBuildPrompt($chunks);
         $this->assertStringContainsString('You are an AI Code Review bot', $prompt);
-        $this->assertStringContainsString('FILE: src/Foo.php (first +hunk starts ~10)', $prompt);
+        $this->assertStringContainsString('FILE: src/Foo.php (~10)', $prompt);
         $this->assertStringContainsString('@@ -1,3 +1,3 @@', $prompt);
-        $this->assertStringContainsString('FILE: src/Bar.php (first +hunk starts ~5)', $prompt);
+        $this->assertStringContainsString('FILE: src/Bar.php (~5)', $prompt);
         $this->assertStringContainsString('+ 5: echo 1;', $prompt);
         $this->assertStringContainsString('+ 6: echo 2;', $prompt);
     }
