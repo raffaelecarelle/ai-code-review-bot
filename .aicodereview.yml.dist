@@ -6,11 +6,18 @@ context:
   diff_token_limit: 8000
   overflow_strategy: trim
   per_file_token_cap: 2000
+  enable_semantic_chunking: true
+  enable_diff_compression: true
 policy:
   min_severity_to_comment: info
   max_comments: 50
-  allow_suggested_fixes: true
+  consolidate_similar_findings: true
+  max_findings_per_file: 3
   redact_secrets: true
+  severity_limits:
+      error: 10
+      warning: 10
+      info: 5
 guidelines_file: null
 vcs:
   # Choose which platform to use when computing diffs via git and posting comments

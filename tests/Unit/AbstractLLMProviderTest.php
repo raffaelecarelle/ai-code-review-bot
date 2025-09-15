@@ -41,9 +41,9 @@ final class AbstractLLMProviderTest extends TestCase
         ];
         $prompt = $h->callBuildPrompt($chunks);
         $this->assertStringContainsString('You are an AI Code Review bot', $prompt);
-        $this->assertStringContainsString('FILE: a.php (first +hunk starts ~10)', $prompt);
+        $this->assertStringContainsString('FILE: a.php (~10)', $prompt);
         $this->assertStringContainsString('diff --git', $prompt);
-        $this->assertStringContainsString('FILE: b.php (first +hunk starts ~1)', $prompt);
+        $this->assertStringContainsString('FILE: b.php (~1)', $prompt);
         $this->assertStringContainsString('+ 1: <?php echo 1;', $prompt);
     }
 

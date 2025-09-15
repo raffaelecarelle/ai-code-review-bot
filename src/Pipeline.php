@@ -73,41 +73,72 @@ final class Pipeline
     }
 
     /**
-     * Build AI review chunks from the full unified diff, including + (added/modified) and - (deleted) lines.
-     * Keeps rules engine input (addedByFile) separate, but ensures AI context has full per-file diffs.
+     * Build AI review chunks from the full unified diff with intelligent optimization.
+     * Applies prioritization, compression, filtering and semantic chunking.
      *
      * @param array<string, mixed> $context
      *
-     * @return array<int, array{file_path:string, start_line:int, unified_diff:string}>
+     * @return array<int, array{file_path: string, start_line?: int, unified_diff: string}>
      */
     private function buildChunks(array $context, string $fullDiff): array
     {
         $chunks = [];
         $budget = Support\TokenBudget::fromContext($context);
 
-        // Build map of file_path => unified diff block for that file (including headers and hunks)
+        $fullDiff = $budget->filterTrivialChanges($fullDiff);
+
         $diffByFile = $this->extractFileDiffs($fullDiff);
 
-        $used = 0;
+        $used      = 0;
+        $rawChunks = [];
+
         foreach ($diffByFile as $file => $fileDiff) {
             $startLine = $this->getStartLineFromUnifiedDiff($fileDiff);
             $est       = $budget->estimateTokens($fileDiff);
 
-            // Respect token budgets
+            // Check if we should compress or stop
             if ($budget->shouldStop($used, $est)) {
-                break;
+                // Try compression instead of stopping
+                $remainingBudget = $budget->getRemainingBudget($used);
+                if ($remainingBudget > 100) { // Only compress if meaningful budget remains
+                    $fileDiff = $budget->compressDiff($fileDiff, $remainingBudget);
+                    $est      = $budget->estimateTokens($fileDiff);
+
+                    if ($budget->shouldStop($used, $est)) {
+                        break; // Still too big after compression
+                    }
+                } else {
+                    break; // Not enough budget for compression
+                }
             }
 
+            // Enforce per-file cap
             $fileDiff = $budget->enforcePerFileCap($fileDiff);
             $est      = $budget->estimateTokens($fileDiff);
 
-            $chunks[] = [
+            $chunk = [
                 'file_path'    => $file,
-                'start_line'   => $startLine,
                 'unified_diff' => $fileDiff,
             ];
+            if ($startLine > 0) {
+                $chunk['start_line'] = $startLine;
+            }
+            $rawChunks[] = $chunk;
 
             $used += $est;
+        }
+
+        if ($context['enable_semantic_chunking'] ?? false) {
+            $semanticChunks = Support\SemanticChunker::chunkByContext($rawChunks);
+
+            // Flatten semantic chunks back to original format
+            foreach ($semanticChunks as $semanticChunk) {
+                foreach ($semanticChunk as $chunk) {
+                    $chunks[] = $chunk;
+                }
+            }
+        } else {
+            $chunks = $rawChunks;
         }
 
         return $chunks;

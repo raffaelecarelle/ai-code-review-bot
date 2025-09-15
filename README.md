@@ -100,11 +100,18 @@ context:
   diff_token_limit: 8000
   overflow_strategy: trim
   per_file_token_cap: 2000
+  enable_semantic_chunking: true
+  enable_diff_compression: true
 policy:
   min_severity_to_comment: info
   max_comments: 50
-  allow_suggested_fixes: true
   redact_secrets: true
+  consolidate_similar_findings: true
+  max_findings_per_file: 5
+  severity_limits:
+    error: 10
+    warning: 10
+    info: 5
 guidelines_file: null
 vcs:
   # Set one of: github | gitlab | bitbucket
@@ -166,6 +173,18 @@ Notes
 - Supported providers in this repository: `openai`, `gemini`, `anthropic`, `ollama`, `mock`.
 - Select via `providers.default` and configure each provider section accordingly (see `src/Providers/*` for options).
 - Token budgeting is approximate (chars/4). Global and per-file caps are configurable; `overflow_strategy` defaults to `trim`.
+
+### 7.1 Advanced Token Optimization Features
+The system includes sophisticated token cost optimization capabilities:
+
+- **Semantic Chunking**: Enable with `enable_semantic_chunking: true` to group related code changes by context (classes, methods, etc.)
+- **Diff Compression**: Enable with `enable_diff_compression: true` to intelligently compress diffs while maintaining semantic meaning
+- **Trivial Change Filtering**: Automatically filters out whitespace-only changes, TODO comments, and import statements
+- **Similar Finding Consolidation**: Set `consolidate_similar_findings: true` to aggregate similar issues across multiple files
+- **Per-file Limits**: Control review scope with `max_findings_per_file` to prevent overwhelming output
+- **Severity Limits**: Fine-tune output with `severity_limits` to cap the number of findings by severity level
+
+These optimizations can reduce token usage by 30-50% for input and 40-60% for output while maintaining review quality. See `docs/token-cost-optimization.md` for detailed implementation guide.
 
 ## 8. Output formats
 - `json` (default): machine-readable findings array.

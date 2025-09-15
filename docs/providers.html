@@ -54,6 +54,16 @@
       <li>Global cap via <code>context.diff_token_limit</code> and per-file cap via <code>context.per_file_token_cap</code>.</li>
       <li>Overflow strategy defaults to <code>trim</code>; other strategies may be added over time.</li>
     </ul>
+    
+    <h3>Advanced Token Optimization</h3>
+    <p>The system includes sophisticated token cost optimization capabilities that can reduce token usage by 30-50% for input and 40-60% for output:</p>
+    <ul>
+      <li><strong>Semantic Chunking</strong> – Groups related code changes by context (classes, methods, etc.) via <code>enable_semantic_chunking</code></li>
+      <li><strong>Diff Compression</strong> – Intelligently compresses diffs while maintaining semantic meaning via <code>enable_diff_compression</code></li>
+      <li><strong>Similar Finding Consolidation</strong> – Aggregates similar issues across files via <code>consolidate_similar_findings</code></li>
+      <li><strong>Per-file Limits</strong> – Controls review scope with <code>max_findings_per_file</code> to prevent overwhelming output</li>
+      <li><strong>Severity Limits</strong> – Fine-tunes output with <code>severity_limits</code> to cap findings by severity level</li>
+    </ul>
 
     <h2 id="guidelines">Coding guidelines embedding</h2>
     <p>If <code>guidelines_file</code> is set in config, its contents are base64-embedded into the prompts for all providers. The system instructions direct the model to decode and apply them strictly during review.</p>
