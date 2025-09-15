@@ -92,4 +92,9 @@ final class AnthropicProvider extends AbstractLLMProvider
 
         return self::extractFindingsFromText($content);
     }
+
+    public function getName(): string
+    {
+        return 'anthropic';
+    }
 }

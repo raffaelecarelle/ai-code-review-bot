@@ -46,4 +46,9 @@ final class MockProvider implements AIProvider
             'content'    => '',
         ]];
     }
+
+    public function getName(): string
+    {
+        return 'mock';
+    }
 }

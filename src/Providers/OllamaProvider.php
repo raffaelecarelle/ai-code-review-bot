@@ -82,4 +82,9 @@ final class OllamaProvider extends AbstractLLMProvider
 
         return self::extractFindingsFromText($content);
     }
+
+    public function getName(): string
+    {
+        return 'ollama';
+    }
 }

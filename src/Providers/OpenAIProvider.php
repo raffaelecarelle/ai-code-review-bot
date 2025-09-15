@@ -99,4 +99,9 @@ final class OpenAIProvider extends AbstractLLMProvider
 
         return is_array($findings) ? $findings : [];
     }
+
+    public function getName(): string
+    {
+        return 'openai';
+    }
 }

@@ -38,7 +38,7 @@ final class Pipeline
             throw new \RuntimeException("Failed to read diff file: {$diffPath}");
         }
 
-        $chunks = $this->buildChunks($this->config->context(), $diff);
+        $chunks = $this->buildChunks($this->config->context($this->provider->getName()), $diff);
 
         $aiFindings = $this->provider->reviewChunks($chunks);
 

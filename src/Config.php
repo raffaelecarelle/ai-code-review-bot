@@ -128,13 +128,8 @@ class Config
     /**
      * @return array<string, mixed>
      */
-    public function context(): array
+    public function context(string $providerName): array
     {
-        $providerName = 'mock'; // default
-        if (isset($this->config['providers']) && is_array($this->config['providers'])) {
-            $providerName = array_key_first($this->config['providers']) ?: 'mock';
-        }
-
         return array_merge($this->config['context'], ['provider' => $providerName]);
     }
 

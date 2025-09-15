@@ -181,7 +181,7 @@ final class ReviewCommand extends Command
         if (null === $providerName) {
             $availableProviders = array_keys($providers);
 
-            return $factory->build($availableProviders[0] ?? throw new \InvalidArgumentException('No providers are configured.'));
+            return $factory->build($availableProviders[1] /* position 0 is mock provider */ ?? throw new \InvalidArgumentException('No providers are configured.'));
         }
 
         if (!isset($providers[$providerName])) {
