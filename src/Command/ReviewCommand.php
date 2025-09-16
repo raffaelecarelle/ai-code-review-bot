@@ -180,7 +180,7 @@ final class ReviewCommand extends Command
 
         if (null === $providerName) {
             $availableProviders = array_keys($providers);
-            
+
             // Use default provider if specified, otherwise use first non-mock provider, fallback to first provider
             if (isset($providers['default'])) {
                 $defaultProvider = $providers['default'];
@@ -188,19 +188,19 @@ final class ReviewCommand extends Command
                     return $factory->build($defaultProvider);
                 }
             }
-            
+
             // Find first non-mock provider
             foreach ($availableProviders as $provider) {
                 if ('mock' !== $provider) {
                     return $factory->build($provider);
                 }
             }
-            
+
             // Fallback to first available provider
             if (empty($availableProviders)) {
                 throw new \InvalidArgumentException('No providers are configured.');
             }
-            
+
             return $factory->build($availableProviders[0]);
         }
 

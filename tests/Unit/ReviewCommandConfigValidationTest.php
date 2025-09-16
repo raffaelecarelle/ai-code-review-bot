@@ -68,7 +68,8 @@ final class ReviewCommandConfigValidationTest extends TestCase
 
         $diffPath = __DIR__.'/../../examples/sample.diff';
         $tmpCfg = sys_get_temp_dir().'/aicr_cmd_'.uniqid('', true).'.yml';
-        file_put_contents($tmpCfg, "providers:\n  mock:\n    type: mock\n  openai:\n    type: openai\n    api_key: test\n");
+        // Use only mock provider to avoid real API calls during test
+        file_put_contents($tmpCfg, "providers:\n  default: mock\n  mock:\n    type: mock\n");
 
         $exit = $tester->execute([
             'command' => $command->getName(),
