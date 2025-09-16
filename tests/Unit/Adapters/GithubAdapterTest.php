@@ -28,6 +28,30 @@ use PHPUnit\Framework\TestCase;
 
 final class GithubAdapterTest extends TestCase
 {
+    public function testConstructor(): void
+    {
+        $config = [
+            'repository' => 'owner/repo',
+            'access_token' => 'github_token_123',
+            'api_base' => 'https://api.github.com',
+            'timeout' => 30
+        ];
+        
+        $adapter = new GithubAdapter($config);
+        $this->assertInstanceOf(GithubAdapter::class, $adapter);
+    }
+
+    public function testConstructorWithDefaults(): void
+    {
+        $config = [
+            'repository' => 'owner/repo',
+            'access_token' => 'token'
+        ];
+        
+        $adapter = new GithubAdapter($config);
+        $this->assertInstanceOf(GithubAdapter::class, $adapter);
+    }
+
     public function testInferRepoFromGitRemote(): void
     {
         // Subclass to override runGit
