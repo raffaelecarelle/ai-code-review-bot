@@ -58,19 +58,3 @@ jobs:
                 with:
                     name: coverage-php${{ matrix.php }}
                     path: build/coverage
-
-            -   name: AI Code Review
-                if: github.event_name == 'pull_request_target' && matrix.php == '8.3'
-                env:
-                    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-                    CI_OPENAI_TOKEN: ${{ secrets.CI_OPENAI_TOKEN }}
-                run: |
-                    env
-                    git config --global --add safe.directory /app
-                    git config --global user.name "AI Code Review Bot"
-                    git fetch --all --prune
-                    git fetch origin ${{ github.base_ref }}:${{ github.base_ref }} || true
-                    git fetch origin ${{ github.head_ref }}:${{ github.head_ref }} || true
-
-                    # Only run AI review on one PHP version to avoid duplicate comments
-                    php bin/aicr --id=${{ github.event.pull_request.number }} --config=.aicodereview.yml --comment --output=markdown
