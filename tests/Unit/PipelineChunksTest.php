@@ -28,7 +28,7 @@ final class PipelineChunksTest extends TestCase
 
         $this->assertNotEmpty($mock->lastChunks, 'Chunks should not be empty');
         $first = $mock->lastChunks[0];
-        $this->assertArrayHasKey('file_path', $first);
+        $this->assertArrayHasKey('file', $first);
         $this->assertArrayHasKey('start_line', $first);
         $this->assertArrayHasKey('unified_diff', $first, 'Expect unified_diff to be provided to AI provider');
         $this->assertIsString($first['unified_diff']);

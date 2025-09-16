@@ -78,7 +78,7 @@ final class Pipeline
      *
      * @param array<string, mixed> $context
      *
-     * @return array<int, array{file_path: string, start_line?: int, unified_diff: string}>
+     * @return array<int, array{file: string, start_line?: int, unified_diff: string}>
      */
     private function buildChunks(array $context, string $fullDiff): array
     {
@@ -117,7 +117,7 @@ final class Pipeline
             $est      = $budget->estimateTokens($fileDiff);
 
             $chunk = [
-                'file_path'    => $file,
+                'file'         => $file,
                 'unified_diff' => $fileDiff,
             ];
             if ($startLine > 0) {

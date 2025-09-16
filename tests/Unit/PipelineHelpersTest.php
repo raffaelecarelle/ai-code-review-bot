@@ -58,7 +58,7 @@ DIFF;
         $this->assertCount(2, $chunks);
         $byFile = [];
         foreach ($chunks as $c) {
-            $byFile[$c['file_path']] = $c;
+            $byFile[$c['file']] = $c;
         }
         $this->assertSame(10, $byFile['b/foo.php']['start_line']);
         $this->assertSame(1, $byFile['b/bar.php']['start_line']);

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace AICR\Providers;
 
 use GuzzleHttp\Client;
+use GuzzleHttp\Exception\RequestException;
 
 /**
  * Adapter for Google Gemini Generative Language API v1beta.
@@ -76,10 +77,16 @@ final class GeminiProvider extends AbstractLLMProvider
             ],
         ];
 
-        $resp = $this->client->post('', [
-            'query' => ['key' => $this->apiKey],
-            'json'  => $payload,
-        ]);
+        try {
+            $resp = $this->client->post('', [
+                'query' => ['key' => $this->apiKey],
+                'json'  => $payload,
+            ]);
+        } catch (RequestException $e) {
+            $status = $e->getResponse() ? $e->getResponse()->getStatusCode() : 500;
+
+            throw new \RuntimeException('GeminiProvider error status: '.$status);
+        }
 
         $status = $resp->getStatusCode();
         if ($status < 200 || $status >= 300) {

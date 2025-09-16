@@ -1,17 +1,16 @@
 version: 1
 providers:
     openai:
-        api_key: ${OPENAI_TOKEN}
+        api_key: ${CI_OPENAI_TOKEN}
 context:
-    diff_token_limit: 6000        # Ridotto da 8000
-    overflow_strategy: compress   # Invece di 'trim'
-    per_file_token_cap: 1500     # Ridotto da 2000
+    diff_token_limit: 6000
+    overflow_strategy: compress
+    per_file_token_cap: 1500
     enable_semantic_chunking: true
     enable_diff_compression: true
 policy:
-    min_severity_to_comment: warning  # Invece di 'info'
-    max_comments: 25                  # Ridotto da 50
-    allow_suggested_fixes: false      # Riduce verbosità
+    min_severity_to_comment: warning
+    max_comments: 25
     consolidate_similar_findings: true
     max_findings_per_file: 3
     redact_secrets: true
@@ -21,10 +20,11 @@ policy:
 vcs:
     platform: github
     repository: raffaelecarelle/ai-code-review-bot
-    access_token: ${CI_GITHUB_TOKEN}
+    access_token: ${GITHUB_TOKEN}
 excludes:
     - .github/**/*
     - .aicodereview.*
     - docs/**/*
     - .phpunit.result.cache
     - "*.md"
+    - "*.html"

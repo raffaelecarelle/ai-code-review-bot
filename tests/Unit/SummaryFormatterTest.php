@@ -23,7 +23,7 @@ final class SummaryFormatterTest extends TestCase
                 'rule_id' => 'R1',
                 'title' => 'T',
                 'severity' => 'major',
-                'file_path' => 'file.php',
+                'file' => 'file.php',
                 'start_line' => 3,
                 'end_line' => 5,
                 'rationale' => 'Because',

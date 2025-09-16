@@ -19,11 +19,11 @@ abstract class AbstractLLMProvider implements AIProvider
         $lines[] = 'You are an AI Code Review bot. Analyze the following UNIFIED DIFFS per file, considering both added/modified lines (+) and deleted lines (-).';
         $lines[] = 'Focus your reasoning primarily on the resulting code state, but consider deletions for potential regressions, removed validations, or security checks.';
         $lines[] = 'Return a JSON object with key "findings" which is an array of objects with keys:';
-        $lines[] = 'rule_id, title, severity, file_path, start_line, end_line, rationale, suggestion, content';
+        $lines[] = 'rule_id, title, severity, file, start_line, end_line, rationale, suggestion, content';
         $lines[] = 'If no issues, return {"findings":[]}. Do not include commentary.';
         $lines[] = '';
         foreach ($chunks as $chunk) {
-            $file    = (string) ($chunk['file_path'] ?? '');
+            $file    = (string) ($chunk['file'] ?? '');
             $start   = (int) ($chunk['start_line'] ?? 1);
             $lines[] = "FILE: {$file} (~{$start})";
             $lines[] = '---';
@@ -31,7 +31,8 @@ abstract class AbstractLLMProvider implements AIProvider
                 $lines[] = $chunk['unified_diff'];
             } else {
                 // Fallback for legacy chunks containing only added lines
-                $entries = isset($chunk['lines']) && is_array($chunk['lines']) ? $chunk['lines'] : [];
+                $entries = isset($chunk['lines']) && is_array($chunk['lines']) ? $chunk['lines']
+                          : (isset($chunk['additions']) && is_array($chunk['additions']) ? $chunk['additions'] : []);
                 foreach ($entries as $entry) {
                     $ln      = (int) ($entry['line'] ?? 0);
                     $ct      = (string) ($entry['content'] ?? '');
@@ -112,8 +113,13 @@ abstract class AbstractLLMProvider implements AIProvider
     {
         $parsed = json_decode($content, true);
         if (!is_array($parsed)) {
+            // Try to extract JSON if wrapped in code fences
             if (1 === preg_match('/```(?:json)?\n(.+?)\n```/s', $content, $m)) {
                 $parsed = json_decode($m[1], true);
+            }
+            // Try to extract inline JSON from text
+            if (!is_array($parsed) && 1 === preg_match('/\{.*"findings".*\}/s', $content, $m)) {
+                $parsed = json_decode($m[0], true);
             }
         }
         if (!is_array($parsed)) {

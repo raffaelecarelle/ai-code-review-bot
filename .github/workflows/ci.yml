@@ -2,7 +2,7 @@ name: CI
 
 on:
     push:
-    pull_request:
+    pull_request_target:
 
 jobs:
     qa:
@@ -60,11 +60,12 @@ jobs:
                     path: build/coverage
 
             -   name: AI Code Review
-                if: github.event_name == 'pull_request' && matrix.php == '8.3'
+                if: github.event_name == 'pull_request_target' && matrix.php == '8.3'
                 env:
-                    CI_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-                    OPENAI_TOKEN: ${{ secrets.OPENAI_TOKEN }}
+                    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                    CI_OPENAI_TOKEN: ${{ secrets.CI_OPENAI_TOKEN }}
                 run: |
+                    env
                     git config --global --add safe.directory /app
                     git config --global user.name "AI Code Review Bot"
                     git fetch --all --prune

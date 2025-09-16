@@ -33,7 +33,7 @@ final class PipelineExcludeTest extends TestCase
             $this->assertIsArray($findings);
             // Verify that only one file (src/Test.php) was processed
             $this->assertCount(1, $mockProvider->lastChunks);
-            $this->assertSame('b/src/Test.php', $mockProvider->lastChunks[0]['file_path']);
+            $this->assertSame('b/src/Test.php', $mockProvider->lastChunks[0]['file']);
             // Since only one file was processed, we expect one finding
             $this->assertCount(1, $findings);
         } finally {
@@ -63,7 +63,7 @@ final class PipelineExcludeTest extends TestCase
             $this->assertIsArray($findings);
             // Verify that only one file (src/App.php) was processed
             $this->assertCount(1, $mockProvider->lastChunks);
-            $this->assertSame('b/src/App.php', $mockProvider->lastChunks[0]['file_path']);
+            $this->assertSame('b/src/App.php', $mockProvider->lastChunks[0]['file']);
             // Since only one file was processed, we expect one finding
             $this->assertCount(1, $findings);
         } finally {
@@ -93,7 +93,7 @@ final class PipelineExcludeTest extends TestCase
             $this->assertIsArray($findings);
             // Verify that only one file (src/Config.php) was processed
             $this->assertCount(1, $mockProvider->lastChunks);
-            $this->assertSame('b/src/Config.php', $mockProvider->lastChunks[0]['file_path']);
+            $this->assertSame('b/src/Config.php', $mockProvider->lastChunks[0]['file']);
             // Since only one file was processed, we expect one finding
             $this->assertCount(1, $findings);
         } finally {
@@ -128,7 +128,7 @@ final class PipelineExcludeTest extends TestCase
             $this->assertIsArray($findings);
             // Verify that only one file (src/Main.php) was processed
             $this->assertCount(1, $mockProvider->lastChunks);
-            $this->assertSame('b/src/Main.php', $mockProvider->lastChunks[0]['file_path']);
+            $this->assertSame('b/src/Main.php', $mockProvider->lastChunks[0]['file']);
             // Since only one file was processed, we expect one finding
             $this->assertCount(1, $findings);
         } finally {
@@ -157,7 +157,7 @@ final class PipelineExcludeTest extends TestCase
             $this->assertIsArray($findings);
             // Verify that both files were processed
             $this->assertCount(2, $mockProvider->lastChunks);
-            $processedFiles = array_column($mockProvider->lastChunks, 'file_path');
+            $processedFiles = array_column($mockProvider->lastChunks, 'file');
             $this->assertContains('b/README.md', $processedFiles);
             $this->assertContains('b/src/App.php', $processedFiles);
             // Since both files were processed, we expect one finding (MockAIProvider generates one per first chunk)

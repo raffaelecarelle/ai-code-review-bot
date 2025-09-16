@@ -125,7 +125,7 @@ final class Policy
         $severityCounters = [];
 
         foreach ($findings as $finding) {
-            $filePath = (string) ($finding['file_path'] ?? '');
+            $filePath = (string) ($finding['file'] ?? '');
             $severity = strtolower((string) ($finding['severity'] ?? 'info'));
 
             // Check per-file limit
@@ -184,13 +184,13 @@ final class Policy
     private function createAggregatedFinding(array $findings): array
     {
         $first     = $findings[0];
-        $filePaths = array_unique(array_map(fn ($f) => $f['file_path'] ?? '', $findings));
+        $filePaths = array_unique(array_map(fn ($f) => $f['file'] ?? '', $findings));
 
         return [
-            'rule_id'   => $first['rule_id'] ?? '',
-            'title'     => 'Aggregated: '.($first['title'] ?? ''),
-            'severity'  => $first['severity'] ?? 'info',
-            'file_path' => implode(', ', array_slice($filePaths, 0, 3))
+            'rule_id'  => $first['rule_id'] ?? '',
+            'title'    => 'Aggregated: '.($first['title'] ?? ''),
+            'severity' => $first['severity'] ?? 'info',
+            'file'     => implode(', ', array_slice($filePaths, 0, 3))
                           .(count($filePaths) > 3 ? ' +'.(count($filePaths) - 3).' more' : ''),
             'start_line'       => $first['start_line'] ?? 0,
             'end_line'         => $first['end_line'] ?? 0,
@@ -217,7 +217,7 @@ final class Policy
      */
     private function fingerprint(array $f): string
     {
-        $key = $f['file_path'].'|'.$f['start_line'].'|'.$f['end_line'].'|'.$f['rule_id'].'|'.$f['content'];
+        $key = $f['file'].'|'.$f['start_line'].'|'.$f['end_line'].'|'.$f['rule_id'].'|'.$f['content'];
 
         return sha1($key);
     }

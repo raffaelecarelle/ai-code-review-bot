@@ -51,7 +51,7 @@ final class MarkdownFormatterTest extends TestCase
                 'rule_id' => 'test-rule',
                 'title' => 'Test Issue',
                 'severity' => 'high',
-                'file_path' => 'src/Test.php',
+                'file' => 'src/Test.php',
                 'start_line' => 10,
                 'end_line' => 10,
                 'rationale' => 'This is a test issue',
@@ -85,7 +85,7 @@ final class MarkdownFormatterTest extends TestCase
             [
                 'title' => 'First Issue',
                 'severity' => 'high',
-                'file_path' => 'src/First.php',
+                'file' => 'src/First.php',
                 'start_line' => 5,
                 'rationale' => 'First issue rationale',
                 'suggestion' => 'First suggestion'
@@ -93,7 +93,7 @@ final class MarkdownFormatterTest extends TestCase
             [
                 'title' => 'Second Issue',
                 'severity' => 'medium',
-                'file_path' => 'src/Second.php',
+                'file' => 'src/Second.php',
                 'start_line' => 15,
                 'rationale' => 'Second issue rationale',
                 'suggestion' => 'Second suggestion'
@@ -119,19 +119,19 @@ final class MarkdownFormatterTest extends TestCase
             [
                 'title' => 'Issue 1 in File A',
                 'severity' => 'high',
-                'file_path' => 'src/FileA.php',
+                'file' => 'src/FileA.php',
                 'start_line' => 5
             ],
             [
                 'title' => 'Issue 2 in File A',
                 'severity' => 'low',
-                'file_path' => 'src/FileA.php',
+                'file' => 'src/FileA.php',
                 'start_line' => 10
             ],
             [
                 'title' => 'Issue in File B',
                 'severity' => 'medium',
-                'file_path' => 'src/FileB.php',
+                'file' => 'src/FileB.php',
                 'start_line' => 3
             ]
         ];
@@ -154,13 +154,13 @@ final class MarkdownFormatterTest extends TestCase
         $formatter = new MarkdownFormatter();
         
         $findings = [
-            ['title' => 'High', 'severity' => 'high', 'file_path' => 'test.php'],
-            ['title' => 'Error', 'severity' => 'error', 'file_path' => 'test.php'],
-            ['title' => 'Medium', 'severity' => 'medium', 'file_path' => 'test.php'],
-            ['title' => 'Warning', 'severity' => 'warning', 'file_path' => 'test.php'],
-            ['title' => 'Low', 'severity' => 'low', 'file_path' => 'test.php'],
-            ['title' => 'Info', 'severity' => 'info', 'file_path' => 'test.php'],
-            ['title' => 'Unknown', 'severity' => 'unknown', 'file_path' => 'test.php'],
+            ['title' => 'High', 'severity' => 'high', 'file' => 'test.php'],
+            ['title' => 'Error', 'severity' => 'error', 'file' => 'test.php'],
+            ['title' => 'Medium', 'severity' => 'medium', 'file' => 'test.php'],
+            ['title' => 'Warning', 'severity' => 'warning', 'file' => 'test.php'],
+            ['title' => 'Low', 'severity' => 'low', 'file' => 'test.php'],
+            ['title' => 'Info', 'severity' => 'info', 'file' => 'test.php'],
+            ['title' => 'Unknown', 'severity' => 'unknown', 'file' => 'test.php'],
         ];
         
         $result = $formatter->format($findings);
@@ -181,7 +181,7 @@ final class MarkdownFormatterTest extends TestCase
         $findings = [
             [
                 // Missing most optional fields
-                'file_path' => 'test.php'
+                'file' => 'test.php'
             ]
         ];
         
@@ -203,7 +203,7 @@ final class MarkdownFormatterTest extends TestCase
             [
                 'title' => 'Issue with unknown file',
                 'severity' => 'info'
-                // Missing file_path
+                // Missing file
             ]
         ];
         
@@ -221,7 +221,7 @@ final class MarkdownFormatterTest extends TestCase
             [
                 'title' => 'Test',
                 'severity' => 'info',
-                'file_path' => 'test.php'
+                'file' => 'test.php'
             ]
         ];
         
@@ -240,7 +240,7 @@ final class MarkdownFormatterTest extends TestCase
             [
                 'title' => 'Test',
                 'severity' => 'info',
-                'file_path' => 'test.php'
+                'file' => 'test.php'
             ]
         ];
         
@@ -255,10 +255,10 @@ final class MarkdownFormatterTest extends TestCase
         $formatter = new MarkdownFormatter();
         
         $findings = [
-            ['severity' => 'low', 'file_path' => 'test.php'],
-            ['severity' => 'high', 'file_path' => 'test.php'],
-            ['severity' => 'medium', 'file_path' => 'test.php'],
-            ['severity' => 'high', 'file_path' => 'test.php'],
+            ['severity' => 'low', 'file' => 'test.php'],
+            ['severity' => 'high', 'file' => 'test.php'],
+            ['severity' => 'medium', 'file' => 'test.php'],
+            ['severity' => 'high', 'file' => 'test.php'],
         ];
         
         $result = $formatter->format($findings);
@@ -284,7 +284,7 @@ final class MarkdownFormatterTest extends TestCase
                 'rule_id' => 'SECURITY-001',
                 'title' => 'SQL Injection Risk',
                 'severity' => 'high',
-                'file_path' => 'src/Database/UserRepository.php',
+                'file' => 'src/Database/UserRepository.php',
                 'start_line' => 45,
                 'end_line' => 47,
                 'rationale' => 'Direct SQL query construction without parameter binding',
@@ -295,7 +295,7 @@ final class MarkdownFormatterTest extends TestCase
                 'rule_id' => 'STYLE-002',
                 'title' => 'Missing Type Declaration',
                 'severity' => 'low',
-                'file_path' => 'src/Database/UserRepository.php',
+                'file' => 'src/Database/UserRepository.php',
                 'start_line' => 12,
                 'end_line' => 12,
                 'rationale' => 'Method parameter lacks type declaration',
@@ -306,7 +306,7 @@ final class MarkdownFormatterTest extends TestCase
                 'rule_id' => 'PERF-003',
                 'title' => 'N+1 Query Problem',
                 'severity' => 'medium',
-                'file_path' => 'src/Service/OrderService.php',
+                'file' => 'src/Service/OrderService.php',
                 'start_line' => 23,
                 'end_line' => 28,
                 'rationale' => 'Loop executes database query for each iteration',

@@ -33,8 +33,8 @@ final class AbstractLLMProviderTest extends TestCase
     {
         $h = $this->harness();
         $chunks = [
-            ['file_path' => 'a.php', 'start_line' => 10, 'unified_diff' => "diff --git a/a.php b/a.php\n@@ -1,2 +1,2 @@\n- old\n+ new\n"],
-            ['file_path' => 'b.php', 'start_line' => 1, 'lines' => [
+            ['file' => 'a.php', 'start_line' => 10, 'unified_diff' => "diff --git a/a.php b/a.php\n@@ -1,2 +1,2 @@\n- old\n+ new\n"],
+            ['file' => 'b.php', 'start_line' => 1, 'lines' => [
                 ['line' => 1, 'content' => '<?php echo 1;'],
                 ['line' => 2, 'content' => 'echo 2;'],
             ]],

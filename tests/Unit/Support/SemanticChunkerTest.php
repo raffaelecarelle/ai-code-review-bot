@@ -13,19 +13,19 @@ final class SemanticChunkerTest extends TestCase
     {
         $changes = [
             [
-                'file_path' => 'src/ClassA.php',
+                'file' => 'src/ClassA.php',
                 'unified_diff' => "+class ClassA {\n+    public function test() {}"
             ],
             [
-                'file_path' => 'src/ClassB.php', 
+                'file' => 'src/ClassB.php', 
                 'unified_diff' => "+class ClassB {\n+    private \$var = 1;"
             ],
             [
-                'file_path' => 'src/Helper.php',
+                'file' => 'src/Helper.php',
                 'unified_diff' => "+public function helper() {\n+    return true;\n+}"
             ],
             [
-                'file_path' => 'src/Utils.php',
+                'file' => 'src/Utils.php',
                 'unified_diff' => "+private function utils() {\n+    \$result = process();\n+}"
             ]
         ];
@@ -55,7 +55,7 @@ final class SemanticChunkerTest extends TestCase
     {
         $changes = [
             [
-                'file_path' => 'src/Test.php',
+                'file' => 'src/Test.php',
                 'unified_diff' => "+public function test() {\n+    return 'test';\n+}"
             ]
         ];
@@ -70,15 +70,15 @@ final class SemanticChunkerTest extends TestCase
     {
         $changes = [
             [
-                'file_path' => 'src/A.php',
+                'file' => 'src/A.php',
                 'unified_diff' => "+public function methodA() {\n+    return 1;\n+}"
             ],
             [
-                'file_path' => 'src/B.php',
+                'file' => 'src/B.php',
                 'unified_diff' => "+public function methodB() {\n+    return 2;\n+}"
             ],
             [
-                'file_path' => 'src/C.php',
+                'file' => 'src/C.php',
                 'unified_diff' => "+\$var = 'different';\n+echo \$var;"
             ]
         ];
@@ -88,11 +88,11 @@ final class SemanticChunkerTest extends TestCase
         $this->assertCount(2, $grouped, 'Should group similar method changes but keep different ones separate');
         
         // Check that similar method changes were aggregated
-        $aggregatedChange = array_filter($grouped, fn($change) => str_contains($change['file_path'], ','));
+        $aggregatedChange = array_filter($grouped, fn($change) => str_contains($change['file'], ','));
         $this->assertCount(1, $aggregatedChange, 'Should have one aggregated change');
         
         $aggregated = array_values($aggregatedChange)[0];
-        $this->assertStringContainsString('src/A.php, src/B.php', $aggregated['file_path']);
+        $this->assertStringContainsString('src/A.php, src/B.php', $aggregated['file']);
         $this->assertStringContainsString('Aggregated method changes', $aggregated['unified_diff']);
     }
 
@@ -209,12 +209,12 @@ final class SemanticChunkerTest extends TestCase
         $method->setAccessible(true);
 
         $change1 = [
-            'file_path' => 'src/A.php',
+            'file' => 'src/A.php',
             'unified_diff' => "+public function test() {\n+    return 1;\n+}"
         ];
         
         $change2 = [
-            'file_path' => 'src/B.php',
+            'file' => 'src/B.php',
             'unified_diff' => "+public function different() {\n+    return 2;\n+}"
         ];
 
@@ -232,26 +232,26 @@ final class SemanticChunkerTest extends TestCase
 
         $changes = [
             [
-                'file_path' => 'src/A.php',
+                'file' => 'src/A.php',
                 'unified_diff' => "+public function testA() {\n+    return 'A';\n+}"
             ],
             [
-                'file_path' => 'src/B.php',
+                'file' => 'src/B.php',
                 'unified_diff' => "+public function testB() {\n+    return 'B';\n+}"
             ],
             [
-                'file_path' => 'src/C.php',
+                'file' => 'src/C.php',
                 'unified_diff' => "+public function testC() {\n+    return 'C';\n+}"
             ],
             [
-                'file_path' => 'src/D.php',
+                'file' => 'src/D.php',
                 'unified_diff' => "+public function testD() {\n+    return 'D';\n+}"
             ]
         ];
 
         $aggregated = $method->invoke(null, $changes);
 
-        $this->assertEquals('src/A.php, src/B.php, src/C.php and 1 more', $aggregated['file_path']);
+        $this->assertEquals('src/A.php, src/B.php, src/C.php and 1 more', $aggregated['file']);
         $this->assertStringContainsString('Aggregated method changes in 4 files', $aggregated['unified_diff']);
         $this->assertStringContainsString('testA', $aggregated['unified_diff']);
         $this->assertStringContainsString('testB', $aggregated['unified_diff']);
