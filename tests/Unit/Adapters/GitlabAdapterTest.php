@@ -28,6 +28,32 @@ use PHPUnit\Framework\TestCase;
 
 final class GitlabAdapterTest extends TestCase
 {
+    public function testConstructor(): void
+    {
+        $config = [
+            'repository' => '12345',
+            'project_id' => '12345',
+            'access_token' => 'gitlab_token_123',
+            'api_base' => 'https://gitlab.com/api/v4',
+            'timeout' => 30
+        ];
+        
+        $adapter = new GitlabAdapter($config);
+        $this->assertInstanceOf(GitlabAdapter::class, $adapter);
+    }
+
+    public function testConstructorWithDefaults(): void
+    {
+        $config = [
+            'repository' => '123',
+            'project_id' => '123',
+            'access_token' => 'token'
+        ];
+        
+        $adapter = new GitlabAdapter($config);
+        $this->assertInstanceOf(GitlabAdapter::class, $adapter);
+    }
+
     public function testInferProjectIdFromGitRemote(): void
     {
         $g = new class(['vcs' => []]) extends GitlabAdapter {
