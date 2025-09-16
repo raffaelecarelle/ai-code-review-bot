@@ -2,7 +2,8 @@ name: CI
 
 on:
     push:
-    pull_request_target:
+    pull_request:
+        types: [ opened, synchronize ]
 
 jobs:
     qa:
@@ -60,7 +61,7 @@ jobs:
                     path: build/coverage
 
             -   name: AI Code Review
-                if: github.event_name == 'pull_request_target' && matrix.php == '8.3'
+                if: github.event_name == 'pull_request' && matrix.php == '8.3'
                 env:
                     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
                     CI_OPENAI_TOKEN: ${{ secrets.CI_OPENAI_TOKEN }}
