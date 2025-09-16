@@ -62,7 +62,7 @@ jobs:
             -   name: AI Code Review
                 if: github.event_name == 'pull_request' && matrix.php == '8.3'
                 env:
-                    CI_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                    CI_GITHUB_TOKEN: ${{ secrets.CI_GITHUB_TOKEN }}
                     CI_OPENAI_TOKEN: ${{ secrets.CI_OPENAI_TOKEN }}
                 run: |
                     git config --global --add safe.directory /app
