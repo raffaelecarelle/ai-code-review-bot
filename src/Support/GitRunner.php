@@ -10,7 +10,9 @@ final class GitRunner
 {
     public function run(string $args): string
     {
-        $process = Process::fromShellCommandline('git '.$args);
+        $safeDirectory = getcwd() ?: '.';
+        $command       = 'git -c safe.directory='.escapeshellarg($safeDirectory).' '.$args;
+        $process       = Process::fromShellCommandline($command);
         $process->setTimeout(null);
         $process->run();
         if (!$process->isSuccessful()) {
