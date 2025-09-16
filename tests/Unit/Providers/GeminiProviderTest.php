@@ -98,7 +98,7 @@ final class GeminiProviderTest extends TestCase
         
         $config = $client->getConfig();
         $expectedEndpoint = GeminiProvider::DEFAULT_ENDPOINT_BASE . GeminiProvider::DEFAULT_MODEL . ':generateContent';
-        $this->assertSame($expectedEndpoint, $config['base_uri']);
+        $this->assertSame($expectedEndpoint, (string) $config['base_uri']);
         $this->assertSame(GeminiProvider::DEFAULT_TIMEOUT, $config['timeout']);
         $this->assertArrayHasKey('headers', $config);
         $this->assertSame('application/json', $config['headers']['Content-Type']);
@@ -121,7 +121,7 @@ final class GeminiProviderTest extends TestCase
         $client = $clientProperty->getValue($provider);
 
         $config = $client->getConfig();
-        $this->assertSame($customEndpoint, $config['base_uri']);
+        $this->assertSame($customEndpoint, (string) $config['base_uri']);
         $this->assertSame($customTimeout, $config['timeout']);
     }
 
@@ -140,7 +140,7 @@ final class GeminiProviderTest extends TestCase
 
         $config = $client->getConfig();
         $expectedEndpoint = GeminiProvider::DEFAULT_ENDPOINT_BASE . $customModel . ':generateContent';
-        $this->assertSame($expectedEndpoint, $config['base_uri']);
+        $this->assertSame($expectedEndpoint, (string) $config['base_uri']);
     }
 
     public function testReviewChunksWithValidResponse(): void

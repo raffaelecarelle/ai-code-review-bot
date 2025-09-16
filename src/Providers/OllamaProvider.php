@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace AICR\Providers;
 
 use GuzzleHttp\Client;
+use GuzzleHttp\Exception\RequestException;
 
 /**
  * Adapter for local Ollama HTTP API.
@@ -56,16 +57,22 @@ final class OllamaProvider extends AbstractLLMProvider
         $baseUser                    = self::buildPrompt($chunks);
         [$systemPrompt, $userPrompt] = self::mergeAdditionalPrompts(self::systemPrompt(), $baseUser, $this->options);
 
-        $resp = $this->client->post('', [
-            'json' => [
-                'model'   => $this->model,
-                'prompt'  => $systemPrompt."\n\n".$userPrompt,
-                'stream'  => false,
-                'options' => [
-                    'temperature' => 0.0,
+        try {
+            $resp = $this->client->post('', [
+                'json' => [
+                    'model'   => $this->model,
+                    'prompt'  => $systemPrompt."\n\n".$userPrompt,
+                    'stream'  => false,
+                    'options' => [
+                        'temperature' => 0.0,
+                    ],
                 ],
-            ],
-        ]);
+            ]);
+        } catch (RequestException $e) {
+            $status = $e->getResponse() ? $e->getResponse()->getStatusCode() : 500;
+
+            throw new \RuntimeException('OllamaProvider error status: '.$status);
+        }
 
         $status = $resp->getStatusCode();
         if ($status < 200 || $status >= 300) {

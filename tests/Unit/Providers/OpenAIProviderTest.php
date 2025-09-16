@@ -91,7 +91,7 @@ final class OpenAIProviderTest extends TestCase
         $this->assertInstanceOf(Client::class, $client);
         
         $config = $client->getConfig();
-        $this->assertSame(OpenAIProvider::DEFAULT_ENDPOINT, $config['base_uri']);
+        $this->assertSame(OpenAIProvider::DEFAULT_ENDPOINT, (string) $config['base_uri']);
         $this->assertSame(OpenAIProvider::DEFAULT_TIMEOUT, $config['timeout']);
         $this->assertArrayHasKey('headers', $config);
         $this->assertSame('application/json', $config['headers']['Content-Type']);
@@ -115,7 +115,7 @@ final class OpenAIProviderTest extends TestCase
         $client = $clientProperty->getValue($provider);
 
         $config = $client->getConfig();
-        $this->assertSame($customEndpoint, $config['base_uri']);
+        $this->assertSame($customEndpoint, (string) $config['base_uri']);
         $this->assertSame($customTimeout, $config['timeout']);
     }
 

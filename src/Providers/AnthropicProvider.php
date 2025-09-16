@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace AICR\Providers;
 
 use GuzzleHttp\Client;
+use GuzzleHttp\Exception\RequestException;
 
 /**
  * Adapter for Anthropic Claude Messages API v1.
@@ -73,9 +74,15 @@ final class AnthropicProvider extends AbstractLLMProvider
             ],
         ];
 
-        $resp = $this->client->post('', [
-            'json' => $payload,
-        ]);
+        try {
+            $resp = $this->client->post('', [
+                'json' => $payload,
+            ]);
+        } catch (RequestException $e) {
+            $status = $e->getResponse() ? $e->getResponse()->getStatusCode() : 500;
+
+            throw new \RuntimeException('AnthropicProvider error status: '.$status);
+        }
         $status = $resp->getStatusCode();
         if ($status < 200 || $status >= 300) {
             throw new \RuntimeException('AnthropicProvider error status: '.$status);
