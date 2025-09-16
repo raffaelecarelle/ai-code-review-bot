@@ -15,7 +15,7 @@ final class MockProviderTest extends TestCase
             'rule_id' => 'R1',
             'title' => 'T',
             'severity' => 'info',
-            'file_path' => 'a.php',
+            'file' => 'a.php',
             'start_line' => 1,
             'end_line' => 1,
             'rationale' => 'r',
@@ -30,10 +30,10 @@ final class MockProviderTest extends TestCase
     public function testGeneratesFindingFromFirstChunkWhenNoPreset(): void
     {
         $prov = new MockProvider();
-        $chunks = [[ 'file_path' => 'src/Foo.php', 'start_line' => 12 ]];
+        $chunks = [[ 'file' => 'src/Foo.php', 'start_line' => 12 ]];
         $out = $prov->reviewChunks($chunks);
         $this->assertSame('AI.MOCK.CHECK', $out[0]['rule_id'] ?? null);
-        $this->assertSame('src/Foo.php', $out[0]['file_path'] ?? null);
+        $this->assertSame('src/Foo.php', $out[0]['file'] ?? null);
         $this->assertSame(12, $out[0]['start_line'] ?? null);
     }
 }

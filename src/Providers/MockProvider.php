@@ -31,14 +31,14 @@ final class MockProvider implements AIProvider
             return [];
         }
         $first = $chunks[0];
-        $file  = (string) ($first['file_path'] ?? 'unknown');
+        $file  = (string) ($first['file'] ?? 'unknown');
         $start = (int) ($first['start_line'] ?? 1);
 
         return [[
             'rule_id'    => 'AI.MOCK.CHECK',
             'title'      => 'Mock AI Finding',
             'severity'   => 'info',
-            'file_path'  => $file,
+            'file'       => $file,
             'start_line' => $start,
             'end_line'   => $start,
             'rationale'  => 'Mock provider used for tests.',

@@ -19,18 +19,18 @@ final class PolicyTest extends TestCase
         $findings = [
             [
                 'rule_id' => 'R1', 'title' => 't', 'severity' => 'minor',
-                'file_path' => 'a.php', 'start_line' => 1, 'end_line' => 1,
+                'file' => 'a.php', 'start_line' => 1, 'end_line' => 1,
                 'rationale' => 'x', 'suggestion' => 'y', 'content' => 'no secret'
             ],
             [
                 'rule_id' => 'R2', 'title' => 't', 'severity' => 'major',
-                'file_path' => 'b.php', 'start_line' => 2, 'end_line' => 2,
+                'file' => 'b.php', 'start_line' => 2, 'end_line' => 2,
                 'rationale' => 'x', 'suggestion' => 'y', 'content' => 'password: supersecret'
             ],
             // Duplicate of previous by fingerprint dimensions (rule_id, path, lines, content)
             [
                 'rule_id' => 'R2', 'title' => 't', 'severity' => 'major',
-                'file_path' => 'b.php', 'start_line' => 2, 'end_line' => 2,
+                'file' => 'b.php', 'start_line' => 2, 'end_line' => 2,
                 'rationale' => 'x', 'suggestion' => 'y', 'content' => 'password: supersecret'
             ],
         ];
@@ -51,7 +51,7 @@ final class PolicyTest extends TestCase
         ]);
         $findings = [[
             'rule_id' => 'R3', 'title' => 't', 'severity' => 'info',
-            'file_path' => 'c.php', 'start_line' => 3, 'end_line' => 3,
+            'file' => 'c.php', 'start_line' => 3, 'end_line' => 3,
             'rationale' => 'x', 'suggestion' => 'y', 'content' => 'api-key: ABCDEF12345'
         ]];
         $out = $policy->apply($findings);
@@ -69,17 +69,17 @@ final class PolicyTest extends TestCase
         $findings = [
             [
                 'rule_id' => 'R1', 'title' => 'Missing type hint', 'severity' => 'warning',
-                'file_path' => 'a.php', 'start_line' => 1, 'end_line' => 1,
+                'file' => 'a.php', 'start_line' => 1, 'end_line' => 1,
                 'rationale' => 'x', 'suggestion' => 'y', 'content' => 'function test()'
             ],
             [
                 'rule_id' => 'R1', 'title' => 'Missing type hint', 'severity' => 'warning',
-                'file_path' => 'b.php', 'start_line' => 5, 'end_line' => 5,
+                'file' => 'b.php', 'start_line' => 5, 'end_line' => 5,
                 'rationale' => 'x', 'suggestion' => 'y', 'content' => 'function helper()'
             ],
             [
                 'rule_id' => 'R2', 'title' => 'Different issue', 'severity' => 'info',
-                'file_path' => 'c.php', 'start_line' => 10, 'end_line' => 10,
+                'file' => 'c.php', 'start_line' => 10, 'end_line' => 10,
                 'rationale' => 'z', 'suggestion' => 'w', 'content' => 'unused variable'
             ]
         ];
@@ -94,7 +94,7 @@ final class PolicyTest extends TestCase
         
         $aggregated = array_values($aggregatedFinding)[0];
         $this->assertStringContainsString('Aggregated: Missing type hint', $aggregated['title']);
-        $this->assertStringContainsString('a.php, b.php', $aggregated['file_path']);
+        $this->assertStringContainsString('a.php, b.php', $aggregated['file']);
         $this->assertEquals(2, $aggregated['aggregated_count']);
     }
 
@@ -113,27 +113,27 @@ final class PolicyTest extends TestCase
         $findings = [
             [
                 'rule_id' => 'R1', 'title' => 'Error 1', 'severity' => 'error',
-                'file_path' => 'a.php', 'start_line' => 1, 'end_line' => 1,
+                'file' => 'a.php', 'start_line' => 1, 'end_line' => 1,
                 'rationale' => 'x', 'suggestion' => 'y', 'content' => 'error content'
             ],
             [
                 'rule_id' => 'R2', 'title' => 'Error 2', 'severity' => 'error',
-                'file_path' => 'b.php', 'start_line' => 2, 'end_line' => 2,
+                'file' => 'b.php', 'start_line' => 2, 'end_line' => 2,
                 'rationale' => 'x', 'suggestion' => 'y', 'content' => 'error content 2'
             ],
             [
                 'rule_id' => 'R3', 'title' => 'Error 3', 'severity' => 'error',
-                'file_path' => 'c.php', 'start_line' => 3, 'end_line' => 3,
+                'file' => 'c.php', 'start_line' => 3, 'end_line' => 3,
                 'rationale' => 'x', 'suggestion' => 'y', 'content' => 'error content 3'
             ],
             [
                 'rule_id' => 'R4', 'title' => 'Warning 1', 'severity' => 'warning',
-                'file_path' => 'd.php', 'start_line' => 4, 'end_line' => 4,
+                'file' => 'd.php', 'start_line' => 4, 'end_line' => 4,
                 'rationale' => 'x', 'suggestion' => 'y', 'content' => 'warning content'
             ],
             [
                 'rule_id' => 'R5', 'title' => 'Warning 2', 'severity' => 'warning',
-                'file_path' => 'e.php', 'start_line' => 5, 'end_line' => 5,
+                'file' => 'e.php', 'start_line' => 5, 'end_line' => 5,
                 'rationale' => 'x', 'suggestion' => 'y', 'content' => 'warning content 2'
             ]
         ];
@@ -161,22 +161,22 @@ final class PolicyTest extends TestCase
         $findings = [
             [
                 'rule_id' => 'R1', 'title' => 'Issue 1', 'severity' => 'warning',
-                'file_path' => 'same.php', 'start_line' => 1, 'end_line' => 1,
+                'file' => 'same.php', 'start_line' => 1, 'end_line' => 1,
                 'rationale' => 'x', 'suggestion' => 'y', 'content' => 'content 1'
             ],
             [
                 'rule_id' => 'R2', 'title' => 'Issue 2', 'severity' => 'warning',
-                'file_path' => 'same.php', 'start_line' => 5, 'end_line' => 5,
+                'file' => 'same.php', 'start_line' => 5, 'end_line' => 5,
                 'rationale' => 'x', 'suggestion' => 'y', 'content' => 'content 2'
             ],
             [
                 'rule_id' => 'R3', 'title' => 'Issue 3', 'severity' => 'warning',
-                'file_path' => 'same.php', 'start_line' => 10, 'end_line' => 10,
+                'file' => 'same.php', 'start_line' => 10, 'end_line' => 10,
                 'rationale' => 'x', 'suggestion' => 'y', 'content' => 'content 3'
             ],
             [
                 'rule_id' => 'R4', 'title' => 'Issue 4', 'severity' => 'warning',
-                'file_path' => 'different.php', 'start_line' => 1, 'end_line' => 1,
+                'file' => 'different.php', 'start_line' => 1, 'end_line' => 1,
                 'rationale' => 'x', 'suggestion' => 'y', 'content' => 'content 4'
             ]
         ];
@@ -186,7 +186,7 @@ final class PolicyTest extends TestCase
         // Should have max 2 findings from same.php + 1 from different.php = 3 total
         $this->assertCount(3, $out);
         
-        $sameFileFindings = array_filter($out, fn($f) => $f['file_path'] === 'same.php');
+        $sameFileFindings = array_filter($out, fn($f) => $f['file'] === 'same.php');
         $this->assertCount(2, $sameFileFindings, 'Should have exactly 2 findings from same.php due to per-file limit');
     }
 
@@ -203,12 +203,12 @@ final class PolicyTest extends TestCase
         $findings = [
             [
                 'rule_id' => 'R1', 'title' => 'Same issue', 'severity' => 'warning',
-                'file_path' => 'a.php', 'start_line' => 1, 'end_line' => 1,
+                'file' => 'a.php', 'start_line' => 1, 'end_line' => 1,
                 'rationale' => 'x', 'suggestion' => 'y', 'content' => 'content'
             ],
             [
                 'rule_id' => 'R1', 'title' => 'Same issue', 'severity' => 'warning',
-                'file_path' => 'b.php', 'start_line' => 1, 'end_line' => 1,
+                'file' => 'b.php', 'start_line' => 1, 'end_line' => 1,
                 'rationale' => 'x', 'suggestion' => 'y', 'content' => 'content'
             ]
         ];

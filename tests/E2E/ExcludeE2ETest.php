@@ -53,7 +53,7 @@ final class ExcludeE2ETest extends TestCase
             $this->assertIsArray($findings);
             // Verify that only src/ files were processed (2 files: Service.php and Controller.php)
             $this->assertCount(2, $mockProvider->lastChunks);
-            $processedFiles = array_column($mockProvider->lastChunks, 'file_path');
+            $processedFiles = array_column($mockProvider->lastChunks, 'file');
             $this->assertContains('b/src/Service.php', $processedFiles);
             $this->assertContains('b/src/Controller.php', $processedFiles);
             // MockAIProvider generates one finding for the first chunk
@@ -89,7 +89,7 @@ final class ExcludeE2ETest extends TestCase
                 'rule_id' => 'TEST_RULE',
                 'title' => 'Test Finding',
                 'severity' => 'info',
-                'file_path' => 'b/src/Important.php',
+                'file' => 'b/src/Important.php',
                 'start_line' => 1,
                 'end_line' => 1,
                 'rationale' => 'Test rationale',
@@ -107,7 +107,7 @@ final class ExcludeE2ETest extends TestCase
             $this->assertIsArray($findings);
             $this->assertCount(1, $findings);
             $this->assertSame('TEST_RULE', $findings[0]['rule_id']);
-            $this->assertSame('b/src/Important.php', $findings[0]['file_path']);
+            $this->assertSame('b/src/Important.php', $findings[0]['file']);
             
         } finally {
             @unlink($configFile);

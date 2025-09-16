@@ -21,7 +21,7 @@ final class PipelineTest extends TestCase
             'rule_id' => 'R1',
             'title' => 'Title',
             'severity' => 'minor',
-            'file_path' => 'a.php',
+            'file' => 'a.php',
             'start_line' => 1,
             'end_line' => 1,
             'rationale' => 'Because',

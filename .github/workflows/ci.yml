@@ -65,6 +65,8 @@ jobs:
                     CI_GITHUB_TOKEN: ${{ secrets.CI_GITHUB_TOKEN }}
                     CI_OPENAI_TOKEN: ${{ secrets.CI_OPENAI_TOKEN }}
                 run: |
+                    echo "${CI_GITHUB_TOKEN}"
+                    echo "${CI_OPENAI_TOKEN}"
                     git config --global --add safe.directory /app
                     git config --global user.name "AI Code Review Bot"
                     git fetch --all --prune

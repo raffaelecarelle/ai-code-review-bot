@@ -9,7 +9,7 @@ interface AIProvider
     /**
      * Review token-budgeted chunks and return findings.
      * Each finding should contain:
-     *  rule_id, title, severity, file_path, start_line, end_line, rationale, suggestion, content.
+     *  rule_id, title, severity, file, start_line, end_line, rationale, suggestion, content.
      *
      * @param array<int, array<string, mixed>> $chunks
      *

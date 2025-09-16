@@ -9,9 +9,9 @@ final class SemanticChunker
     /**
      * Chunk changes by semantic context instead of file size.
      *
-     * @param array<int, array{file_path: string, unified_diff: string}> $changes
+     * @param array<int, array{file: string, unified_diff: string}> $changes
      *
-     * @return array<int, array<int, array{file_path: string, unified_diff: string}>>
+     * @return array<int, array<int, array{file: string, unified_diff: string}>>
      */
     public static function chunkByContext(array $changes): array
     {
@@ -45,9 +45,9 @@ final class SemanticChunker
     /**
      * Group similar changes to reduce verbosity.
      *
-     * @param array<int, array{file_path: string, unified_diff: string}> $changes
+     * @param array<int, array{file: string, unified_diff: string}> $changes
      *
-     * @return array<int, array{file_path: string, unified_diff: string}>
+     * @return array<int, array{file: string, unified_diff: string}>
      */
     public static function groupSimilarChanges(array $changes): array
     {
@@ -113,7 +113,7 @@ final class SemanticChunker
     /**
      * Create a signature for a change to identify similar changes.
      *
-     * @param array{file_path: string, unified_diff: string} $change
+     * @param array{file: string, unified_diff: string} $change
      */
     private static function getChangeSignature(array $change): string
     {
@@ -131,17 +131,17 @@ final class SemanticChunker
     /**
      * Create an aggregated change from multiple similar changes.
      *
-     * @param array<int, array{file_path: string, unified_diff: string}> $changes
+     * @param array<int, array{file: string, unified_diff: string}> $changes
      *
-     * @return array{file_path: string, unified_diff: string}
+     * @return array{file: string, unified_diff: string}
      */
     private static function createAggregatedChange(array $changes): array
     {
-        $filePaths = array_map(fn ($change) => $change['file_path'], $changes);
+        $filePaths = array_map(fn ($change) => $change['file'], $changes);
         $context   = self::detectContext($changes[0]['unified_diff']);
 
         return [
-            'file_path' => implode(', ', array_slice($filePaths, 0, 3))
+            'file' => implode(', ', array_slice($filePaths, 0, 3))
                           .(count($filePaths) > 3 ? ' and '.(count($filePaths) - 3).' more' : ''),
             'unified_diff' => "Aggregated {$context} changes in ".count($changes)." files:\n"
                              .implode("\n---\n", array_map(fn ($change) => $change['unified_diff'], array_slice($changes, 0, 2))),

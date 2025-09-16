@@ -23,7 +23,7 @@ final class SummaryFormatter implements OutputFormatter
                 "- [%s] %s (%s:%d-%d) %s\n  Suggestion: %s\n",
                 strtoupper((string) ($f['severity'] ?? '')),
                 (string) ($f['rule_id'] ?? ''),
-                (string) ($f['file_path'] ?? ''),
+                (string) ($f['file'] ?? ''),
                 (int) ($f['start_line'] ?? 0),
                 (int) ($f['end_line'] ?? 0),
                 (string) ($f['rationale'] ?? ''),

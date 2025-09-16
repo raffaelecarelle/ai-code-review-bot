@@ -33,12 +33,12 @@ final class AbstractLLMProviderTest extends TestCase
     {
         $chunks = [
             [
-                'file_path'    => 'src/Foo.php',
+                'file'    => 'src/Foo.php',
                 'start_line'   => 10,
                 'unified_diff' => "@@ -1,3 +1,3 @@\n- old\n+ new\n",
             ],
             [
-                'file_path' => 'src/Bar.php',
+                'file' => 'src/Bar.php',
                 'start_line' => 5,
                 // no unified_diff -> fallback to lines
                 'lines' => [

@@ -42,7 +42,7 @@ final class MarkdownFormatter implements OutputFormatter
 
     /**
      * @param array<int, array{
-     *     file_path?: string,
+     *     file?: string,
      *     title?: string,
      *     severity?: string,
      *     start_line?: int,
@@ -60,7 +60,7 @@ final class MarkdownFormatter implements OutputFormatter
 
     /**
      * @param array<int, array{
-     *     file_path?: string,
+     *     file?: string,
      *     title?: string,
      *     severity?: string,
      *     start_line?: int,
@@ -91,7 +91,7 @@ final class MarkdownFormatter implements OutputFormatter
 
     /**
      * @param array<int, array{
-     *     file_path?: string,
+     *     file?: string,
      *     title?: string,
      *     severity?: string,
      *     start_line?: int,
@@ -217,7 +217,7 @@ final class MarkdownFormatter implements OutputFormatter
     {
         $grouped = [];
         foreach ($findings as $finding) {
-            $file             = $finding['file_path'] ?? 'unknown';
+            $file             = $finding['file'] ?? 'unknown';
             $grouped[$file][] = $finding;
         }
         ksort($grouped);
