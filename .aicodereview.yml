@@ -20,7 +20,7 @@ policy:
 vcs:
     platform: github
     repository: raffaelecarelle/ai-code-review-bot
-    access_token: ${CI_GITHUB_TOKEN}
+    access_token: ${GITHUB_TOKEN}
 excludes:
     - .github/**/*
     - .aicodereview.*
