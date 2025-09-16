@@ -281,7 +281,7 @@ final class OllamaProviderTest extends TestCase
         $this->assertFalse($requestBody['stream']);
         $this->assertIsArray($requestBody['options']);
         $this->assertArrayHasKey('temperature', $requestBody['options']);
-        $this->assertSame(0.0, $requestBody['options']['temperature']);
+        $this->assertSame(0, $requestBody['options']['temperature']);
     }
 
     public function testReviewChunksCombinesSystemAndUserPrompts(): void
