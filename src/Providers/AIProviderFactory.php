@@ -5,11 +5,6 @@ declare(strict_types=1);
 namespace AICR\Providers;
 
 use AICR\Config;
-use AICR\Providers\MockProvider;
-use AICR\Providers\OpenAIProvider;
-use AICR\Providers\GeminiProvider;
-use AICR\Providers\AnthropicProvider;
-use AICR\Providers\OllamaProvider;
 
 /**
  * Factory responsible for constructing AIProvider instances based on config.

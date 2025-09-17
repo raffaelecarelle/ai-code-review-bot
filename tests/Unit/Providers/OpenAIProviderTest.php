@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace AICR\Tests\Unit\Providers;
 
+use AICR\Exception\ConfigurationException;
+use AICR\Exception\ProviderException;
 use AICR\Providers\OpenAIProvider;
 use PHPUnit\Framework\TestCase;
 
@@ -11,7 +13,7 @@ final class OpenAIProviderTest extends TestCase
 {
     public function testConstructorRequiresApiKey(): void
     {
-        $this->expectException(\InvalidArgumentException::class);
+        $this->expectException(ConfigurationException::class);
         $this->expectExceptionMessage('OpenAIProvider requires api_key');
 
         new OpenAIProvider([]);
@@ -19,7 +21,7 @@ final class OpenAIProviderTest extends TestCase
 
     public function testConstructorRequiresNonEmptyApiKey(): void
     {
-        $this->expectException(\InvalidArgumentException::class);
+        $this->expectException(ConfigurationException::class);
         $this->expectExceptionMessage('OpenAIProvider requires api_key');
 
         new OpenAIProvider(['api_key' => '']);
@@ -80,8 +82,7 @@ final class OpenAIProviderTest extends TestCase
 
         // Since we can't mock HTTP without reflection, we expect this to fail with network error
         // but we test that it properly handles the call structure
-        $this->expectException(\RuntimeException::class);
-        $this->expectExceptionMessage('OpenAIProvider error');
+        $this->expectException(ProviderException::class);
         
         $provider->reviewChunks($chunks);
     }
@@ -91,8 +92,7 @@ final class OpenAIProviderTest extends TestCase
         $provider = new OpenAIProvider(['api_key' => 'test-api-key']);
         
         // Test with empty chunks - should still attempt the call but fail due to network
-        $this->expectException(\RuntimeException::class);
-        $this->expectExceptionMessage('OpenAIProvider error');
+        $this->expectException(ProviderException::class);
         
         $provider->reviewChunks([]);
     }
@@ -111,8 +111,7 @@ final class OpenAIProviderTest extends TestCase
         ];
 
         // Should fail with authentication/network error
-        $this->expectException(\RuntimeException::class);
-        $this->expectExceptionMessage('OpenAIProvider error');
+        $this->expectException(ProviderException::class);
         
         $provider->reviewChunks($chunks);
     }

@@ -48,7 +48,8 @@ final class ReviewCommandErrorHandlingTest extends TestCase
             str_contains($display, 'file_get_contents') ||
             str_contains($display, 'Failed to read') ||
             str_contains($display, 'does not exist') ||
-            str_contains($display, 'not found')
+            str_contains($display, 'not found') ||
+            str_contains($display, 'Invalid file path')
         );
     }
 

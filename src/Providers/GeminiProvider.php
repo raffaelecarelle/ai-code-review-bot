@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace AICR\Providers;
 
+use AICR\Exception\ConfigurationException;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\RequestException;
 
@@ -33,7 +34,7 @@ final class GeminiProvider extends AbstractLLMProvider
         $apiKey        = $options['api_key'] ?? '';
         $apiKey        = false !== $apiKey ? (string) $apiKey : '';
         if ('' === $apiKey) {
-            throw new \InvalidArgumentException('GeminiProvider requires api_key (config providers.gemini.api_key or env GEMINI_API_KEY).');
+            throw new ConfigurationException('GeminiProvider requires api_key (config providers.gemini.api_key or env GEMINI_API_KEY).');
         }
         $this->apiKey = $apiKey;
         $this->model  = isset($options['model']) && is_string($options['model']) && '' !== $options['model']

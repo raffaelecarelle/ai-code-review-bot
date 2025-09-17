@@ -69,7 +69,7 @@ YML;
 
         $invalid = sys_get_temp_dir().'/aicr_cfg_bad_'.uniqid('', true).'.zzz';
         file_put_contents($invalid, 'not: [valid'); // broken YAML
-        $this->expectException(\InvalidArgumentException::class);
+        $this->expectException(\AICR\Exception\ConfigurationException::class);
         try {
             Config::load($invalid);
         } finally {

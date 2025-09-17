@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace AICR\Tests\Unit\Providers;
 
+use AICR\Exception\ConfigurationException;
 use AICR\Providers\AnthropicProvider;
 use PHPUnit\Framework\TestCase;
 
@@ -11,7 +12,7 @@ final class AnthropicProviderTest extends TestCase
 {
     public function testConstructorRequiresApiKey(): void
     {
-        $this->expectException(\InvalidArgumentException::class);
+        $this->expectException(ConfigurationException::class);
         $this->expectExceptionMessage('AnthropicProvider requires api_key');
 
         new AnthropicProvider([]);
@@ -19,7 +20,7 @@ final class AnthropicProviderTest extends TestCase
 
     public function testConstructorRequiresNonEmptyApiKey(): void
     {
-        $this->expectException(\InvalidArgumentException::class);
+        $this->expectException(ConfigurationException::class);
         $this->expectExceptionMessage('AnthropicProvider requires api_key');
 
         new AnthropicProvider(['api_key' => '']);

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace AICR\Tests\Unit\Providers;
 
+use AICR\Exception\ConfigurationException;
 use AICR\Providers\AnthropicProvider;
 use AICR\Providers\GeminiProvider;
 use AICR\Providers\OllamaProvider;
@@ -14,19 +15,19 @@ final class ProvidersConstructorTest extends TestCase
 {
     public function testOpenAIRequiresApiKey(): void
     {
-        $this->expectException(\InvalidArgumentException::class);
+        $this->expectException(ConfigurationException::class);
         new OpenAIProvider([]);
     }
 
     public function testGeminiRequiresApiKey(): void
     {
-        $this->expectException(\InvalidArgumentException::class);
+        $this->expectException(ConfigurationException::class);
         new GeminiProvider([]);
     }
 
     public function testAnthropicRequiresApiKey(): void
     {
-        $this->expectException(\InvalidArgumentException::class);
+        $this->expectException(ConfigurationException::class);
         new AnthropicProvider([]);
     }
 

@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace AICR;
 
-use AICR\Policy;
 use AICR\Providers\AIProvider;
 use AICR\Support\ChunkBuilder;
 use AICR\Support\DiffProcessor;
+use AICR\Support\StreamingFileReader;
 
 final class Pipeline
 {
@@ -20,23 +20,23 @@ final class Pipeline
     private Config $config;
     private AIProvider $provider;
     private ChunkBuilder $chunkBuilder;
+    private StreamingFileReader $fileReader;
 
-    public function __construct(Config $config, AIProvider $provider, ?DiffProcessor $diffProcessor = null, ?ChunkBuilder $chunkBuilder = null)
+    public function __construct(Config $config, AIProvider $provider, ?DiffProcessor $diffProcessor = null, ?ChunkBuilder $chunkBuilder = null, ?StreamingFileReader $fileReader = null)
     {
         $this->config       = $config;
         $this->provider     = $provider;
         $this->chunkBuilder = $chunkBuilder ?? new ChunkBuilder($diffProcessor ?? new DiffProcessor($config));
+        $this->fileReader   = $fileReader ?? new StreamingFileReader();
     }
 
     public function run(string $diffPath, string $outputFormat = self::OUTPUT_FORMAT_JSON): string
     {
-        if (!is_file($diffPath)) {
-            throw new \InvalidArgumentException("Diff file not found: {$diffPath}");
+        if (!$this->fileReader->validatePath($diffPath)) {
+            throw new \InvalidArgumentException("Invalid file path: {$diffPath}");
         }
-        $diff = file_get_contents($diffPath);
-        if (false === $diff) {
-            throw new \RuntimeException("Failed to read diff file: {$diffPath}");
-        }
+
+        $diff = $this->fileReader->readFile($diffPath);
 
         $chunks = $this->chunkBuilder->buildChunks($this->config->context($this->provider->getName()), $diff);
 

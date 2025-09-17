@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace AICR\Providers;
 
+use AICR\Exception\ConfigurationException;
+use AICR\Exception\ProviderException;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\RequestException;
 
@@ -32,7 +34,7 @@ final class OpenAIProvider extends AbstractLLMProvider
         $apiKey        = $options['api_key'] ?? '';
         $apiKey        = false !== $apiKey ? (string) $apiKey : '';
         if ('' === $apiKey) {
-            throw new \InvalidArgumentException('OpenAIProvider requires api_key (config providers.openai.api_key).');
+            throw new ConfigurationException('OpenAIProvider requires api_key (config providers.openai.api_key).');
         }
         $this->model = isset($options['model']) && is_string($options['model']) && '' !== $options['model']
             ? $options['model']
@@ -76,11 +78,11 @@ final class OpenAIProvider extends AbstractLLMProvider
         } catch (RequestException $e) {
             $status = $e->getResponse() ? $e->getResponse()->getStatusCode() : 500;
 
-            throw new \RuntimeException('OpenAIProvider error status: '.$status);
+            throw ProviderException::fromHttpError($status, 'openai', $e->getMessage());
         }
         $status = $resp->getStatusCode();
         if ($status < 200 || $status >= 300) {
-            throw new \RuntimeException('OpenAIProvider error status: '.$status);
+            throw ProviderException::fromHttpError($status, 'openai');
         }
         $data = json_decode((string) $resp->getBody(), true);
 

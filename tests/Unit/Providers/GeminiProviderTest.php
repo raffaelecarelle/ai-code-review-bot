@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace AICR\Tests\Unit\Providers;
 
+use AICR\Exception\ConfigurationException;
 use AICR\Providers\GeminiProvider;
 use PHPUnit\Framework\TestCase;
 
@@ -11,7 +12,7 @@ final class GeminiProviderTest extends TestCase
 {
     public function testConstructorRequiresApiKey(): void
     {
-        $this->expectException(\InvalidArgumentException::class);
+        $this->expectException(ConfigurationException::class);
         $this->expectExceptionMessage('GeminiProvider requires api_key');
 
         new GeminiProvider([]);
@@ -19,7 +20,7 @@ final class GeminiProviderTest extends TestCase
 
     public function testConstructorRequiresNonEmptyApiKey(): void
     {
-        $this->expectException(\InvalidArgumentException::class);
+        $this->expectException(ConfigurationException::class);
         $this->expectExceptionMessage('GeminiProvider requires api_key');
 
         new GeminiProvider(['api_key' => '']);

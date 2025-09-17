@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace AICR;
 
+use AICR\Exception\ConfigurationException;
+use AICR\Support\StreamingFileReader;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Yaml\Yaml;
 
@@ -36,7 +38,7 @@ class Config
             $ext = strtolower((string) pathinfo($path, PATHINFO_EXTENSION));
             $raw = file_get_contents($path);
             if (false === $raw) {
-                throw new \RuntimeException("Failed to read config file: {$path}");
+                throw new ConfigurationException("Failed to read config file: {$path}");
             }
 
             $parsed    = null;
@@ -46,7 +48,7 @@ class Config
                 try {
                     $result = Yaml::parse($content);
                     if (!is_array($result)) {
-                        throw new \RuntimeException('YAML config must parse to an array.');
+                        throw new ConfigurationException('YAML config must parse to an array.');
                     }
 
                     return $result;
@@ -60,12 +62,12 @@ class Config
             $tryParseJson = static function (string $content) use (&$lastError) {
                 $data = json_decode($content, true);
                 if (null === $data && JSON_ERROR_NONE !== json_last_error()) {
-                    $lastError = new \RuntimeException('Invalid JSON config: '.json_last_error_msg());
+                    $lastError = new ConfigurationException('Invalid JSON config: '.json_last_error_msg());
 
                     return null;
                 }
                 if (!is_array($data)) {
-                    $lastError = new \RuntimeException('JSON config must decode to an array.');
+                    $lastError = new ConfigurationException('JSON config must decode to an array.');
 
                     return null;
                 }
@@ -95,7 +97,7 @@ class Config
             if (null === $parsed) {
                 $hint = '' !== $ext ? ".{$ext}" : '(no extension)';
 
-                throw new \InvalidArgumentException("Unsupported or invalid config format for file type: {$hint}. Use YAML or JSON. Last error: ".($lastError ? $lastError->getMessage() : 'unknown'));
+                throw new ConfigurationException("Unsupported or invalid config format for file type: {$hint}. Use YAML or JSON. Last error: ".($lastError ? $lastError->getMessage() : 'unknown'));
             }
 
             $fileConfig = $parsed;
@@ -228,11 +230,19 @@ class Config
             }
         }
 
-        if (!$has && is_string($guidelinesPath) && '' !== trim($guidelinesPath) && is_file($guidelinesPath) && is_readable($guidelinesPath)) {
-            $gl = file_get_contents($guidelinesPath);
-            if (false !== $gl && '' !== trim($gl)) {
-                $b64                = base64_encode($gl);
-                $prompts['extra'][] = "Coding guidelines file content is provided below in base64 (decode and follow strictly):\n".$b64;
+        if (!$has && is_string($guidelinesPath) && '' !== trim($guidelinesPath)) {
+            try {
+                $fileReader = new StreamingFileReader();
+                if ($fileReader->validatePath($guidelinesPath)) {
+                    $gl = $fileReader->readFile($guidelinesPath);
+                    if ('' !== trim($gl)) {
+                        $b64                = base64_encode($gl);
+                        $prompts['extra'][] = "Coding guidelines file content is provided below in base64 (decode and follow strictly):\n".$b64;
+                    }
+                }
+            } catch (\Exception $e) {
+                // Log error but don't fail configuration loading
+                error_log("Failed to load guidelines file '{$guidelinesPath}': ".$e->getMessage());
             }
         }
 

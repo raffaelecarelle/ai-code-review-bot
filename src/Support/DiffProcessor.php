@@ -107,7 +107,7 @@ final class DiffProcessor
         // Check if pattern could be a directory (no file extension and contains path separators or is a common directory name)
         if (!str_contains($pattern, '.') && (str_contains($pattern, '/') || $this->isLikelyDirectoryName($pattern))) {
             // Try as directory pattern first
-            if ($this->matchesDirectoryPattern($filePath, $pattern . '/')) {
+            if ($this->matchesDirectoryPattern($filePath, $pattern.'/')) {
                 return true;
             }
         }
@@ -135,21 +135,6 @@ final class DiffProcessor
     }
 
     /**
-     * Check if a pattern is likely a directory name (common directory names).
-     */
-    private function isLikelyDirectoryName(string $pattern): bool
-    {
-        $commonDirNames = [
-            'vendor', 'node_modules', 'build', 'dist', 'target', 'bin', 'obj',
-            'tmp', 'temp', 'cache', 'logs', 'var', 'public', 'assets', 'lib',
-            'libs', 'deps', 'dependencies', 'modules', 'packages', 'src', 'test',
-            'tests', 'spec', 'specs', 'docs', 'doc', 'documentation'
-        ];
-
-        return in_array($pattern, $commonDirNames, true);
-    }
-
-    /**
      * Extract start line number from unified diff.
      */
     public function getStartLineFromUnifiedDiff(string $fileDiff): int
@@ -162,5 +147,20 @@ final class DiffProcessor
         }
 
         return 0;
+    }
+
+    /**
+     * Check if a pattern is likely a directory name (common directory names).
+     */
+    private function isLikelyDirectoryName(string $pattern): bool
+    {
+        $commonDirNames = [
+            'vendor', 'node_modules', 'build', 'dist', 'target', 'bin', 'obj',
+            'tmp', 'temp', 'cache', 'logs', 'var', 'public', 'assets', 'lib',
+            'libs', 'deps', 'dependencies', 'modules', 'packages', 'src', 'test',
+            'tests', 'spec', 'specs', 'docs', 'doc', 'documentation',
+        ];
+
+        return in_array($pattern, $commonDirNames, true);
     }
 }
