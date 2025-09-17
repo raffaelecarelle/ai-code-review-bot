@@ -5,7 +5,11 @@ declare(strict_types=1);
 namespace AICR\Providers;
 
 use AICR\Config;
-use AICR\Pipeline;
+use AICR\Providers\MockProvider;
+use AICR\Providers\OpenAIProvider;
+use AICR\Providers\GeminiProvider;
+use AICR\Providers\AnthropicProvider;
+use AICR\Providers\OllamaProvider;
 
 /**
  * Factory responsible for constructing AIProvider instances based on config.
@@ -32,11 +36,11 @@ final class AIProviderFactory
         }
 
         return match ($providerName) {
-            Pipeline::PROVIDER_OPENAI    => new OpenAIProvider($this->withPrompts($provider[Pipeline::PROVIDER_OPENAI])),
-            Pipeline::PROVIDER_GEMINI    => new GeminiProvider($this->withPrompts($provider[Pipeline::PROVIDER_GEMINI])),
-            Pipeline::PROVIDER_ANTHROPIC => new AnthropicProvider($this->withPrompts($provider[Pipeline::PROVIDER_ANTHROPIC])),
-            Pipeline::PROVIDER_OLLAMA    => new OllamaProvider($this->withPrompts($provider[Pipeline::PROVIDER_OLLAMA])),
-            default                      => new MockProvider(),
+            ProviderType::OPENAI->value    => new OpenAIProvider($this->withPrompts($provider[ProviderType::OPENAI->value])),
+            ProviderType::GEMINI->value    => new GeminiProvider($this->withPrompts($provider[ProviderType::GEMINI->value])),
+            ProviderType::ANTHROPIC->value => new AnthropicProvider($this->withPrompts($provider[ProviderType::ANTHROPIC->value])),
+            ProviderType::OLLAMA->value    => new OllamaProvider($this->withPrompts($provider[ProviderType::OLLAMA->value])),
+            default                        => new MockProvider(),
         };
     }
 
