@@ -164,6 +164,11 @@ final class TokenBudget
         return implode("\n", $filtered);
     }
 
+    public function getMaxTokensPerFile(): int
+    {
+        return $this->perFileCap;
+    }
+
     /**
      * Calculate tokens using provider-specific multipliers and content analysis.
      */

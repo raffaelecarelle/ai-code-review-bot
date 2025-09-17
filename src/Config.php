@@ -32,80 +32,11 @@ class Config
     public static function load(?string $path = null): self
     {
         $defaults   = self::defaults();
-        $fileConfig = [];
-        $fs         = new Filesystem();
-        if (null !== $path && $fs->exists($path)) {
-            $ext = strtolower((string) pathinfo($path, PATHINFO_EXTENSION));
-            $raw = file_get_contents($path);
-            if (false === $raw) {
-                throw new ConfigurationException("Failed to read config file: {$path}");
-            }
+        $fileConfig = self::loadConfigFile($path);
 
-            $parsed    = null;
-            $lastError = null;
-
-            $tryParseYaml = static function (string $content) use (&$lastError) {
-                try {
-                    $result = Yaml::parse($content);
-                    if (!is_array($result)) {
-                        throw new ConfigurationException('YAML config must parse to an array.');
-                    }
-
-                    return $result;
-                } catch (\Throwable $e) {
-                    $lastError = $e;
-
-                    return null;
-                }
-            };
-
-            $tryParseJson = static function (string $content) use (&$lastError) {
-                $data = json_decode($content, true);
-                if (null === $data && JSON_ERROR_NONE !== json_last_error()) {
-                    $lastError = new ConfigurationException('Invalid JSON config: '.json_last_error_msg());
-
-                    return null;
-                }
-                if (!is_array($data)) {
-                    $lastError = new ConfigurationException('JSON config must decode to an array.');
-
-                    return null;
-                }
-
-                return $data;
-            };
-
-            if (in_array($ext, ['yml', 'yaml'], true)) {
-                $parsed = $tryParseYaml($raw);
-                if (null === $parsed) {
-                    // Retry by escaping backslashes to tolerate sequences like \s used in regex within quoted YAML strings
-                    $parsed = $tryParseYaml(str_replace('\\', '\\\\', $raw));
-                }
-            } elseif ('json' === $ext) {
-                $parsed = $tryParseJson($raw);
-            } else {
-                // Unknown extension: try YAML (robust), then JSON
-                $parsed = $tryParseYaml($raw);
-                if (null === $parsed) {
-                    $parsed = $tryParseYaml(str_replace('\\', '\\\\', $raw));
-                }
-                if (null === $parsed) {
-                    $parsed = $tryParseJson($raw);
-                }
-            }
-
-            if (null === $parsed) {
-                $hint = '' !== $ext ? ".{$ext}" : '(no extension)';
-
-                throw new ConfigurationException("Unsupported or invalid config format for file type: {$hint}. Use YAML or JSON. Last error: ".($lastError ? $lastError->getMessage() : 'unknown'));
-            }
-
-            $fileConfig = $parsed;
-        }
         $merged   = self::merge($defaults, $fileConfig);
         $expanded = self::expandEnv($merged);
-        // Inject guidelines content into prompts.extra at load time so the rest of the app (and tests)
-        // can rely on config already containing the hint.
+        self::validateConfiguration($expanded);
         self::injectGuidelinesIntoPrompts($expanded);
 
         return new self($expanded);
@@ -204,6 +135,243 @@ class Config
                 // Each element is treated as glob, regex, or relative path from project root
             ],
         ];
+    }
+
+    /**
+     * Validates the configuration structure and values.
+     *
+     * @param array<string, mixed> $config Configuration to validate
+     *
+     * @throws ConfigurationException If configuration is invalid
+     */
+    private static function validateConfiguration(array $config): void
+    {
+        self::validateRequiredKeys($config);
+        self::validateProviders($config);
+        self::validatePolicy($config);
+        self::validateVcs($config);
+    }
+
+    /**
+     * Validates that required top-level configuration keys are present.
+     *
+     * @param array<string, mixed> $config Configuration to validate
+     */
+    private static function validateRequiredKeys(array $config): void
+    {
+        $requiredKeys = ['providers', 'context', 'policy', 'vcs'];
+        foreach ($requiredKeys as $key) {
+            if (!array_key_exists($key, $config)) {
+                throw new ConfigurationException("Missing required configuration key: {$key}");
+            }
+        }
+    }
+
+    /**
+     * Validates providers configuration.
+     *
+     * @param array<string, mixed> $config Configuration to validate
+     */
+    private static function validateProviders(array $config): void
+    {
+        if (!is_array($config['providers'])) {
+            throw new ConfigurationException('Configuration key "providers" must be an array');
+        }
+
+        foreach ($config['providers'] as $providerName => $providerConfig) {
+            if (!is_string($providerName)) {
+                throw new ConfigurationException('Provider names must be strings');
+            }
+
+            // Special case: 'default' can be a string specifying which provider to use as default
+            if ('default' === $providerName) {
+                if (!is_string($providerConfig)) {
+                    throw new ConfigurationException("Provider 'default' must be a string specifying the default provider name");
+                }
+
+                continue;
+            }
+
+            if (!is_array($providerConfig)) {
+                throw new ConfigurationException("Provider '{$providerName}' configuration must be an array");
+            }
+        }
+    }
+
+    /**
+     * Validates policy configuration.
+     *
+     * @param array<string, mixed> $config Configuration to validate
+     */
+    private static function validatePolicy(array $config): void
+    {
+        if (!is_array($config['policy'])) {
+            throw new ConfigurationException('Configuration key "policy" must be an array');
+        }
+    }
+
+    /**
+     * Validates VCS configuration.
+     *
+     * @param array<string, mixed> $config Configuration to validate
+     */
+    private static function validateVcs(array $config): void
+    {
+        if (!is_array($config['vcs'])) {
+            throw new ConfigurationException('Configuration key "vcs" must be an array');
+        }
+
+        if (isset($config['vcs']['platform'])) {
+            $validPlatforms = ['github', 'gitlab', 'bitbucket'];
+            $platform       = $config['vcs']['platform'];
+            if (!is_string($platform) || !in_array($platform, $validPlatforms, true)) {
+                throw new ConfigurationException('VCS platform must be one of: '.implode(', ', $validPlatforms));
+            }
+        }
+    }
+
+    /**
+     * Loads and parses configuration file content.
+     *
+     * @return array<string, mixed> Parsed configuration or empty array if no file
+     */
+    private static function loadConfigFile(?string $path): array
+    {
+        if (null === $path) {
+            return [];
+        }
+
+        $fs = new Filesystem();
+        if (!$fs->exists($path)) {
+            return [];
+        }
+
+        $content = self::readConfigFile($path);
+
+        return self::parseConfigContent($content, $path);
+    }
+
+    /**
+     * Reads configuration file content.
+     */
+    private static function readConfigFile(string $path): string
+    {
+        $content = file_get_contents($path);
+        if (false === $content) {
+            throw new ConfigurationException("Failed to read config file: {$path}");
+        }
+
+        return $content;
+    }
+
+    /**
+     * Parses configuration file content based on file extension.
+     *
+     * @return array<string, mixed> Parsed configuration
+     */
+    private static function parseConfigContent(string $content, string $path): array
+    {
+        $ext       = strtolower((string) pathinfo($path, PATHINFO_EXTENSION));
+        $lastError = null;
+
+        $parsed = match (true) {
+            in_array($ext, ['yml', 'yaml'], true) => self::parseYamlContent($content, $lastError),
+            'json' === $ext                       => self::parseJsonContent($content, $lastError),
+            default                               => self::parseUnknownContent($content, $lastError)
+        };
+
+        if (null === $parsed) {
+            $hint = '' !== $ext ? ".{$ext}" : '(no extension)';
+
+            throw new ConfigurationException("Unsupported or invalid config format for file type: {$hint}. Use YAML or JSON. Last error: ".($lastError ? $lastError->getMessage() : 'unknown'));
+        }
+
+        return $parsed;
+    }
+
+    /**
+     * Attempts to parse YAML content with backslash escaping fallback.
+     *
+     * @return null|array<string, mixed> Parsed data or null on failure
+     */
+    private static function parseYamlContent(string $content, ?\Throwable &$lastError): ?array
+    {
+        $parsed = self::tryParseYaml($content, $lastError);
+        if (null === $parsed) {
+            // Retry by escaping backslashes to tolerate sequences like \s used in regex within quoted YAML strings
+            $parsed = self::tryParseYaml(str_replace('\\', '\\\\', $content), $lastError);
+        }
+
+        return $parsed;
+    }
+
+    /**
+     * Attempts to parse JSON content.
+     *
+     * @return null|array<string, mixed> Parsed data or null on failure
+     */
+    private static function parseJsonContent(string $content, ?\Throwable &$lastError): ?array
+    {
+        return self::tryParseJson($content, $lastError);
+    }
+
+    /**
+     * Attempts to parse content with unknown extension (tries YAML then JSON).
+     *
+     * @return null|array<string, mixed> Parsed data or null on failure
+     */
+    private static function parseUnknownContent(string $content, ?\Throwable &$lastError): ?array
+    {
+        // Try YAML first (more robust)
+        $parsed = self::parseYamlContent($content, $lastError);
+        if (null === $parsed) {
+            $parsed = self::parseJsonContent($content, $lastError);
+        }
+
+        return $parsed;
+    }
+
+    /**
+     * Attempts to parse YAML content.
+     *
+     * @return null|array<string, mixed> Parsed data or null on failure
+     */
+    private static function tryParseYaml(string $content, ?\Throwable &$lastError): ?array
+    {
+        try {
+            $result = Yaml::parse($content);
+            if (!is_array($result)) {
+                throw new ConfigurationException('YAML config must parse to an array.');
+            }
+
+            return $result;
+        } catch (\Throwable $e) {
+            $lastError = $e;
+
+            return null;
+        }
+    }
+
+    /**
+     * Attempts to parse JSON content.
+     *
+     * @return null|array<string, mixed> Parsed data or null on failure
+     */
+    private static function tryParseJson(string $content, ?\Throwable &$lastError): ?array
+    {
+        $data = json_decode($content, true);
+        if (null === $data && JSON_ERROR_NONE !== json_last_error()) {
+            $lastError = new ConfigurationException('Invalid JSON config: '.json_last_error_msg());
+
+            return null;
+        }
+        if (!is_array($data)) {
+            $lastError = new ConfigurationException('JSON config must decode to an array.');
+
+            return null;
+        }
+
+        return $data;
     }
 
     /**

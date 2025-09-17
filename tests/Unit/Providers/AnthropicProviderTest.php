@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace AICR\Tests\Unit\Providers;
 
 use AICR\Exception\ConfigurationException;
+use AICR\Exception\ProviderException;
 use AICR\Providers\AnthropicProvider;
 use PHPUnit\Framework\TestCase;
 
@@ -13,7 +14,7 @@ final class AnthropicProviderTest extends TestCase
     public function testConstructorRequiresApiKey(): void
     {
         $this->expectException(ConfigurationException::class);
-        $this->expectExceptionMessage('AnthropicProvider requires api_key');
+        $this->expectExceptionMessage('anthropic requires api_key (config providers.anthropic.api_key).');
 
         new AnthropicProvider([]);
     }
@@ -21,7 +22,7 @@ final class AnthropicProviderTest extends TestCase
     public function testConstructorRequiresNonEmptyApiKey(): void
     {
         $this->expectException(ConfigurationException::class);
-        $this->expectExceptionMessage('AnthropicProvider requires api_key');
+        $this->expectExceptionMessage('anthropic requires api_key (config providers.anthropic.api_key).');
 
         new AnthropicProvider(['api_key' => '']);
     }
@@ -81,8 +82,7 @@ final class AnthropicProviderTest extends TestCase
 
         // Since we can't mock HTTP without reflection, we expect this to fail with network error
         // but we test that it properly handles the call structure
-        $this->expectException(\RuntimeException::class);
-        $this->expectExceptionMessage('AnthropicProvider error');
+        $this->expectException(ProviderException::class);
         
         $provider->reviewChunks($chunks);
     }
@@ -92,8 +92,7 @@ final class AnthropicProviderTest extends TestCase
         $provider = new AnthropicProvider(['api_key' => 'test-api-key']);
         
         // Test with empty chunks - should still attempt the call but fail due to network
-        $this->expectException(\RuntimeException::class);
-        $this->expectExceptionMessage('AnthropicProvider error');
+        $this->expectException(ProviderException::class);
         
         $provider->reviewChunks([]);
     }
@@ -112,8 +111,7 @@ final class AnthropicProviderTest extends TestCase
         ];
 
         // Should fail with authentication/network error
-        $this->expectException(\RuntimeException::class);
-        $this->expectExceptionMessage('AnthropicProvider error');
+        $this->expectException(ProviderException::class);
         
         $provider->reviewChunks($chunks);
     }

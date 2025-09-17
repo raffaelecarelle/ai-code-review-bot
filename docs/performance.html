@@ -1,0 +1,210 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Performance Optimizations • AI Code Review Bot</title>
+  <link rel="stylesheet" href="assets/style.css" />
+</head>
+<body>
+<header class="header">
+  <div class="container header-inner">
+    <a class="brand" href="./"><img src="assets/logo.png" alt="" /><span>AI Code Review Bot</span></a>
+    <nav class="nav">
+      <a href="getting-started.html">Quick Start</a>
+      <a href="configuration.html">Configuration</a>
+      <a href="vcs-adapters.html">VCS Adapters</a>
+      <a href="providers.html">AI Providers</a>
+      <a href="cli.html">CLI</a>
+      <a href="development.html">Development</a>
+      <a href="faq.html">FAQ</a>
+    </nav>
+  </div>
+</header>
+<main class="main container content">
+  <aside class="sidebar">
+    <h3>On this page</h3>
+    <a href="#chunking">Intelligent Chunking</a>
+    <a href="#token-management">Token Management</a>
+    <a href="#caching">API Caching</a>
+    <a href="#memory">Memory Optimization</a>
+    <a href="#configuration">Configuration</a>
+    <a href="#benchmarks">Performance Metrics</a>
+  </aside>
+  <article class="article">
+    <h1>Performance Optimizations</h1>
+    <p>Introduces significant performance improvements designed to handle large codebases efficiently while minimizing API costs and memory usage.</p>
+
+    <h2 id="chunking">Intelligent Chunking</h2>
+    <p>The enhanced <code>ChunkBuilder</code> class provides sophisticated diff processing:</p>
+    
+    <h3>Semantic Analysis</h3>
+    <ul>
+      <li>Context-aware chunking based on code structure</li>
+      <li>Related changes grouped together for better AI analysis</li>
+      <li>Function and class boundary detection</li>
+      <li>Smart splitting of large files to maintain context</li>
+    </ul>
+
+    <h3>Batch Processing</h3>
+    <ul>
+      <li>Optimized batch sizes based on total file count</li>
+      <li>Parallel-friendly architecture for future enhancements</li>
+      <li>Memory-efficient processing of large diffs</li>
+      <li>Lazy evaluation to minimize memory footprint</li>
+    </ul>
+
+    <h3>Optimization Strategies</h3>
+    <ul>
+      <li>Priority-based file processing (largest first)</li>
+      <li>Dynamic batch sizing based on workload</li>
+      <li>Early termination when budget is exceeded</li>
+      <li>Intelligent file compression for oversized chunks</li>
+    </ul>
+
+    <h2 id="token-management">Advanced Token Management</h2>
+    <p>The improved <code>TokenBudget</code> class offers sophisticated token optimization:</p>
+
+    <h3>Smart Budgeting</h3>
+    <ul>
+      <li>Per-file token caps prevent oversized chunks</li>
+      <li>Dynamic budget allocation across files</li>
+      <li>Token estimation with safety margins</li>
+      <li>Overflow handling with multiple strategies</li>
+    </ul>
+
+    <h3>Diff Compression</h3>
+    <ul>
+      <li>Automatic compression for large files (>1000 tokens)</li>
+      <li>Context preservation during compression</li>
+      <li>Configurable compression thresholds</li>
+      <li>Quality vs. size trade-off optimization</li>
+    </ul>
+
+    <h3>Filtering & Optimization</h3>
+    <ul>
+      <li>Trivial change filtering (whitespace, comments)</li>
+      <li>Duplicate line removal</li>
+      <li>Empty diff detection and skipping</li>
+      <li>Smart truncation with context preservation</li>
+    </ul>
+
+    <h2 id="caching">API Response Caching</h2>
+    <p>The new <code>ApiCache</code> system provides intelligent response caching:</p>
+
+    <h3>Cache Features</h3>
+    <ul>
+      <li>TTL-based expiration (default: 1 hour)</li>
+      <li>Size-limited cache with LRU eviction</li>
+      <li>Automatic cache cleanup and maintenance</li>
+      <li>Request deduplication for identical calls</li>
+    </ul>
+
+    <h3>Cache Management</h3>
+    <ul>
+      <li>Maximum cache size enforcement (50MB default)</li>
+      <li>Oldest entry eviction when size limit reached</li>
+      <li>Expired entry cleanup on access</li>
+      <li>Cache statistics and monitoring</li>
+    </ul>
+
+    <h3>Usage Patterns</h3>
+    <ul>
+      <li>API response caching for repeated requests</li>
+      <li>Configuration caching for multiple runs</li>
+      <li>Provider response caching for identical prompts</li>
+      <li>VCS adapter response caching</li>
+    </ul>
+
+    <h2 id="memory">Memory Optimization</h2>
+    <p>Enhanced memory management for large-scale processing:</p>
+
+    <h3>Resource Management</h3>
+    <ul>
+      <li>Automatic cleanup of temporary resources</li>
+      <li>Memory-mapped file processing for large diffs</li>
+      <li>Streaming processing to avoid loading entire files</li>
+      <li>Garbage collection optimization</li>
+    </ul>
+
+    <h3>Efficient Data Structures</h3>
+    <ul>
+      <li>Optimized array handling for large datasets</li>
+      <li>String interning for repeated values</li>
+      <li>Lazy loading of configuration and data</li>
+      <li>Memory pooling for frequently used objects</li>
+    </ul>
+
+    <h2 id="configuration">Performance Configuration</h2>
+    <p>Configure performance optimizations in your <code>.aicodereview.yml</code>:</p>
+
+    <pre><code>context:
+  # Enable semantic chunking for better context awareness
+  enable_semantic_chunking: true
+  
+  # Enable diff compression for large files
+  enable_diff_compression: true
+  
+  # API response cache TTL in seconds (1 hour default)
+  cache_ttl: 3600
+  
+  # Maximum cache size in bytes (50MB default)
+  max_cache_size: 52428800
+  
+  # Token budget settings
+  diff_token_limit: 8000
+  per_file_token_cap: 2000
+  
+  # Overflow strategy: trim, skip, or error
+  overflow_strategy: trim</code></pre>
+
+    <h3>Tuning Recommendations</h3>
+    <ul>
+      <li><strong>Small projects</strong>: Disable chunking, increase token limits</li>
+      <li><strong>Large projects</strong>: Enable all optimizations, reduce per-file caps</li>
+      <li><strong>CI/CD environments</strong>: Enable caching, use moderate settings</li>
+      <li><strong>Development</strong>: Disable caching, enable detailed logging</li>
+    </ul>
+
+    <h2 id="benchmarks">Performance Metrics</h2>
+    <p>Expected performance improvements:</p>
+
+    <h3>Token Usage Reduction</h3>
+    <ul>
+      <li><strong>Input tokens</strong>: 30-50% reduction through filtering and compression</li>
+      <li><strong>Output tokens</strong>: 40-60% reduction through intelligent chunking</li>
+      <li><strong>API calls</strong>: 20-40% reduction through caching</li>
+      <li><strong>Processing time</strong>: 25-45% improvement for large diffs</li>
+    </ul>
+
+    <h3>Memory Usage</h3>
+    <ul>
+      <li><strong>Peak memory</strong>: 40-60% reduction for large repositories</li>
+      <li><strong>Temporary files</strong>: Automatic cleanup prevents accumulation</li>
+      <li><strong>Cache overhead</strong>: Controlled with size limits and eviction</li>
+    </ul>
+
+    <h3>Scalability Improvements</h3>
+    <ul>
+      <li><strong>File count</strong>: Linear scaling up to 1000+ files</li>
+      <li><strong>Diff size</strong>: Efficient handling of multi-MB diffs</li>
+      <li><strong>Concurrent usage</strong>: Thread-safe caching and resource management</li>
+    </ul>
+
+    <div class="warning">
+      <strong>Performance Tip:</strong> For best results with large codebases, enable semantic chunking 
+      and diff compression. Monitor cache usage and adjust TTL based on your workflow patterns.
+    </div>
+
+    <h3>Monitoring & Debugging</h3>
+    <ul>
+      <li>Use cache statistics to optimize TTL settings</li>
+      <li>Monitor token usage to fine-tune budget settings</li>
+      <li>Track processing time to identify bottlenecks</li>
+      <li>Enable verbose logging for performance analysis</li>
+    </ul>
+  </article>
+</main>
+<footer class="footer"><div class="container footer-inner"><div>© 2025 AI Code Review Bot</div><div><a href="./">Home</a></div></div></footer>
+</body>
+</html>

@@ -25,10 +25,11 @@ Official documentation: [Docs](https://raffaelecarelle.github.io/ai-code-review-
 - 5. VCS adapters (GitHub/GitLab)
 - 6. Coding guidelines file
 - 7. AI providers and token budgeting
-- 8. Output formats
-- 9. Development and QA
-- 10. Credits
-- 11. License
+- 8. Security & Performance
+- 9. Output formats
+- 10. Development and QA
+- 11. Credits
+- 12. License
 
 ---
 
@@ -47,8 +48,17 @@ Official documentation: [Docs](https://raffaelecarelle.github.io/ai-code-review-
 - `src/Config.php`: Loads YAML/JSON config, merges with defaults, expands `${ENV}` variables, exposes sections (providers, context, policy, vcs, prompts).
 - `src/DiffParser.php`: Minimal unified diff parser returning added lines per file with accurate line numbers.
 - `src/Pipeline.php`: End-to-end pipeline: parse diff, build AI provider, chunk with token budget, apply policy, and render output.
-- `src/Adapters/`: VcsAdapter interface and GithubAdapter/GitlabAdapter implementations (resolve branches from PR/MR id and post comments).
+- `src/Adapters/`: VcsAdapter interface and GithubAdapter/GitlabAdapter/BitbucketAdapter implementations (resolve branches from PR/MR id and post comments).
 - `src/Providers/`: AIProvider interface and concrete providers (OpenAI, Gemini, Anthropic, Ollama, Mock).
+- `src/Support/`: Core utility classes for enhanced functionality:
+  - `ChunkBuilder`: Intelligent diff chunking with semantic analysis and optimization
+  - `TokenBudget`: Advanced token management with compression and per-file caps
+  - `ResourceManager`: Safe resource handling with automatic cleanup
+  - `ApiCache`: Response caching with TTL and size management
+  - `InputSanitizer`: Security-focused input validation and sanitization
+  - `DiffProcessor`: Enhanced diff processing with filtering capabilities
+  - `SemanticChunker`: Context-aware code chunking for better AI analysis
+- `src/Config/Constants`: Centralized configuration constants replacing magic numbers and strings.
 
 ## 3. Quick start
 - Install dependencies via Composer:
@@ -186,7 +196,51 @@ The system includes sophisticated token cost optimization capabilities:
 
 These optimizations can reduce token usage by 30-50% for input and 40-60% for output while maintaining review quality. See `docs/token-cost-optimization.md` for detailed implementation guide.
 
-## 8. Output formats
+## 8. Security & Performance
+
+Introduces significant enhancements focusing on security hardening, performance optimization, and code quality improvements:
+
+### Security Enhancements
+- **InputSanitizer**: Comprehensive input validation and sanitization for all external data
+  - Branch name, repository name, and file path validation
+  - API response sanitization to prevent injection attacks
+  - URL and commit SHA validation with strict patterns
+- **Resource Management**: Safe resource handling with automatic cleanup
+  - Temporary file and directory management
+  - Resource leak prevention with shutdown handlers
+  - Exception-safe cleanup with try-finally patterns
+
+### Performance Optimizations
+- **Intelligent Chunking**: Enhanced ChunkBuilder with semantic analysis
+  - Batch processing for better memory management
+  - Parallel-friendly architecture for large diffs
+  - Context-aware chunking for improved AI analysis
+- **Advanced Token Management**: Improved TokenBudget with compression
+  - Per-file token caps to prevent oversized chunks
+  - Diff compression for large files
+  - Smart budget allocation and overflow handling
+- **API Response Caching**: New ApiCache system for improved performance
+  - TTL-based caching with automatic expiration
+  - Size-limited cache with LRU eviction
+  - Request deduplication and response reuse
+
+### Code Quality Improvements
+- **Constants Centralization**: All magic numbers and strings moved to Constants class
+- **Enhanced Error Handling**: Standardized exception handling across all providers
+- **Improved Documentation**: Comprehensive PHPDoc comments and inline documentation
+- **Security Audit**: Fixed potential security issues identified in code review
+
+### Configuration Enhancements
+New configuration options available:
+```yaml
+context:
+  enable_semantic_chunking: true    # Enable context-aware chunking
+  enable_diff_compression: true     # Enable diff compression for large files
+  cache_ttl: 3600                  # API response cache TTL in seconds
+  max_cache_size: 52428800         # Maximum cache size in bytes (50MB)
+```
+
+## 9. Output formats
 - `json` (default): machine-readable findings array.
 - `summary`: human-readable bulleted list. This is also the format used for PR/MR comments.
 - `markdown`: structured markdown format with emojis, metadata, and organized findings by severity and file.

@@ -14,7 +14,7 @@ final class OpenAIProviderTest extends TestCase
     public function testConstructorRequiresApiKey(): void
     {
         $this->expectException(ConfigurationException::class);
-        $this->expectExceptionMessage('OpenAIProvider requires api_key');
+        $this->expectExceptionMessage('openai requires api_key (config providers.openai.api_key).');
 
         new OpenAIProvider([]);
     }
@@ -22,7 +22,7 @@ final class OpenAIProviderTest extends TestCase
     public function testConstructorRequiresNonEmptyApiKey(): void
     {
         $this->expectException(ConfigurationException::class);
-        $this->expectExceptionMessage('OpenAIProvider requires api_key');
+        $this->expectExceptionMessage('openai requires api_key (config providers.openai.api_key).');
 
         new OpenAIProvider(['api_key' => '']);
     }

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace AICR\Tests\Unit\Providers;
 
 use AICR\Exception\ConfigurationException;
+use AICR\Exception\ProviderException;
 use AICR\Providers\GeminiProvider;
 use PHPUnit\Framework\TestCase;
 
@@ -13,7 +14,7 @@ final class GeminiProviderTest extends TestCase
     public function testConstructorRequiresApiKey(): void
     {
         $this->expectException(ConfigurationException::class);
-        $this->expectExceptionMessage('GeminiProvider requires api_key');
+        $this->expectExceptionMessage('gemini requires api_key (config providers.gemini.api_key).');
 
         new GeminiProvider([]);
     }
@@ -21,7 +22,7 @@ final class GeminiProviderTest extends TestCase
     public function testConstructorRequiresNonEmptyApiKey(): void
     {
         $this->expectException(ConfigurationException::class);
-        $this->expectExceptionMessage('GeminiProvider requires api_key');
+        $this->expectExceptionMessage('gemini requires api_key (config providers.gemini.api_key).');
 
         new GeminiProvider(['api_key' => '']);
     }
@@ -81,8 +82,7 @@ final class GeminiProviderTest extends TestCase
 
         // Since we can't mock HTTP without reflection, we expect this to fail with network error
         // but we test that it properly handles the call structure
-        $this->expectException(\RuntimeException::class);
-        $this->expectExceptionMessage('GeminiProvider error');
+        $this->expectException(ProviderException::class);
         
         $provider->reviewChunks($chunks);
     }
@@ -92,8 +92,7 @@ final class GeminiProviderTest extends TestCase
         $provider = new GeminiProvider(['api_key' => 'test-api-key']);
         
         // Test with empty chunks - should still attempt the call but fail due to network
-        $this->expectException(\RuntimeException::class);
-        $this->expectExceptionMessage('GeminiProvider error');
+        $this->expectException(ProviderException::class);
         
         $provider->reviewChunks([]);
     }
@@ -112,8 +111,7 @@ final class GeminiProviderTest extends TestCase
         ];
 
         // Should fail with authentication/network error
-        $this->expectException(\RuntimeException::class);
-        $this->expectExceptionMessage('GeminiProvider error');
+        $this->expectException(ProviderException::class);
         
         $provider->reviewChunks($chunks);
     }

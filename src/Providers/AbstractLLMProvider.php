@@ -4,12 +4,95 @@ declare(strict_types=1);
 
 namespace AICR\Providers;
 
+use AICR\Exception\ConfigurationException;
+use AICR\Exception\ProviderException;
+use GuzzleHttp\Client;
+use GuzzleHttp\Exception\RequestException;
+
 /**
  * Shared helpers for LLM-backed providers (OpenAI, Gemini, Anthropic).
- * Provides common prompt construction and robust JSON findings extraction.
+ * Provides common prompt construction, HTTP client setup, error handling, and robust JSON findings extraction.
  */
 abstract class AbstractLLMProvider implements AIProvider
 {
+    /**
+     * Creates a standard HTTP client with common configuration.
+     *
+     * @param string                $baseUri The API endpoint base URI
+     * @param array<string, string> $headers HTTP headers for the client
+     * @param float                 $timeout Request timeout in seconds
+     */
+    protected function createHttpClient(string $baseUri, array $headers = [], float $timeout = 60.0): Client
+    {
+        $defaultHeaders = ['Content-Type' => 'application/json'];
+        $mergedHeaders  = array_merge($defaultHeaders, $headers);
+
+        return new Client([
+            'base_uri' => $baseUri,
+            'headers'  => $mergedHeaders,
+            'timeout'  => $timeout,
+        ]);
+    }
+
+    /**
+     * Validates that an API key is provided and non-empty.
+     *
+     * @param string $apiKey       The API key to validate
+     * @param string $providerName The provider name for error messages
+     *
+     * @throws ConfigurationException If API key is missing or empty
+     */
+    protected function validateApiKey(string $apiKey, string $providerName): void
+    {
+        if ('' === $apiKey) {
+            throw new ConfigurationException("{$providerName} requires api_key (config providers.{$providerName}.api_key).");
+        }
+    }
+
+    /**
+     * Extracts and validates string option from configuration array.
+     *
+     * @param array<string, mixed> $options      Configuration options
+     * @param string               $key          The option key to extract
+     * @param string               $defaultValue Default value if key not found or invalid
+     */
+    protected function getStringOption(array $options, string $key, string $defaultValue): string
+    {
+        return isset($options[$key]) && is_string($options[$key]) && '' !== $options[$key]
+            ? $options[$key]
+            : $defaultValue;
+    }
+
+    /**
+     * Handles HTTP request exceptions with standardized error reporting.
+     *
+     * @param RequestException $e            The caught request exception
+     * @param string           $providerName The provider name for error context
+     *
+     * @throws ProviderException Standardized provider exception
+     */
+    protected function handleRequestException(RequestException $e, string $providerName): never
+    {
+        $status = $e->getResponse() ? $e->getResponse()->getStatusCode() : 500;
+
+        throw ProviderException::fromHttpError($status, $providerName, $e->getMessage());
+    }
+
+    /**
+     * Validates HTTP response status code.
+     *
+     * @param int    $status       HTTP status code
+     * @param string $providerName The provider name for error context
+     *
+     * @throws ProviderException If status indicates error
+     */
+    protected function validateResponseStatus(int $status, string $providerName): void
+    {
+        if ($status < 200 || $status >= 300) {
+            throw ProviderException::fromHttpError($status, $providerName);
+        }
+    }
+
     /**
      * @param array<int, array<string, mixed>> $chunks
      */

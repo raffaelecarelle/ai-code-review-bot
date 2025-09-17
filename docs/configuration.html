@@ -58,6 +58,8 @@ context:
   per_file_token_cap: 2000
   enable_semantic_chunking: true
   enable_diff_compression: true
+  cache_ttl: 3600                  # API response cache TTL in seconds
+  max_cache_size: 52428800         # Maximum cache size in bytes (50MB)
 policy:
   min_severity_to_comment: info
   max_comments: 50

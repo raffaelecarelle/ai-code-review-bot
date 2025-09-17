@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace AICR\Providers;
 
-use AICR\Exception\ConfigurationException;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\RequestException;
 
@@ -32,28 +31,18 @@ final class AnthropicProvider extends AbstractLLMProvider
     public function __construct(array $options = [])
     {
         $this->options = $options;
-        $apiKey        = $options['api_key'] ?? '';
-        $apiKey        = false !== $apiKey ? (string) $apiKey : '';
-        if ('' === $apiKey) {
-            throw new ConfigurationException('AnthropicProvider requires api_key (config providers.anthropic.api_key or env ANTHROPIC_API_KEY).');
-        }
-        $this->model = isset($options['model']) && is_string($options['model']) && '' !== $options['model']
-            ? $options['model']
-            : self::DEFAULT_MODEL;
+        $apiKey        = (string) ($options['api_key'] ?? '');
+        $this->validateApiKey($apiKey, 'anthropic');
 
-        $endpoint = isset($options['endpoint']) && is_string($options['endpoint']) && '' !== $options['endpoint']
-            ? $options['endpoint']
-            : self::DEFAULT_ENDPOINT;
+        $this->model = $this->getStringOption($options, 'model', self::DEFAULT_MODEL);
+        $endpoint    = $this->getStringOption($options, 'endpoint', self::DEFAULT_ENDPOINT);
+        $timeout     = isset($options['timeout']) ? (float) $options['timeout'] : self::DEFAULT_TIMEOUT;
 
-        $this->client = new Client([
-            'base_uri' => $endpoint,
-            'headers'  => [
-                'Content-Type'      => 'application/json',
-                'x-api-key'         => $apiKey,
-                'anthropic-version' => self::API_VERSION,
-            ],
-            'timeout' => isset($options['timeout']) ? (float) $options['timeout'] : self::DEFAULT_TIMEOUT,
-        ]);
+        $headers = [
+            'x-api-key'         => $apiKey,
+            'anthropic-version' => self::API_VERSION,
+        ];
+        $this->client = $this->createHttpClient($endpoint, $headers, $timeout);
     }
 
     /**
@@ -80,14 +69,10 @@ final class AnthropicProvider extends AbstractLLMProvider
                 'json' => $payload,
             ]);
         } catch (RequestException $e) {
-            $status = $e->getResponse() ? $e->getResponse()->getStatusCode() : 500;
+            $this->handleRequestException($e, 'anthropic');
+        }
 
-            throw new \RuntimeException('AnthropicProvider error status: '.$status);
-        }
-        $status = $resp->getStatusCode();
-        if ($status < 200 || $status >= 300) {
-            throw new \RuntimeException('AnthropicProvider error status: '.$status);
-        }
+        $this->validateResponseStatus($resp->getStatusCode(), 'anthropic');
         $data = json_decode((string) $resp->getBody(), true);
         if (!is_array($data)) {
             return [];

@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Security Features • AI Code Review Bot</title>
+  <link rel="stylesheet" href="assets/style.css" />
+</head>
+<body>
+<header class="header">
+  <div class="container header-inner">
+    <a class="brand" href="./"><img src="assets/logo.png" alt="" /><span>AI Code Review Bot</span></a>
+    <nav class="nav">
+      <a href="getting-started.html">Quick Start</a>
+      <a href="configuration.html">Configuration</a>
+      <a href="vcs-adapters.html">VCS Adapters</a>
+      <a href="providers.html">AI Providers</a>
+      <a href="cli.html">CLI</a>
+      <a href="development.html">Development</a>
+      <a href="faq.html">FAQ</a>
+    </nav>
+  </div>
+</header>
+<main class="main container content">
+  <aside class="sidebar">
+    <h3>On this page</h3>
+    <a href="#input-validation">Input Validation</a>
+    <a href="#resource-management">Resource Management</a>
+    <a href="#api-security">API Security</a>
+    <a href="#secret-handling">Secret Handling</a>
+    <a href="#best-practices">Best Practices</a>
+  </aside>
+  <article class="article">
+    <h1>Security Features</h1>
+    <p>Introduces comprehensive security enhancements to protect against common vulnerabilities and ensure safe operation in production environments.</p>
+
+    <h2 id="input-validation">Input Validation & Sanitization</h2>
+    <p>The <code>InputSanitizer</code> class provides comprehensive validation for all external inputs:</p>
+    
+    <h3>Branch Name Validation</h3>
+    <ul>
+      <li>Validates branch names against allowed character patterns</li>
+      <li>Prevents injection attacks through branch name manipulation</li>
+      <li>Enforces maximum length limits (255 characters)</li>
+      <li>Supports standard Git branch naming conventions</li>
+    </ul>
+
+    <h3>Repository Name Validation</h3>
+    <ul>
+      <li>Sanitizes repository names for safe API calls</li>
+      <li>Validates against platform-specific naming rules</li>
+      <li>Maximum length limit of 100 characters</li>
+      <li>Alphanumeric characters, dots, underscores, and hyphens allowed</li>
+    </ul>
+
+    <h3>File Path Security</h3>
+    <ul>
+      <li>Prevents path traversal attacks (../ sequences)</li>
+      <li>Blocks Windows-style path separators in Unix environments</li>
+      <li>Validates file paths against safe character patterns</li>
+      <li>Maximum path length enforcement (1000 characters)</li>
+    </ul>
+
+    <h3>API Response Sanitization</h3>
+    <ul>
+      <li>Sanitizes all external API response data</li>
+      <li>Removes potentially harmful content</li>
+      <li>Validates array keys and string values</li>
+      <li>Recursive sanitization for nested data structures</li>
+    </ul>
+
+    <h2 id="resource-management">Resource Management</h2>
+    <p>The <code>ResourceManager</code> class ensures safe resource handling:</p>
+
+    <h3>Temporary File Management</h3>
+    <ul>
+      <li>Automatic cleanup of temporary files on script shutdown</li>
+      <li>Exception-safe cleanup with try-finally patterns</li>
+      <li>Prevents resource leaks in long-running processes</li>
+      <li>Secure temporary file creation with proper permissions</li>
+    </ul>
+
+    <h3>Resource Tracking</h3>
+    <ul>
+      <li>Tracks all opened file handles and resources</li>
+      <li>Automatic cleanup on process termination</li>
+      <li>Manual cleanup methods for immediate resource release</li>
+      <li>Resource counting and monitoring capabilities</li>
+    </ul>
+
+    <h2 id="api-security">API Security</h2>
+    <p>Enhanced security measures for external API interactions:</p>
+
+    <h3>Request Validation</h3>
+    <ul>
+      <li>URL validation with scheme restrictions (HTTPS/HTTP only)</li>
+      <li>Commit SHA validation with hexadecimal pattern matching</li>
+      <li>Request parameter sanitization</li>
+      <li>Header validation and sanitization</li>
+    </ul>
+
+    <h3>Response Processing</h3>
+    <ul>
+      <li>Content-type validation</li>
+      <li>Response size limits</li>
+      <li>JSON parsing with error handling</li>
+      <li>Malformed response detection</li>
+    </ul>
+
+    <h2 id="secret-handling">Secret Handling</h2>
+    <p>Improved secret management and protection:</p>
+
+    <h3>API Key Protection</h3>
+    <ul>
+      <li>Environment variable-based configuration</li>
+      <li>No hardcoded secrets in configuration files</li>
+      <li>API key validation before use</li>
+      <li>Error message sanitization to prevent key exposure</li>
+    </ul>
+
+    <h3>Secret Redaction</h3>
+    <ul>
+      <li>Automatic detection and redaction of secrets in output</li>
+      <li>Configurable redaction policies</li>
+      <li>Support for custom secret patterns</li>
+      <li>Safe logging with sensitive data filtering</li>
+    </ul>
+
+    <h2 id="best-practices">Security Best Practices</h2>
+    <p>Recommended practices when using AI Code Review Bot:</p>
+
+    <h3>Configuration Security</h3>
+    <ul>
+      <li>Store API keys in environment variables, not config files</li>
+      <li>Use restrictive file permissions for configuration files</li>
+      <li>Enable secret redaction in production environments</li>
+      <li>Regularly rotate API keys and access tokens</li>
+    </ul>
+
+    <h3>Network Security</h3>
+    <ul>
+      <li>Use HTTPS endpoints for all API communications</li>
+      <li>Configure appropriate request timeouts</li>
+      <li>Implement rate limiting for external API calls</li>
+      <li>Monitor API usage and error rates</li>
+    </ul>
+
+    <h3>File System Security</h3>
+    <ul>
+      <li>Run with minimal required permissions</li>
+      <li>Restrict access to temporary directories</li>
+      <li>Enable automatic cleanup of temporary files</li>
+      <li>Monitor disk usage in long-running processes</li>
+    </ul>
+
+    <div class="warning">
+      <strong>Security Note:</strong> Always validate and sanitize external inputs, especially in automated environments. 
+      The InputSanitizer class provides comprehensive protection, but additional validation may be needed for specific use cases.
+    </div>
+  </article>
+</main>
+<footer class="footer"><div class="container footer-inner"><div>© 2025 AI Code Review Bot</div><div><a href="./">Home</a></div></div></footer>
+</body>
+</html>

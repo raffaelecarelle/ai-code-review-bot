@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace AICR\Providers;
 
-use AICR\Exception\ConfigurationException;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\RequestException;
 
@@ -31,27 +30,15 @@ final class GeminiProvider extends AbstractLLMProvider
     public function __construct(array $options = [])
     {
         $this->options = $options;
-        $apiKey        = $options['api_key'] ?? '';
-        $apiKey        = false !== $apiKey ? (string) $apiKey : '';
-        if ('' === $apiKey) {
-            throw new ConfigurationException('GeminiProvider requires api_key (config providers.gemini.api_key or env GEMINI_API_KEY).');
-        }
+        $apiKey        = (string) ($options['api_key'] ?? '');
+        $this->validateApiKey($apiKey, 'gemini');
         $this->apiKey = $apiKey;
-        $this->model  = isset($options['model']) && is_string($options['model']) && '' !== $options['model']
-            ? $options['model']
-            : self::DEFAULT_MODEL;
 
-        $endpoint = isset($options['endpoint']) && is_string($options['endpoint']) && '' !== $options['endpoint']
-            ? $options['endpoint']
-            : self::DEFAULT_ENDPOINT_BASE.$this->model.':generateContent';
+        $this->model = $this->getStringOption($options, 'model', self::DEFAULT_MODEL);
+        $endpoint    = $this->getStringOption($options, 'endpoint', self::DEFAULT_ENDPOINT_BASE.$this->model.':generateContent');
+        $timeout     = isset($options['timeout']) ? (float) $options['timeout'] : self::DEFAULT_TIMEOUT;
 
-        $this->client = new Client([
-            'base_uri' => $endpoint,
-            'headers'  => [
-                'Content-Type' => 'application/json',
-            ],
-            'timeout' => isset($options['timeout']) ? (float) $options['timeout'] : self::DEFAULT_TIMEOUT,
-        ]);
+        $this->client = $this->createHttpClient($endpoint, [], $timeout);
     }
 
     /**
@@ -84,15 +71,10 @@ final class GeminiProvider extends AbstractLLMProvider
                 'json'  => $payload,
             ]);
         } catch (RequestException $e) {
-            $status = $e->getResponse() ? $e->getResponse()->getStatusCode() : 500;
-
-            throw new \RuntimeException('GeminiProvider error status: '.$status);
+            $this->handleRequestException($e, 'gemini');
         }
 
-        $status = $resp->getStatusCode();
-        if ($status < 200 || $status >= 300) {
-            throw new \RuntimeException('GeminiProvider error status: '.$status);
-        }
+        $this->validateResponseStatus($resp->getStatusCode(), 'gemini');
         $data = json_decode((string) $resp->getBody(), true);
         if (!is_array($data)) {
             return [];
