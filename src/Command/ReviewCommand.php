@@ -49,61 +49,19 @@ final class ReviewCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $io          = new SymfonyStyle($input, $output);
-        $diffFileOpt = $input->getOption('diff-file');
-        $configFile  = $input->getOption('config');
-        $format      = (string) $input->getOption('output');
-        $providerOpt = $input->getOption('provider');
-        $idOpt       = $input->getOption('id');
-        $doComment   = (bool) $input->getOption('comment');
+        $io      = new SymfonyStyle($input, $output);
+        $options = $this->parseCommandOptions($input);
 
         $tmpFile = null;
 
         try {
-            if (is_string($diffFileOpt) && '' !== $diffFileOpt) {
-                $diffPath = $diffFileOpt;
-            } else {
-                // Compute diff via git using adapter resolved from configuration
-                $config = Config::load(is_string($configFile) ? $configFile : null);
-                // Validate ID early to avoid running any git commands if it's missing
-                if (!is_string($idOpt) || '' === $idOpt) {
-                    throw new \InvalidArgumentException('Missing --id for the configured platform.');
-                }
-                $adapter                    = $this->buildAdapter($config);
-                [$resolvedId, $base, $head] = $this->resolveBranchesViaAdapter($adapter, $idOpt);
-                $tmpFile                    = $this->computeGitDiffToTempFile($io, $base, $head);
-                $diffPath                   = $tmpFile;
-            }
+            [$diffPath, $config, $tmpFile] = $this->resolveDiffPathAndConfig($options, $io);
 
-            // Load config if not already
-            if (!isset($config)) {
-                $config = Config::load(is_string($configFile) ? $configFile : null);
-            }
+            $provider = $this->buildSpecificProvider($config, $options['provider']);
+            $pipeline = new Pipeline($config, $provider);
+            $result   = $pipeline->run($diffPath, $options['format']);
 
-            $providerOverride = $this->buildSpecificProvider($config, $providerOpt);
-
-            $pipeline = new Pipeline($config, $providerOverride);
-
-            $comment = $pipeline->run($diffPath, $format);
-
-            if ($doComment) {
-                $adapter   = $this->buildAdapter($config);
-                $commentId = null;
-                if (isset($resolvedId)) {
-                    $commentId = (int) $resolvedId;
-                } elseif (is_string($idOpt) && '' !== $idOpt) {
-                    $commentId = (int) $idOpt;
-                }
-                if (null !== $commentId) {
-                    $adapter->postComment($commentId, $comment);
-
-                    $io->success('Comment posted.');
-                } else {
-                    $io->warning('Skipping comment: missing PR/MR --id.');
-                }
-            } else {
-                $output->writeln($comment);
-            }
+            $this->handleOutput($result, $options, $config, $io, $output);
 
             return Command::SUCCESS;
         } catch (\Throwable $e) {
@@ -111,9 +69,97 @@ final class ReviewCommand extends Command
 
             return Command::FAILURE;
         } finally {
-            if (is_string($tmpFile) && '' !== $tmpFile && is_file($tmpFile)) {
-                @unlink($tmpFile);
+            $this->cleanupTempFile($tmpFile);
+        }
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function parseCommandOptions(InputInterface $input): array
+    {
+        return [
+            'diff_file' => $input->getOption('diff-file'),
+            'config'    => $input->getOption('config'),
+            'format'    => (string) $input->getOption('output'),
+            'provider'  => $input->getOption('provider'),
+            'id'        => $input->getOption('id'),
+            'comment'   => (bool) $input->getOption('comment'),
+        ];
+    }
+
+    /**
+     * @param array<string, mixed> $options
+     *
+     * @return array{0: string, 1: Config, 2: null|string}
+     */
+    private function resolveDiffPathAndConfig(array $options, SymfonyStyle $io): array
+    {
+        $tmpFile = null;
+
+        if (is_string($options['diff_file']) && '' !== $options['diff_file']) {
+            $diffPath = $options['diff_file'];
+            $config   = Config::load(is_string($options['config']) ? $options['config'] : null);
+        } else {
+            $config = Config::load(is_string($options['config']) ? $options['config'] : null);
+
+            if (!is_string($options['id']) || '' === $options['id']) {
+                throw new \InvalidArgumentException('Missing --id for the configured platform.');
             }
+
+            $adapter         = $this->buildAdapter($config);
+            [, $base, $head] = $this->resolveBranchesViaAdapter($adapter, $options['id']);
+            $tmpFile         = $this->computeGitDiffToTempFile($io, $base, $head);
+            $diffPath        = $tmpFile;
+        }
+
+        return [$diffPath, $config, $tmpFile];
+    }
+
+    /**
+     * @param array<string, mixed> $options
+     */
+    private function handleOutput(string $result, array $options, Config $config, SymfonyStyle $io, OutputInterface $output): void
+    {
+        if ($options['comment']) {
+            $this->postCommentIfRequested($result, $options, $config, $io);
+        } else {
+            $output->writeln($result);
+        }
+    }
+
+    /**
+     * @param array<string, mixed> $options
+     */
+    private function postCommentIfRequested(string $result, array $options, Config $config, SymfonyStyle $io): void
+    {
+        $adapter   = $this->buildAdapter($config);
+        $commentId = $this->resolveCommentId($options['id']);
+
+        if (null !== $commentId) {
+            $adapter->postComment($commentId, $result);
+            $io->success('Comment posted.');
+        } else {
+            $io->warning('Skipping comment: missing PR/MR --id.');
+        }
+    }
+
+    /**
+     * @param mixed $idOption
+     */
+    private function resolveCommentId($idOption): ?int
+    {
+        if (is_string($idOption) && '' !== $idOption) {
+            return (int) $idOption;
+        }
+
+        return null;
+    }
+
+    private function cleanupTempFile(?string $tmpFile): void
+    {
+        if (is_string($tmpFile) && '' !== $tmpFile && is_file($tmpFile)) {
+            @unlink($tmpFile);
         }
     }
 

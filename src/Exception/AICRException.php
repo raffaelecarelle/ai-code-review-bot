@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace AICR\Exception;
 
+use AICR\Support\Logger;
+
 /**
  * Base exception class for all AICR-specific exceptions.
  * Provides sanitized error messages and logging integration.
@@ -71,27 +73,7 @@ abstract class AICRException extends \Exception
      */
     protected function logError(): void
     {
-        $logLevel   = $this->getLogLevel();
-        $logMessage = sprintf(
-            '[%s] %s',
-            get_class($this),
-            $this->getMessage()
-        );
-
-        $context = array_merge($this->context, [
-            'exception_class' => get_class($this),
-            'code'            => $this->getCode(),
-            'file'            => $this->getFile(),
-            'line'            => $this->getLine(),
-        ]);
-
-        // Use error_log for now, can be replaced with proper logger
-        error_log(sprintf(
-            '[%s] %s - Context: %s',
-            strtoupper($logLevel),
-            $logMessage,
-            json_encode($context)
-        ));
+        Logger::logError($this, $this->context);
     }
 
     /**
