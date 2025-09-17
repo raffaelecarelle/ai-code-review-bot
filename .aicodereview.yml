@@ -27,4 +27,4 @@ excludes:
     - docs/**/*
     - .phpunit.result.cache
     - "*.md"
-    - "*.html"
+    - '*.html'
