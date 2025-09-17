@@ -43,7 +43,7 @@ YML;
         $provider = new class implements \AICR\Providers\AIProvider {
             /** @var array<int, array<string, mixed>> */
             public array $lastChunks = [];
-            public function reviewChunks(array $chunks): array { $this->lastChunks = $chunks; return []; }
+            public function reviewChunks(array $chunks, ?array $policyConfig = null): array { $this->lastChunks = $chunks; return []; }
 
             public function getName(): string
             {

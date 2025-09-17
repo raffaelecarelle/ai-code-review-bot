@@ -40,20 +40,18 @@ final class Pipeline
 
         $chunks = $this->chunkBuilder->buildChunks($this->config->context($this->provider->getName()), $diff);
 
-        $aiFindings = $this->provider->reviewChunks($chunks);
-
-        $policy      = new Policy($this->config->policy());
-        $allFindings = $policy->apply($aiFindings);
+        $policyConfig = $this->config->policy();
+        $findings     = $this->provider->reviewChunks($chunks, $policyConfig);
 
         if (self::OUTPUT_FORMAT_SUMMARY === $outputFormat) {
-            return self::formatSummary($allFindings);
+            return self::formatSummary($findings);
         }
 
         if (self::OUTPUT_FORMAT_MARKDOWN === $outputFormat) {
-            return self::formatMarkdown($allFindings);
+            return self::formatMarkdown($findings);
         }
 
-        return (string) json_encode($allFindings, JSON_PRETTY_PRINT);
+        return (string) json_encode($findings, JSON_THROW_ON_ERROR | JSON_PRETTY_PRINT);
     }
 
     /**

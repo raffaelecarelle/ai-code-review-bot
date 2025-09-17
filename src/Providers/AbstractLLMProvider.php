@@ -95,14 +95,34 @@ abstract class AbstractLLMProvider implements AIProvider
 
     /**
      * @param array<int, array<string, mixed>> $chunks
+     * @param null|array<string, mixed>        $policyConfig
      */
-    protected static function buildPrompt(array $chunks): string
+    protected static function buildPrompt(array $chunks, ?array $policyConfig = null): string
     {
         $lines   = [];
         $lines[] = 'You are an AI Code Review bot. Analyze the following UNIFIED DIFFS per file, considering both added/modified lines (+) and deleted lines (-).';
         $lines[] = 'Focus your reasoning primarily on the resulting code state, but consider deletions for potential regressions, removed validations, or security checks.';
         $lines[] = 'Return a JSON object with key "findings" which is an array of objects with keys:';
         $lines[] = 'rule_id, title, severity, file, start_line, end_line, rationale, suggestion, content';
+
+        // Add policy constraints to the prompt
+        if (null !== $policyConfig) {
+            $maxFindings        = (int) ($policyConfig['max_findings_per_file'] ?? 5);
+            $minSeverity        = strtolower((string) ($policyConfig['min_severity_to_comment'] ?? 'info'));
+            $consolidateSimilar = (bool) ($policyConfig['consolidate_similar_findings'] ?? false);
+            $redactSecrets      = (bool) ($policyConfig['redact_secrets'] ?? true);
+
+            $lines[] = 'IMPORTANT CONSTRAINTS:';
+            $lines[] = "- Find a maximum of {$maxFindings} findings per file";
+            $lines[] = "- Only report findings with severity '{$minSeverity}' or higher (critical > high > medium > low > info)";
+            if ($consolidateSimilar) {
+                $lines[] = '- Consolidate similar findings into single reports when possible';
+            }
+            if ($redactSecrets) {
+                $lines[] = '- Redact any sensitive information like passwords, tokens, or API keys in your output';
+            }
+        }
+
         $lines[] = 'If no issues, return {"findings":[]}. Do not include commentary.';
         $lines[] = '';
         foreach ($chunks as $chunk) {

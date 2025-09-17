@@ -12,10 +12,11 @@ interface AIProvider
      *  rule_id, title, severity, file, start_line, end_line, rationale, suggestion, content.
      *
      * @param array<int, array<string, mixed>> $chunks
+     * @param null|array<string, mixed>        $policyConfig
      *
      * @return array<int, array<string, mixed>>
      */
-    public function reviewChunks(array $chunks): array;
+    public function reviewChunks(array $chunks, ?array $policyConfig = null): array;
 
     public function getName(): string;
 }

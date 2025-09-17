@@ -17,12 +17,7 @@ final class MockProvider implements AIProvider
         $this->responses = $responses;
     }
 
-    /**
-     * @param array<int, array<string, mixed>> $chunks
-     *
-     * @return array<int, array<string, mixed>>
-     */
-    public function reviewChunks(array $chunks): array
+    public function reviewChunks(array $chunks, ?array $policyConfig = null): array
     {
         if ([] !== $this->responses) {
             return $this->responses;

@@ -18,7 +18,7 @@ class _StubLLMProvider extends AbstractLLMProvider
     /** @return array<int, array<string,mixed>> */
     public static function callExtract(string $content): array { return parent::extractFindingsFromText($content); }
     /** @param array<int, array<string,mixed>> $chunks */
-    public function reviewChunks(array $chunks): array { return []; }
+    public function reviewChunks(array $chunks, ?array $policyConfig = null): array { return []; }
 
     public function getName(): string
     {

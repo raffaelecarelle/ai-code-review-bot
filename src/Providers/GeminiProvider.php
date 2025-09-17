@@ -43,12 +43,13 @@ final class GeminiProvider extends AbstractLLMProvider
 
     /**
      * @param array<int, array<string, mixed>> $chunks
+     * @param null|array<string, mixed>        $policyConfig
      *
      * @return array<int, array<string, mixed>>
      */
-    public function reviewChunks(array $chunks): array
+    public function reviewChunks(array $chunks, ?array $policyConfig = null): array
     {
-        $baseUser                    = self::buildPrompt($chunks);
+        $baseUser                    = self::buildPrompt($chunks, $policyConfig);
         [$systemPrompt, $userPrompt] = self::mergeAdditionalPrompts(self::systemPrompt(), $baseUser, $this->options);
 
         $parts = [['text' => $systemPrompt."\n\n".$userPrompt]];

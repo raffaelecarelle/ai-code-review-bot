@@ -14,7 +14,7 @@ final class AbstractLLMProviderTest extends TestCase
     {
         return new class extends AbstractLLMProvider {
             /** @param array<int, array<string, mixed>> $chunks */
-            public function reviewChunks(array $chunks): array { return []; }
+            public function reviewChunks(array $chunks, ?array $policyConfig = null): array { return []; }
             /** @param array<int, array<string, mixed>> $chunks */
             public function callBuildPrompt(array $chunks): string { return self::buildPrompt($chunks); }
             /** @param array<string, mixed> $options */

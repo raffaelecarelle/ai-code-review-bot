@@ -21,7 +21,7 @@ class TestMergeProvider extends AbstractLLMProvider
         return self::mergeAdditionalPrompts($sys, $usr, $options);
     }
 
-    public function reviewChunks(array $chunks): array { return []; }
+    public function reviewChunks(array $chunks, ?array $policyConfig = null): array { return []; }
 
     public function getName(): string
     {

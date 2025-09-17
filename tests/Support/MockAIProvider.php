@@ -26,7 +26,7 @@ final class MockAIProvider implements AIProvider
      * @param array<int, array<string, mixed>> $chunks
      * @return array<int, array<string, mixed>>
      */
-    public function reviewChunks(array $chunks): array
+    public function reviewChunks(array $chunks, ?array $policyConfig = null): array
     {
         // Capture chunks for assertions in tests
         $this->lastChunks = $chunks;
