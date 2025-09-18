@@ -33,7 +33,7 @@ YML;
         $factory = new AIProviderFactory($cfg);
 
         $ref = new \ReflectionClass($factory);
-        $m = $ref->getMethod('withPrompts');
+        $m = $ref->getMethod('withPromptsAndCache');
         $m->setAccessible(true);
         /** @var array<string,mixed> $opts */
         $opts = $m->invoke($factory, []);

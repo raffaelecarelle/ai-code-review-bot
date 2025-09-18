@@ -6,6 +6,7 @@ namespace AICR\Providers;
 
 use AICR\Exception\ConfigurationException;
 use AICR\Exception\ProviderException;
+use AICR\Support\ApiCache;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\RequestException;
 
@@ -15,6 +16,28 @@ use GuzzleHttp\Exception\RequestException;
  */
 abstract class AbstractLLMProvider implements AIProvider
 {
+    private ?ApiCache $cache = null;
+
+    /**
+     * Initializes API cache if enabled in configuration.
+     *
+     * @param array<string, mixed> $cacheConfig Cache configuration from config
+     */
+    protected function initializeCache(array $cacheConfig): void
+    {
+        $enabled = (bool) ($cacheConfig['enabled'] ?? false);
+        if (!$enabled) {
+            return;
+        }
+
+        $cacheDir = isset($cacheConfig['directory']) && is_string($cacheConfig['directory'])
+            ? $cacheConfig['directory']
+            : null;
+        $defaultTtl = (int) ($cacheConfig['default_ttl'] ?? 3600);
+
+        $this->cache = new ApiCache($cacheDir, $defaultTtl);
+    }
+
     /**
      * Creates a standard HTTP client with common configuration.
      *
@@ -32,6 +55,48 @@ abstract class AbstractLLMProvider implements AIProvider
             'headers'  => $mergedHeaders,
             'timeout'  => $timeout,
         ]);
+    }
+
+    /**
+     * Makes a cached HTTP POST request to the API.
+     *
+     * @param Client               $client The HTTP client to use
+     * @param string               $url    The request URL (relative to base_uri)
+     * @param array<string, mixed> $data   The JSON data to send
+     * @param string               $method HTTP method (POST, GET, etc.)
+     *
+     * @return array<string, mixed> The decoded JSON response
+     *
+     * @throws RequestException If the HTTP request fails
+     */
+    protected function cachedRequest(Client $client, string $url, array $data, string $method = 'POST'): array
+    {
+        // If caching is not enabled, make the request directly
+        if (null === $this->cache) {
+            $response = $client->request($method, $url, ['json' => $data]);
+
+            return json_decode((string) $response->getBody(), true) ?: [];
+        }
+
+        // Generate cache key for this request
+        $baseUri  = (string) $client->getConfig('base_uri');
+        $fullUrl  = rtrim($baseUri, '/').'/'.ltrim($url, '/');
+        $cacheKey = ApiCache::generateApiKey($method, $fullUrl, $data);
+
+        // Try to get cached response
+        $cached = $this->cache->get($cacheKey);
+        if (null !== $cached) {
+            return $cached;
+        }
+
+        // Make the actual API request
+        $response     = $client->request($method, $url, ['json' => $data]);
+        $responseData = json_decode((string) $response->getBody(), true) ?: [];
+
+        // Cache the response
+        $this->cache->set($cacheKey, $responseData);
+
+        return $responseData;
     }
 
     /**

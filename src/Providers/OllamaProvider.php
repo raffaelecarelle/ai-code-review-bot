@@ -30,7 +30,13 @@ final class OllamaProvider extends AbstractLLMProvider
     public function __construct(array $options = [])
     {
         $this->options = $options;
-        $this->model   = isset($options['model']) && is_string($options['model']) && '' !== $options['model']
+
+        // Initialize cache if provided in options
+        if (isset($options['cache']) && is_array($options['cache'])) {
+            $this->initializeCache($options['cache']);
+        }
+
+        $this->model = isset($options['model']) && is_string($options['model']) && '' !== $options['model']
             ? $options['model']
             : self::DEFAULT_MODEL;
 
@@ -38,13 +44,9 @@ final class OllamaProvider extends AbstractLLMProvider
             ? $options['endpoint']
             : self::DEFAULT_ENDPOINT;
 
-        $this->client = new Client([
-            'base_uri' => $endpoint,
-            'headers'  => [
-                'Content-Type' => 'application/json',
-            ],
-            'timeout' => isset($options['timeout']) ? (float) $options['timeout'] : self::DEFAULT_TIMEOUT,
-        ]);
+        $timeout = isset($options['timeout']) ? (float) $options['timeout'] : self::DEFAULT_TIMEOUT;
+
+        $this->client = $this->createHttpClient($endpoint, [], $timeout);
     }
 
     /**
@@ -58,28 +60,20 @@ final class OllamaProvider extends AbstractLLMProvider
         $baseUser                    = self::buildPrompt($chunks, $policyConfig);
         [$systemPrompt, $userPrompt] = self::mergeAdditionalPrompts(self::systemPrompt(), $baseUser, $this->options);
 
+        $requestData = [
+            'model'   => $this->model,
+            'prompt'  => $systemPrompt."\n\n".$userPrompt,
+            'stream'  => false,
+            'options' => [
+                'temperature' => 0.0,
+            ],
+        ];
+
         try {
-            $resp = $this->client->post('', [
-                'json' => [
-                    'model'   => $this->model,
-                    'prompt'  => $systemPrompt."\n\n".$userPrompt,
-                    'stream'  => false,
-                    'options' => [
-                        'temperature' => 0.0,
-                    ],
-                ],
-            ]);
+            $data = $this->cachedRequest($this->client, '', $requestData);
         } catch (RequestException $e) {
-            $status = $e->getResponse() ? $e->getResponse()->getStatusCode() : 500;
-
-            throw new \RuntimeException('OllamaProvider error status: '.$status);
+            $this->handleRequestException($e, 'ollama');
         }
-
-        $status = $resp->getStatusCode();
-        if ($status < 200 || $status >= 300) {
-            throw new \RuntimeException('OllamaProvider error status: '.$status);
-        }
-        $data = json_decode((string) $resp->getBody(), true);
         if (!is_array($data)) {
             return [];
         }

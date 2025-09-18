@@ -34,6 +34,11 @@ final class GeminiProvider extends AbstractLLMProvider
         $this->validateApiKey($apiKey, 'gemini');
         $this->apiKey = $apiKey;
 
+        // Initialize cache if provided in options
+        if (isset($options['cache']) && is_array($options['cache'])) {
+            $this->initializeCache($options['cache']);
+        }
+
         $this->model = $this->getStringOption($options, 'model', self::DEFAULT_MODEL);
         $endpoint    = $this->getStringOption($options, 'endpoint', self::DEFAULT_ENDPOINT_BASE.$this->model.':generateContent');
         $timeout     = isset($options['timeout']) ? (float) $options['timeout'] : self::DEFAULT_TIMEOUT;
@@ -66,17 +71,14 @@ final class GeminiProvider extends AbstractLLMProvider
             ],
         ];
 
+        // Add API key to payload for caching consistency
+        $requestData = array_merge($payload, ['api_key' => $this->apiKey]);
+
         try {
-            $resp = $this->client->post('', [
-                'query' => ['key' => $this->apiKey],
-                'json'  => $payload,
-            ]);
+            $data = $this->cachedRequest($this->client, '?key='.$this->apiKey, $requestData);
         } catch (RequestException $e) {
             $this->handleRequestException($e, 'gemini');
         }
-
-        $this->validateResponseStatus($resp->getStatusCode(), 'gemini');
-        $data = json_decode((string) $resp->getBody(), true);
         if (!is_array($data)) {
             return [];
         }

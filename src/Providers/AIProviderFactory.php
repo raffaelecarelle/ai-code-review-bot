@@ -31,10 +31,10 @@ final class AIProviderFactory
         }
 
         return match ($providerName) {
-            ProviderType::OPENAI->value    => new OpenAIProvider($this->withPrompts($provider[ProviderType::OPENAI->value])),
-            ProviderType::GEMINI->value    => new GeminiProvider($this->withPrompts($provider[ProviderType::GEMINI->value])),
-            ProviderType::ANTHROPIC->value => new AnthropicProvider($this->withPrompts($provider[ProviderType::ANTHROPIC->value])),
-            ProviderType::OLLAMA->value    => new OllamaProvider($this->withPrompts($provider[ProviderType::OLLAMA->value])),
+            ProviderType::OPENAI->value    => new OpenAIProvider($this->withPromptsAndCache($provider[ProviderType::OPENAI->value])),
+            ProviderType::GEMINI->value    => new GeminiProvider($this->withPromptsAndCache($provider[ProviderType::GEMINI->value])),
+            ProviderType::ANTHROPIC->value => new AnthropicProvider($this->withPromptsAndCache($provider[ProviderType::ANTHROPIC->value])),
+            ProviderType::OLLAMA->value    => new OllamaProvider($this->withPromptsAndCache($provider[ProviderType::OLLAMA->value])),
             default                        => new MockProvider(),
         };
     }
@@ -44,7 +44,7 @@ final class AIProviderFactory
      *
      * @return array<string,mixed>
      */
-    private function withPrompts($raw): array
+    private function withPromptsAndCache($raw): array
     {
         $opts    = is_array($raw) ? $raw : [];
         $prompts = $this->config->getAll()['prompts'] ?? [];
@@ -76,6 +76,12 @@ final class AIProviderFactory
             }
         }
         $opts['prompts'] = $prompts;
+
+        // Inject cache configuration
+        $cacheConfig = $this->config->cache();
+        if (!empty($cacheConfig)) {
+            $opts['cache'] = $cacheConfig;
+        }
 
         return $opts;
     }

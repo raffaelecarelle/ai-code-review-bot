@@ -32,6 +32,11 @@ final class OpenAIProvider extends AbstractLLMProvider
         $apiKey        = (string) ($options['api_key'] ?? '');
         $this->validateApiKey($apiKey, 'openai');
 
+        // Initialize cache if provided in options
+        if (isset($options['cache']) && is_array($options['cache'])) {
+            $this->initializeCache($options['cache']);
+        }
+
         $this->model = $this->getStringOption($options, 'model', self::DEFAULT_MODEL);
         $endpoint    = $this->getStringOption($options, 'endpoint', self::DEFAULT_ENDPOINT);
         $timeout     = isset($options['timeout']) ? (float) $options['timeout'] : self::DEFAULT_TIMEOUT;
@@ -51,23 +56,20 @@ final class OpenAIProvider extends AbstractLLMProvider
         $baseUser                    = self::buildPrompt($chunks, $policyConfig);
         [$systemPrompt, $userPrompt] = self::mergeAdditionalPrompts(self::systemPrompt(), $baseUser, $this->options);
 
+        $requestData = [
+            'model'    => $this->model,
+            'messages' => [
+                ['role' => 'system', 'content' => $systemPrompt],
+                ['role' => 'user', 'content' => $userPrompt],
+            ],
+            'temperature' => 0.0,
+        ];
+
         try {
-            $resp = $this->client->post('', [
-                'json' => [
-                    'model'    => $this->model,
-                    'messages' => [
-                        ['role' => 'system', 'content' => $systemPrompt],
-                        ['role' => 'user', 'content' => $userPrompt],
-                    ],
-                    'temperature' => 0.0,
-                ],
-            ]);
+            $data = $this->cachedRequest($this->client, '', $requestData);
         } catch (RequestException $e) {
             $this->handleRequestException($e, 'openai');
         }
-
-        $this->validateResponseStatus($resp->getStatusCode(), 'openai');
-        $data = json_decode((string) $resp->getBody(), true);
 
         if (!is_array($data)) {
             return [];

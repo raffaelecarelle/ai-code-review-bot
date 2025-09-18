@@ -34,6 +34,11 @@ final class AnthropicProvider extends AbstractLLMProvider
         $apiKey        = (string) ($options['api_key'] ?? '');
         $this->validateApiKey($apiKey, 'anthropic');
 
+        // Initialize cache if provided in options
+        if (isset($options['cache']) && is_array($options['cache'])) {
+            $this->initializeCache($options['cache']);
+        }
+
         $this->model = $this->getStringOption($options, 'model', self::DEFAULT_MODEL);
         $endpoint    = $this->getStringOption($options, 'endpoint', self::DEFAULT_ENDPOINT);
         $timeout     = isset($options['timeout']) ? (float) $options['timeout'] : self::DEFAULT_TIMEOUT;
@@ -66,15 +71,10 @@ final class AnthropicProvider extends AbstractLLMProvider
         ];
 
         try {
-            $resp = $this->client->post('', [
-                'json' => $payload,
-            ]);
+            $data = $this->cachedRequest($this->client, '', $payload);
         } catch (RequestException $e) {
             $this->handleRequestException($e, 'anthropic');
         }
-
-        $this->validateResponseStatus($resp->getStatusCode(), 'anthropic');
-        $data = json_decode((string) $resp->getBody(), true);
         if (!is_array($data)) {
             return [];
         }

@@ -97,6 +97,14 @@ class Config
     /**
      * @return array<string, mixed>
      */
+    public function cache(): array
+    {
+        return $this->config['cache'] ?? [];
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
     public static function defaults(): array
     {
         return [
@@ -129,6 +137,12 @@ class Config
                 'user_append'   => null,
                 // Additional free-form instructions appended to the user prompt, in order
                 'extra' => [],
+            ],
+            'cache' => [
+                'enabled'        => false,
+                'directory'      => null, // null = use system temp directory
+                'default_ttl'    => 3600, // 1 hour in seconds
+                'max_cache_size' => 52428800, // 50MB in bytes
             ],
             'excludes' => [
                 // Array of paths to exclude from code review
