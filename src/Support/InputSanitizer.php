@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace AICR\Support;
 
+use AICR\Config\Constants;
+
 /**
  * Provides input sanitization and validation utilities.
  * Addresses security concerns with user-provided data processing.
@@ -159,8 +161,8 @@ final class InputSanitizer
             throw new \InvalidArgumentException('URL cannot be empty');
         }
 
-        if (strlen($trimmed) > 2000) {
-            throw new \InvalidArgumentException('URL too long (max 2000 characters)');
+        if (strlen($trimmed) > Constants::MAX_URL_LENGTH) {
+            throw new \InvalidArgumentException('URL too long (max '.Constants::MAX_URL_LENGTH.' characters)');
         }
 
         if (!filter_var($trimmed, FILTER_VALIDATE_URL)) {
@@ -174,7 +176,7 @@ final class InputSanitizer
 
         // Only allow HTTP and HTTPS schemes
         $scheme = $parsedUrl['scheme'] ?? '';
-        if (!in_array($scheme, ['http', 'https'], true)) {
+        if (!in_array($scheme, Constants::VALID_HTTP_SCHEMES, true)) {
             throw new \InvalidArgumentException('URL must use HTTP or HTTPS scheme');
         }
 
@@ -197,11 +199,11 @@ final class InputSanitizer
         }
 
         // Git SHA can be 7-40 characters (short to full)
-        if (strlen($trimmed) < 7 || strlen($trimmed) > 40) {
-            throw new \InvalidArgumentException('Commit SHA must be 7-40 characters long');
+        if (strlen($trimmed) < Constants::MIN_SHA_LENGTH || strlen($trimmed) > Constants::MAX_SHA_LENGTH) {
+            throw new \InvalidArgumentException('Commit SHA must be '.Constants::MIN_SHA_LENGTH.'-'.Constants::MAX_SHA_LENGTH.' characters long');
         }
 
-        if (!preg_match('/^[a-fA-F0-9]+$/', $trimmed)) {
+        if (!preg_match(Constants::SHA_PATTERN, $trimmed)) {
             throw new \InvalidArgumentException('Commit SHA must contain only hexadecimal characters');
         }
 
@@ -229,8 +231,8 @@ final class InputSanitizer
     private static function sanitizeStringValue(string $value): string
     {
         // Limit string length for security
-        if (strlen($value) > 10000) {
-            $value = substr($value, 0, 10000);
+        if (strlen($value) > Constants::MAX_STRING_VALUE_LENGTH) {
+            $value = substr($value, 0, Constants::MAX_STRING_VALUE_LENGTH);
         }
 
         // Remove null bytes and other control characters
